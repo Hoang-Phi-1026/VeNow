@@ -36,6 +36,16 @@ class User {
         ]);
     }
 
+    public function getAllUsers() {
+        $query = "SELECT n.*, v.ten_vai_tro 
+                 FROM nguoidung n 
+                 JOIN vaitro v ON n.ma_vai_tro = v.ma_vai_tro 
+                 ORDER BY n.ngay_tao DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getUserById($id) {
         $query = "SELECT n.*, v.ten_vai_tro 
                  FROM nguoidung n 
@@ -48,14 +58,27 @@ class User {
 
     public function updateUser($id, $data) {
         $query = "UPDATE nguoidung 
-                 SET ho_ten = ?, so_dien_thoai = ?, ngay_cap_nhat = CURRENT_TIMESTAMP 
-                 WHERE ma_nguoi_dung = ?";
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute([
+                 SET email = ?, ho_ten = ?, so_dien_thoai = ?, 
+                     ma_vai_tro = ?, kich_hoat = ?";
+        $params = [
+            $data['email'],
             $data['ho_ten'],
             $data['so_dien_thoai'],
-            $id
-        ]);
+            $data['ma_vai_tro'],
+            $data['kich_hoat']
+        ];
+
+        // Nếu có mật khẩu mới
+        if (isset($data['mat_khau'])) {
+            $query .= ", mat_khau = ?";
+            $params[] = $data['mat_khau'];
+        }
+
+        $query .= " WHERE ma_nguoi_dung = ?";
+        $params[] = $id;
+
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute($params);
     }
 
     public function changePassword($id, $newPassword) {
@@ -91,12 +114,63 @@ class User {
     }
 
     public function createUser($data) {
-        $query = "INSERT INTO nguoidung (ho_ten, email, mat_khau) VALUES (?, ?, ?)";
+        $query = "INSERT INTO nguoidung (email, mat_khau, ho_ten, so_dien_thoai, ma_vai_tro) 
+                 VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
-            $data['ho_ten'],
             $data['email'],
-            password_hash($data['mat_khau'], PASSWORD_DEFAULT)
+            $data['mat_khau'],
+            $data['ho_ten'],
+            $data['so_dien_thoai'],
+            $data['ma_vai_tro']
         ]);
+    }
+
+    public function deleteUser($id) {
+        $query = "DELETE FROM nguoidung WHERE ma_nguoi_dung = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$id]);
+    }
+
+    public function checkEmailExists($email, $excludeId = null) {
+        $query = "SELECT COUNT(*) FROM nguoidung WHERE email = ?";
+        $params = [$email];
+
+        if ($excludeId) {
+            $query .= " AND ma_nguoi_dung != ?";
+            $params[] = $excludeId;
+        }
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    public function getAllUsersExceptAdmin($search = '', $role = 0) {
+        $sql = "SELECT n.*, v.ten_vai_tro 
+                FROM nguoidung n 
+                JOIN vaitro v ON n.ma_vai_tro = v.ma_vai_tro 
+                WHERE n.ma_vai_tro != 1";
+
+        $params = [];
+        
+        // Thêm điều kiện tìm kiếm
+        if (!empty($search)) {
+            $sql .= " AND (n.ho_ten LIKE ? OR n.email LIKE ? OR n.so_dien_thoai LIKE ?)";
+            $searchTerm = "%{$search}%";
+            $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm]);
+        }
+
+        // Thêm điều kiện lọc theo vai trò
+        if ($role > 0) {
+            $sql .= " AND n.ma_vai_tro = ?";
+            $params[] = $role;
+        }
+
+        $sql .= " ORDER BY n.ngay_tao DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
 }

@@ -18,6 +18,7 @@ require_once BASE_PATH . '/controllers/BaseController.php';
 require_once BASE_PATH . '/controllers/AuthController.php';
 require_once BASE_PATH . '/controllers/EventController.php';
 require_once BASE_PATH . '/controllers/SearchController.php';
+require_once BASE_PATH . '/controllers/UserController.php';
 
 // Lấy đường dẫn hiện tại
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -61,6 +62,16 @@ switch ($path) {
         $searchController->search();
         break;
 
+    case '/users':
+        $userController = new UserController();
+        $userController->index();
+        break;
+
+    case '/users/create':
+        $userController = new UserController();
+        $userController->create();
+        break;
+
     case '/':
     case '':
         $eventController = new EventController();
@@ -72,7 +83,18 @@ switch ($path) {
         if (preg_match('/^\/event\/(\d+)$/', $path, $matches)) {
             $eventController = new EventController();
             $eventController->show($matches[1]);
-        } else {
+        } 
+        // Kiểm tra xem có phải là route chỉnh sửa người dùng không
+        else if (preg_match('/^\/users\/edit\/(\d+)$/', $path, $matches)) {
+            $userController = new UserController();
+            $userController->edit($matches[1]);
+        }
+        // Kiểm tra xem có phải là route xóa người dùng không
+        else if (preg_match('/^\/users\/delete\/(\d+)$/', $path, $matches)) {
+            $userController = new UserController();
+            $userController->delete($matches[1]);
+        }
+        else {
             // Nếu không khớp với route nào, hiển thị trang 404
             http_response_code(404);
             require_once BASE_PATH . '/error/404.php';

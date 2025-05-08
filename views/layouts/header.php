@@ -44,6 +44,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     </form>
                 </div>
 
+                <!-- Cập nhật phần user-actions để đảm bảo kích thước nhất quán -->
                 <div class="user-actions">
                     <?php if (isset($_SESSION['user'])): ?>
                         <div class="user-info">
@@ -86,8 +87,8 @@ if (session_status() === PHP_SESSION_NONE) {
                             <li class="nav-item dropdown">
                                 <a href="#">Quản lý tài khoản</a>
                                 <ul class="dropdown-menu">
+                                    <li><a href="<?php echo BASE_URL; ?>/users/create">Tạo tài khoản</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/users">Quản lý người dùng</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/roles">Phân quyền</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
