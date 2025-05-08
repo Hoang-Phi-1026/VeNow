@@ -14,6 +14,8 @@ class SearchController {
         $date = isset($_GET['date']) ? trim($_GET['date']) : '';
         $price = isset($_GET['price']) ? trim($_GET['price']) : '';
         $location = isset($_GET['location']) ? trim($_GET['location']) : '';
+        $featured = isset($_GET['featured']) ? (bool)$_GET['featured'] : false;
+        $upcoming = isset($_GET['upcoming']) ? (bool)$_GET['upcoming'] : false;
 
         try {
             // Nếu có từ khóa tìm kiếm, sử dụng searchEvents
@@ -26,7 +28,7 @@ class SearchController {
 
             // Áp dụng các bộ lọc
             if (!empty($events)) {
-                $events = $this->applyFilters($events, $category, $date, $price, $location);
+                $events = $this->applyFilters($events, $category, $date, $price, $location, $featured, $upcoming);
             } else {
                 $events = [];
             }
@@ -39,12 +41,12 @@ class SearchController {
         require_once __DIR__ . '/../views/search/index.php';
     }
 
-    private function applyFilters($events, $category, $date, $price, $location) {
+    private function applyFilters($events, $category, $date, $price, $location, $featured = false, $upcoming = false) {
         if (empty($events)) {
             return [];
         }
 
-        return array_filter($events, function($event) use ($category, $date, $price, $location) {
+        return array_filter($events, function($event) use ($category, $date, $price, $location, $featured, $upcoming) {
             // Lọc theo danh mục
             if (!empty($category) && $event['danh_muc'] !== $category) {
                 return false;
@@ -76,7 +78,7 @@ class SearchController {
 
             // Lọc theo giá
             if (!empty($price)) {
-                $minPrice = $event['gia_ve_thap_nhat'];
+                $minPrice = $event['gia_ve_thap_nhat'] ?? 0;
                 switch ($price) {
                     case 'free':
                         if ($minPrice > 0) return false;
@@ -93,6 +95,21 @@ class SearchController {
                 if (strpos($eventLocation, strtolower($location)) === false) {
                     return false;
                 }
+            }
+
+            // Lọc theo sự kiện nổi bật
+            if ($featured) {
+                $eventDate = strtotime($event['ngay_dien_ra']);
+                $today = strtotime('today');
+                if ($eventDate < $today) return false;
+            }
+
+            // Lọc theo sự kiện sắp diễn ra
+            if ($upcoming) {
+                $eventDate = strtotime($event['ngay_dien_ra']);
+                $today = strtotime('today');
+                $monthEnd = strtotime('+30 days');
+                if ($eventDate < $today || $eventDate >= $monthEnd) return false;
             }
 
             return true;

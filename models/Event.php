@@ -9,10 +9,14 @@ class Event {
     }
 
     public function getAllEvents($limit = null) {
-        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc 
+        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc,
+                        MIN(l.gia_ve) as gia_ve_thap_nhat,
+                        MAX(l.gia_ve) as gia_ve_cao_nhat
                  FROM sukien s 
                  JOIN nguoidung n ON s.ma_nha_to_chuc = n.ma_nguoi_dung 
+                 LEFT JOIN loaive l ON s.ma_su_kien = l.ma_su_kien
                  WHERE s.trang_thai = 'DA_DUYET' 
+                 GROUP BY s.ma_su_kien
                  ORDER BY s.ngay_dien_ra DESC";
         
         if ($limit) {
@@ -113,9 +117,12 @@ class Event {
     }
 
     public function searchEvents($keyword, $date = null, $location = null) {
-        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc 
+        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc,
+                        MIN(l.gia_ve) as gia_ve_thap_nhat,
+                        MAX(l.gia_ve) as gia_ve_cao_nhat
                  FROM sukien s 
                  JOIN nguoidung n ON s.ma_nha_to_chuc = n.ma_nguoi_dung 
+                 LEFT JOIN loaive l ON s.ma_su_kien = l.ma_su_kien
                  WHERE s.trang_thai = 'DA_DUYET' 
                  AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ?)";
         $params = ["%$keyword%", "%$keyword%"];
@@ -130,7 +137,7 @@ class Event {
             $params[] = "%$location%";
         }
 
-        $query .= " ORDER BY s.ngay_dien_ra DESC";
+        $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
@@ -147,7 +154,7 @@ class Event {
                  WHERE s.trang_thai = 'DA_DUYET'
                  GROUP BY s.ma_su_kien
                  ORDER BY s.ngay_dien_ra DESC
-                 LIMIT 5";
+                 LIMIT 4";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute();
@@ -164,7 +171,7 @@ class Event {
                  WHERE s.trang_thai = 'DA_DUYET'
                  GROUP BY s.ma_su_kien
                  ORDER BY s.ngay_dien_ra DESC
-                 LIMIT 10";
+                 LIMIT 4";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute();

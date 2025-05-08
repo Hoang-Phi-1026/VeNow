@@ -54,7 +54,7 @@ require_once __DIR__ . '/../layouts/header.php';
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Sự kiện nổi bật</h2>
-            <a href="<?php echo BASE_URL; ?>/events" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>/search?featured=1" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
         </div>
         
         <div class="event-grid">
@@ -137,7 +137,7 @@ require_once __DIR__ . '/../layouts/header.php';
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Sự kiện sắp diễn ra</h2>
-            <a href="<?php echo BASE_URL; ?>/events" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>/search?upcoming=1" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
         </div>
         
         <div class="event-grid">
