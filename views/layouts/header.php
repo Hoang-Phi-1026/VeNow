@@ -10,6 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TicketBox - Mua vé sự kiện trực tuyến</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/organizer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>/public/images/favicon.ico">
     
@@ -36,7 +37,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="search-container">
                     <form action="<?php echo BASE_URL; ?>/search" method="GET" class="search-form">
                         <div class="search-input-wrapper">
-                            <input type="text" name="q" class="search-input" placeholder="Tìm kiếm sự kiện...">
+                            <input type="text" name="keyword" class="search-input" placeholder="Tìm kiếm sự kiện..." value="<?php echo htmlspecialchars($_GET['keyword'] ?? ''); ?>">
                             <i class="fas fa-search search-icon"></i>
                         </div>
                         <button type="submit" class="search-button">Tìm kiếm</button>
@@ -107,7 +108,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <a href="#">Thống kê doanh thu</a>
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo BASE_URL; ?>/reports/organizer/revenue">Báo cáo doanh thu</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/events">Sự kiện của tôi</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/organizer/events">Sự kiện của tôi</a></li>
                                 </ul>
                             </li>
                             <?php

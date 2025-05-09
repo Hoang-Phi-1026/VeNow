@@ -27,10 +27,14 @@
             <div class="search-filters">
                 <form action="<?php echo BASE_URL; ?>/search" method="GET" class="search-form">
                     <div class="form-group">
+                        <input type="text" name="keyword" placeholder="Tìm kiếm sự kiện..." 
+                               value="<?php echo htmlspecialchars($keyword ?? ''); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
                         <select name="category" class="form-control">
                             <option value="">Tất cả danh mục</option>
                             <?php foreach ($categories as $cat): ?>
-                                <option value="<?php echo $cat['maloaisukien']; ?>" <?php echo isset($category) && $category === $cat['maloaisukien'] ? 'selected' : ''; ?>>
+                                <option value="<?php echo $cat['maloaisukien']; ?>" <?php echo isset($category) && $category == $cat['maloaisukien'] ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($cat['tenloaisukien']); ?>
                                 </option>
                             <?php endforeach; ?>

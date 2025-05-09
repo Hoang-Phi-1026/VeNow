@@ -130,22 +130,28 @@ class Event {
                  LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
                  LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
                  LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
-                 WHERE s.trang_thai = 'DA_DUYET' 
-                 AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR n.tennhatochuc LIKE ?)";
-        $params = ["%$keyword%", "%$keyword%", "%$keyword%"];
-
+                 WHERE s.trang_thai = 'DA_DUYET'";
+    
+        $params = [];
+    
+        if (!empty($keyword)) {
+            $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
+            $keyword = "%$keyword%";
+            $params = array_merge($params, [$keyword, $keyword, $keyword]);
+        }
+    
         if ($date) {
-            $query .= " AND s.ngay_dien_ra = ?";
+            $query .= " AND DATE(s.ngay_dien_ra) = ?";
             $params[] = $date;
         }
-
+    
         if ($location) {
             $query .= " AND s.dia_diem LIKE ?";
             $params[] = "%$location%";
         }
-
+    
         $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
-        
+    
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -257,4 +263,4 @@ class Event {
         $stmt = $this->db->prepare($query);
         return $stmt->execute([$status, $eventId]);
     }
-} 
+}

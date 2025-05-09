@@ -94,11 +94,11 @@
     box-shadow: var(--shadow-md);
   }
   
-  /* Admin Event Cards */
+  /* Admin Event Cards - update to fit 4 items per row */
   .admin-event-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-5);
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-4);
   }
   
   .admin-event-card {
@@ -112,38 +112,18 @@
     flex-direction: column;
   }
   
-  .admin-event-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent-color);
+  /* Improve dark mode colors */
+  [data-theme="dark"] .admin-event-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
   }
   
-  /* Status Badges */
-  .status-badge {
-    display: inline-block;
-    padding: var(--spacing-1) var(--spacing-3);
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-align: center;
+  [data-theme="dark"] .event-title {
+    color: var(--text-primary);
   }
   
-  .status-pending {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--warning-500);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-  }
-  
-  .status-approved {
-    background: rgba(22, 163, 74, 0.1);
-    color: var(--success-600);
-    border: 1px solid rgba(22, 163, 74, 0.2);
-  }
-  
-  .status-rejected {
-    background: rgba(220, 38, 38, 0.1);
-    color: var(--error-600);
-    border: 1px solid rgba(220, 38, 38, 0.2);
+  [data-theme="dark"] .event-meta {
+    color: var(--text-secondary);
   }
   
   /* Empty State */
@@ -172,46 +152,23 @@
     margin: 0 auto;
   }
   
-  /* Admin Stats */
-  .admin-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-4);
-    margin-bottom: var(--spacing-6);
+  /* Responsive adjustments for the 4-item grid */
+  @media (max-width: 1200px) {
+    .admin-event-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
   
-  .stat-card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-4);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    transition: all var(--transition-normal);
-    text-align: center;
+  @media (max-width: 992px) {
+    .admin-event-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
   
-  .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent-color);
-  }
-  
-  .stat-icon {
-    font-size: 2rem;
-    color: var(--accent-color);
-    margin-bottom: var(--spacing-3);
-  }
-  
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-1);
-  }
-  
-  .stat-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+  @media (max-width: 576px) {
+    .admin-event-grid {
+      grid-template-columns: 1fr;
+    }
   }
   
   /* Responsive Adjustments */
@@ -232,10 +189,6 @@
   
   @media (max-width: 480px) {
     .admin-event-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .admin-stats {
       grid-template-columns: 1fr;
     }
   }

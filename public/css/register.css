@@ -208,77 +208,6 @@
   text-decoration: underline;
 }
 
-/* Alert Styles */
-.alert {
-  padding: var(--spacing-3);
-  margin-bottom: var(--spacing-4);
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.alert-success {
-  background: var(--success-50);
-  color: var(--success-700);
-  border: 1px solid var(--success-100);
-}
-
-.alert-error {
-  background: var(--error-50);
-  color: var(--error-700);
-  border: 1px solid var(--error-100);
-}
-
-.alert-warning {
-  background: var(--warning-50);
-  color: var(--warning-700);
-  border: 1px solid var(--warning-100);
-}
-
-.alert-info {
-  background: rgba(25, 127, 181, 0.1);
-  color: #197fb5;
-  border-color: rgba(25, 127, 181, 0.2);
-}
-
-[data-theme="dark"] .alert-success {
-  background: rgba(21, 128, 61, 0.2);
-  color: var(--success-100);
-  border-color: rgba(21, 128, 61, 0.3);
-}
-
-[data-theme="dark"] .alert-error {
-  background: rgba(185, 28, 28, 0.2);
-  color: var(--error-100);
-  border-color: rgba(185, 28, 28, 0.3);
-}
-
-[data-theme="dark"] .alert-warning {
-  background: rgba(180, 83, 9, 0.2);
-  color: var(--warning-100);
-  border-color: rgba(180, 83, 9, 0.3);
-}
-
-[data-theme="dark"] .alert-info {
-  background: rgba(25, 127, 181, 0.2);
-  color: #5aafdf;
-  border-color: rgba(25, 127, 181, 0.3);
-}
-
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .register-container {
@@ -311,30 +240,4 @@
   .terms-checkbox label {
     font-size: 0.8rem;
   }
-}
-
-/* Focus styles */
-input:focus,
-button:focus {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
-
-input:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(25, 127, 181, 0.2);
-}
-
-/* Transitions */
-body,
-a,
-button,
-input,
-.btn,
-.form-group input,
-.password-toggle,
-.strength-indicator {
-  transition: all 0.3s ease;
 }

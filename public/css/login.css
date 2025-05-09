@@ -177,5 +177,5 @@ input:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(25, 127, 181, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.2);
 }

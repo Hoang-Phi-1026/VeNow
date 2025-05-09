@@ -20,6 +20,7 @@ require_once BASE_PATH . '/controllers/EventController.php';
 require_once BASE_PATH . '/controllers/SearchController.php';
 require_once BASE_PATH . '/controllers/UserController.php';
 require_once BASE_PATH . '/controllers/AdminController.php';
+require_once BASE_PATH . '/controllers/OrganizerEventController.php';
 
 // Lấy đường dẫn hiện tại
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -91,6 +92,21 @@ switch ($path) {
     case '/admin/reject-event':
         $adminController = new AdminController();
         $adminController->rejectEvent();
+        break;
+
+    case '/organizer/events':
+        $organizerEventController = new OrganizerEventController();
+        $organizerEventController->index();
+        break;
+
+    case '/organizer/events/edit':
+        $organizerEventController = new OrganizerEventController();
+        $organizerEventController->edit($_GET['id']);
+        break;
+
+    case '/organizer/events/delete':
+        $organizerEventController = new OrganizerEventController();
+        $organizerEventController->delete($_GET['id']);
         break;
 
     case '/':

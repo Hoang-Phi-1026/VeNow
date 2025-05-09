@@ -81,6 +81,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ - <?php echo number_format($event['gia_ve_max']); ?>đ</span>
                         <?php endif; ?>
                     </div>
+                    <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">Xem chi tiết</a>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -135,6 +136,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ - <?php echo number_format($event['gia_ve_max']); ?>đ</span>
                         <?php endif; ?>
                     </div>
+                    <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">Xem chi tiết</a>
                 </div>
             </div>
             <?php endforeach; ?>

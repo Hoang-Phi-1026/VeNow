@@ -15,7 +15,38 @@ class SearchController extends BaseController {
         $date = $_GET['date'] ?? null;
         $location = $_GET['location'] ?? null;
 
-        $events = $this->eventModel->searchEvents($keyword, $date, $location);
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                    MIN(t.gia_ve) as gia_ve_min,
+                    MAX(t.gia_ve) as gia_ve_max
+             FROM sukien s 
+             LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+             LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+             LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+             WHERE s.trang_thai = 'DA_DUYET'";
+    
+        $params = [];
+    
+        if (!empty($keyword)) {
+            $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
+            $keyword = "%$keyword%";
+            $params = array_merge($params, [$keyword, $keyword, $keyword]);
+        }
+    
+        if (!empty($date)) {
+            $query .= " AND DATE(s.ngay_dien_ra) = ?";
+            $params[] = $date;
+        }
+    
+        if (!empty($location)) {
+            $query .= " AND s.dia_diem LIKE ?";
+            $params[] = "%$location%";
+        }
+    
+        $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
+    
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         require_once __DIR__ . '/../views/search/index.php';
     }
@@ -32,14 +63,14 @@ class SearchController extends BaseController {
         $stmt->execute();
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
-                        MIN(t.gia_ve) as gia_ve_min,
-                        MAX(t.gia_ve) as gia_ve_max
-                 FROM sukien s 
-                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
-                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
-                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
-                 WHERE s.trang_thai = 'DA_DUYET'";
+        $query = "SELECT DISTINCT s.*, n.tennhatochuc, l.tenloaisukien,
+                MIN(t.gia_ve) as gia_ve_min,
+                MAX(t.gia_ve) as gia_ve_max
+         FROM sukien s 
+         LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+         LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+         LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+         WHERE s.trang_thai = 'DA_DUYET'";
 
         $params = [];
 
@@ -77,9 +108,16 @@ class SearchController extends BaseController {
 
         $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
 
+        // Debug: In ra câu truy vấn và tham số
+        error_log("Search Query: " . $query);
+        error_log("Search Params: " . print_r($params, true));
+
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
         $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Debug: In ra số lượng kết quả
+        error_log("Number of results: " . count($events));
 
         // Lấy thông tin danh mục nếu có
         $categoryInfo = null;
