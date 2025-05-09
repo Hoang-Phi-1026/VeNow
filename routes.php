@@ -27,9 +27,17 @@ $router->get('/logout', 'AuthController@logout');
 $router->get('/search', 'SearchController@index');
 $router->get('/search/index', 'SearchController@index');
 
+// Routes cho Account
+$router->get('/account', 'AccountController@index');
+$router->post('/account/update', 'AccountController@update');
+
 $routes = [
     // Các routes hiện có
     'organizer/events' => ['OrganizerEventController', 'index'],
     'organizer/events/edit/{id}' => ['OrganizerEventController', 'edit'],
     'organizer/events/delete/{id}' => ['OrganizerEventController', 'delete'],
+    
+    // Routes cho Account
+    'account' => ['AccountController', 'index'],
+    'account/update' => ['AccountController', 'update'],
 ]; 

@@ -359,6 +359,77 @@
     box-shadow: var(--shadow-md);
   }
   
+  /* Related Events Section */
+  .related-events {
+    margin-top: var(--spacing-8);
+  }
+  
+  .related-events-header {
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .related-events-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    position: relative;
+    padding-bottom: var(--spacing-2);
+  }
+  
+  .related-events-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--accent-color);
+    border-radius: var(--radius-full);
+  }
+  
+  .related-events .event-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-4);
+  }
+  
+  .related-events .event-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+  }
+  
+  .related-events .event-image {
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+  }
+  
+  .related-events .event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+  }
+  
+  .related-events .event-title {
+    font-size: 1.05rem;
+    margin-bottom: var(--spacing-2);
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
   /* Responsive Adjustments */
   @media (max-width: 992px) {
     .event-content {
@@ -401,6 +472,25 @@
     .event-meta-tags {
       flex-direction: column;
       align-items: flex-start;
+    }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1200px) {
+    .related-events .event-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .related-events .event-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .related-events .event-grid {
+      grid-template-columns: 1fr;
     }
   }
   

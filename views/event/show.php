@@ -39,15 +39,15 @@
 
             <!-- Event Gallery -->
             <div class="event-gallery">
-                <img src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" class="event-main-image">
+                <img src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" class="event-main-image" id="main-event-image">
                 <div class="event-thumbnails">
-                    <div class="event-thumbnail">
+                    <div class="event-thumbnail active" data-src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>">
                         <img src="https://via.placeholder.com/100x100/1eb75c/FFFFFF" alt="Thumbnail 1">
                     </div>
-                    <div class="event-thumbnail">
+                    <div class="event-thumbnail" data-src="https://via.placeholder.com/1200x450/ff5722/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>">
                         <img src="https://via.placeholder.com/100x100/ff5722/FFFFFF" alt="Thumbnail 2">
                     </div>
-                    <div class="event-thumbnail">
+                    <div class="event-thumbnail" data-src="https://via.placeholder.com/1200x450/2196f3/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>">
                         <img src="https://via.placeholder.com/100x100/2196f3/FFFFFF" alt="Thumbnail 3">
                     </div>
                 </div>
@@ -81,12 +81,13 @@
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4946681007846!2d106.69908867469967!3d10.771913089387625!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a3b49e59%3A0xa1bd14e483a602db!2sSaigon%20Opera%20House!5e0!3m2!1sen!2s!4v1683870293223!5m2!1sen!2s" 
                                 allowfullscreen="" 
                                 loading="lazy" 
-                                referrerpolicy="no-referrer-when-downgrade">
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Bản đồ địa điểm sự kiện">
                             </iframe>
                         </div>
                         <div class="location-details">
                             <p class="location-address"><?php echo htmlspecialchars($event['dia_diem']); ?></p>
-                            <a href="https://www.google.com/maps/search/<?php echo urlencode($event['dia_diem']); ?>" target="_blank" class="location-directions">
+                            <a href="https://www.google.com/maps/search/<?php echo urlencode($event['dia_diem']); ?>" target="_blank" class="location-directions" aria-label="Xem chỉ đường đến địa điểm sự kiện">
                                 <i class="fas fa-directions"></i> Xem chỉ đường
                             </a>
                         </div>
@@ -100,12 +101,12 @@
                         </div>
                         <div class="organizer-content">
                             <div class="organizer-logo">
-                                <img src="https://via.placeholder.com/80x80/1eb75c/FFFFFF?text=<?php echo urlencode($event['tennhatochuc']); ?>" alt="<?php echo htmlspecialchars($event['tennhatochuc']); ?>">
+                                <img src="https://via.placeholder.com/100x100/1eb75c/FFFFFF?text=<?php echo urlencode($event['tennhatochuc']); ?>" alt="Logo <?php echo htmlspecialchars($event['tennhatochuc']); ?>">
                             </div>
                             <div class="organizer-info">
                                 <h4 class="organizer-name"><?php echo htmlspecialchars($event['tennhatochuc']); ?></h4>
                                 <p class="organizer-desc">Nhà tổ chức sự kiện chuyên nghiệp</p>
-                                <a href="#" class="organizer-link">
+                                <a href="#" class="organizer-link" aria-label="Xem thêm thông tin về nhà tổ chức">
                                     <i class="fas fa-external-link-alt"></i> Xem thêm về nhà tổ chức
                                 </a>
                             </div>
@@ -116,16 +117,16 @@
                     <div class="share-section">
                         <span class="share-label">Chia sẻ sự kiện:</span>
                         <div class="share-buttons">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(BASE_URL . '/event/' . $event['ma_su_kien']); ?>" target="_blank" class="share-button share-facebook">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(BASE_URL . '/event/' . $event['ma_su_kien']); ?>" target="_blank" class="share-button share-facebook" aria-label="Chia sẻ lên Facebook">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
-                            <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(BASE_URL . '/event/' . $event['ma_su_kien']); ?>&text=<?php echo urlencode($event['ten_su_kien']); ?>" target="_blank" class="share-button share-twitter">
+                            <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(BASE_URL . '/event/' . $event['ma_su_kien']); ?>&text=<?php echo urlencode($event['ten_su_kien']); ?>" target="_blank" class="share-button share-twitter" aria-label="Chia sẻ lên Twitter">
                                 <i class="fab fa-twitter"></i>
                             </a>
-                            <a href="mailto:?subject=<?php echo urlencode($event['ten_su_kien']); ?>&body=<?php echo urlencode('Xem sự kiện này: ' . BASE_URL . '/event/' . $event['ma_su_kien']); ?>" class="share-button share-email">
+                            <a href="mailto:?subject=<?php echo urlencode($event['ten_su_kien']); ?>&body=<?php echo urlencode('Xem sự kiện này: ' . BASE_URL . '/event/' . $event['ma_su_kien']); ?>" class="share-button share-email" aria-label="Chia sẻ qua Email">
                                 <i class="fas fa-envelope"></i>
                             </a>
-                            <button class="share-button share-link" onclick="copyEventLink()">
+                            <button class="share-button share-link" onclick="copyEventLink()" aria-label="Sao chép liên kết">
                                 <i class="fas fa-link"></i>
                             </button>
                         </div>
@@ -291,21 +292,152 @@ function copyEventLink() {
     document.body.removeChild(tempInput);
     
     // Show a notification
-    alert('Đã sao chép liên kết sự kiện!');
+    const notification = document.createElement('div');
+    notification.className = 'copy-notification';
+    notification.innerHTML = '<i class="fas fa-check-circle"></i> Đã sao chép liên kết sự kiện!';
+    notification.style.position = 'fixed';
+    notification.style.bottom = '20px';
+    notification.style.right = '20px';
+    notification.style.padding = '10px 20px';
+    notification.style.background = 'var(--accent-color)';
+    notification.style.color = 'white';
+    notification.style.borderRadius = '4px';
+    notification.style.boxShadow = 'var(--shadow-md)';
+    notification.style.zIndex = '9999';
+    notification.style.display = 'flex';
+    notification.style.alignItems = 'center';
+    notification.style.gap = '8px';
+    notification.style.animation = 'fadeInUp 0.3s ease-out forwards';
+    
+    document.body.appendChild(notification);
+    
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeOutDown {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'fadeOutDown 0.3s ease-out forwards';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
 }
 
 // Image gallery functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const mainImage = document.querySelector('.event-main-image');
-    const thumbnails = document.querySelectorAll('.event-thumbnail img');
+    const mainImage = document.getElementById('main-event-image');
+    const thumbnails = document.querySelectorAll('.event-thumbnail');
     
     thumbnails.forEach(thumbnail => {
         thumbnail.addEventListener('click', function() {
-            const newSrc = this.src.replace('100x100', '1200x450');
+            // Remove active class from all thumbnails
+            thumbnails.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked thumbnail
+            this.classList.add('active');
+            
+            // Update main image
+            const newSrc = this.getAttribute('data-src');
             mainImage.src = newSrc;
+            
+            // Add fade effect
+            mainImage.style.opacity = '0';
+            setTimeout(() => {
+                mainImage.style.opacity = '1';
+            }, 50);
+        });
+    });
+    
+    // Add smooth scroll to ticket section when clicking "Buy Tickets" button
+    const buyTicketsBtn = document.querySelector('.btn-buy-tickets');
+    if (buyTicketsBtn) {
+        buyTicketsBtn.addEventListener('click', function() {
+            const ticketSection = document.querySelector('.ticket-section');
+            if (ticketSection) {
+                ticketSection.scrollIntoView({ behavior: 'smooth' });
+                
+                // Add highlight effect
+                ticketSection.style.transition = 'box-shadow 0.3s ease';
+                ticketSection.style.boxShadow = '0 0 0 3px var(--accent-color)';
+                
+                setTimeout(() => {
+                    ticketSection.style.boxShadow = 'var(--shadow-md)';
+                }, 1500);
+            }
+        });
+    }
+    
+    // Add hover effect to event cards
+    const eventCards = document.querySelectorAll('.event-card');
+    eventCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-8px)';
+            card.style.boxShadow = 'var(--shadow-lg)';
+            card.style.borderColor = 'var(--accent-color)';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+            card.style.boxShadow = '';
+            card.style.borderColor = '';
         });
     });
 });
 </script>
+
+<style>
+/* Add some additional styles for better transitions */
+.event-main-image {
+    transition: opacity 0.3s ease;
+}
+
+.event-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Add a custom scrollbar for the event description */
+.event-description {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.event-description::-webkit-scrollbar {
+    width: 6px;
+}
+
+.event-description::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+}
+
+.event-description::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: var(--radius-full);
+}
+</style>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

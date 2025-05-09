@@ -7,6 +7,32 @@
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="<?php echo BASE_URL; ?>/public/js/theme.js"></script>
+    <style>
+        /* Additional styles for search page */
+        .search-debug {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            display: none; /* Hidden by default */
+        }
+        
+        .search-debug.show {
+            display: block;
+        }
+        
+        .debug-toggle {
+            background: #f1f1f1;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
     <?php require_once __DIR__ . '/../layouts/header.php'; ?>
@@ -24,17 +50,35 @@
                 <?php endif; ?>
             </div>
 
+            <!-- Debug information for administrators -->
+            <?php if (isset($_SESSION['user']) && $_SESSION['user']['vai_tro'] == 1): ?>
+                <button class="debug-toggle" onclick="document.getElementById('searchDebug').classList.toggle('show')">
+                    Toggle Debug Info
+                </button>
+                <div id="searchDebug" class="search-debug">
+                    <h4>Search Parameters:</h4>
+                    <pre>
+Keyword: <?php echo htmlspecialchars($keyword ?? 'null'); ?>
+Category: <?php echo htmlspecialchars($category ?? 'null'); ?>
+Date: <?php echo htmlspecialchars($date ?? 'null'); ?>
+Location: <?php echo htmlspecialchars($location ?? 'null'); ?>
+Price: <?php echo htmlspecialchars($price ?? 'null'); ?>
+                    </pre>
+                    <h4>Results Count: <?php echo count($events); ?></h4>
+                </div>
+            <?php endif; ?>
+
             <div class="search-filters">
                 <form action="<?php echo BASE_URL; ?>/search" method="GET" class="search-form">
                     <div class="form-group">
-                        <input type="text" name="keyword" placeholder="Tìm kiếm sự kiện..." 
+                        <input type="text" name="q" placeholder="Tìm kiếm sự kiện..." 
                                value="<?php echo htmlspecialchars($keyword ?? ''); ?>" class="form-control">
                     </div>
                     <div class="form-group">
                         <select name="category" class="form-control">
                             <option value="">Tất cả danh mục</option>
                             <?php foreach ($categories as $cat): ?>
-                                <option value="<?php echo $cat['maloaisukien']; ?>" <?php echo isset($category) && $category == $cat['maloaisukien'] ? 'selected' : ''; ?>>
+                                <option value="<?php echo $cat['maloaisukien']; ?>" <?php echo (isset($category) && $category == $cat['maloaisukien']) ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($cat['tenloaisukien']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -50,8 +94,8 @@
                     <div class="form-group">
                         <select name="price" class="form-control">
                             <option value="">Tất cả giá</option>
-                            <option value="free" <?php echo isset($price) && $price === 'free' ? 'selected' : ''; ?>>Miễn phí</option>
-                            <option value="paid" <?php echo isset($price) && $price === 'paid' ? 'selected' : ''; ?>>Có phí</option>
+                            <option value="free" <?php echo (isset($price) && $price === 'free') ? 'selected' : ''; ?>>Miễn phí</option>
+                            <option value="paid" <?php echo (isset($price) && $price === 'paid') ? 'selected' : ''; ?>>Có phí</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">
@@ -92,10 +136,14 @@
                                     <span class="event-location"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($event['dia_diem']); ?></span>
                                 </div>
                                 <div class="event-price">
-                                    <?php if ($event['gia_ve_min'] == $event['gia_ve_max']): ?>
-                                        <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ</span>
+                                    <?php if (isset($event['gia_ve_min']) && isset($event['gia_ve_max'])): ?>
+                                        <?php if ($event['gia_ve_min'] == $event['gia_ve_max']): ?>
+                                            <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ</span>
+                                        <?php else: ?>
+                                            <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ - <?php echo number_format($event['gia_ve_max']); ?>đ</span>
+                                        <?php endif; ?>
                                     <?php else: ?>
-                                        <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ - <?php echo number_format($event['gia_ve_max']); ?>đ</span>
+                                        <span class="price">Liên hệ</span>
                                     <?php endif; ?>
                                 </div>
                                 <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">Xem chi tiết</a>

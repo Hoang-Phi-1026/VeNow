@@ -11,91 +11,62 @@ class SearchController extends BaseController {
     }
 
     public function index() {
-        $keyword = $_GET['q'] ?? '';
-        $date = $_GET['date'] ?? null;
-        $location = $_GET['location'] ?? null;
+        // Get search parameters
+        $keyword = isset($_GET['q']) && trim($_GET['q']) !== '' ? trim($_GET['q']) : null;
+        $category = isset($_GET['category']) && trim($_GET['category']) !== '' ? trim($_GET['category']) : null;
+        $date = isset($_GET['date']) && trim($_GET['date']) !== '' ? trim($_GET['date']) : null;
+        $location = isset($_GET['location']) && trim($_GET['location']) !== '' ? trim($_GET['location']) : null;
+        $price = isset($_GET['price']) && trim($_GET['price']) !== '' ? trim($_GET['price']) : null;
 
-        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
-                    MIN(t.gia_ve) as gia_ve_min,
-                    MAX(t.gia_ve) as gia_ve_max
-             FROM sukien s 
-             LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
-             LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
-             LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
-             WHERE s.trang_thai = 'DA_DUYET'";
-    
-        $params = [];
-    
-        if (!empty($keyword)) {
-            $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
-            $keyword = "%$keyword%";
-            $params = array_merge($params, [$keyword, $keyword, $keyword]);
-        }
-    
-        if (!empty($date)) {
-            $query .= " AND DATE(s.ngay_dien_ra) = ?";
-            $params[] = $date;
-        }
-    
-        if (!empty($location)) {
-            $query .= " AND s.dia_diem LIKE ?";
-            $params[] = "%$location%";
-        }
-    
-        $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
-    
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
-        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Debug log
+        error_log("Search parameters: keyword=" . ($keyword ?? 'null') . 
+                  ", category=" . ($category ?? 'null') . 
+                  ", date=" . ($date ?? 'null') . 
+                  ", location=" . ($location ?? 'null') . 
+                  ", price=" . ($price ?? 'null'));
 
-        require_once __DIR__ . '/../views/search/index.php';
-    }
-
-    public function search() {
-        $keyword = $_GET['keyword'] ?? '';
-        $category = $_GET['category'] ?? '';
-        $date = $_GET['date'] ?? '';
-        $location = $_GET['location'] ?? '';
-        $price = $_GET['price'] ?? '';
-
-        // Lấy danh sách danh mục
+        // Get categories for the filter dropdown
         $stmt = $this->db->prepare("SELECT * FROM loaisukien ORDER BY tenloaisukien ASC");
         $stmt->execute();
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        // Base query
         $query = "SELECT DISTINCT s.*, n.tennhatochuc, l.tenloaisukien,
-                MIN(t.gia_ve) as gia_ve_min,
-                MAX(t.gia_ve) as gia_ve_max
-         FROM sukien s 
-         LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
-         LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
-         LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
-         WHERE s.trang_thai = 'DA_DUYET'";
+                  MIN(t.gia_ve) as gia_ve_min,
+                  MAX(t.gia_ve) as gia_ve_max
+                  FROM sukien s 
+                  LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                  LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                  LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                  WHERE s.trang_thai = 'DA_DUYET'";
 
         $params = [];
 
-        if (!empty($keyword)) {
+        // Add search conditions
+        if ($keyword !== null) {
             $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
-            $keyword = "%$keyword%";
-            $params = array_merge($params, [$keyword, $keyword, $keyword]);
+            $searchTerm = "%" . $keyword . "%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
         }
 
-        if (!empty($category)) {
+        if ($category !== null) {
             $query .= " AND s.maloaisukien = ?";
             $params[] = $category;
         }
 
-        if (!empty($date)) {
+        if ($date !== null) {
             $query .= " AND DATE(s.ngay_dien_ra) = ?";
             $params[] = $date;
         }
 
-        if (!empty($location)) {
+        if ($location !== null) {
             $query .= " AND s.dia_diem LIKE ?";
-            $params[] = "%$location%";
+            $params[] = "%" . $location . "%";
         }
 
-        if (!empty($price)) {
+        if ($price !== null) {
             switch ($price) {
                 case 'free':
                     $query .= " AND t.gia_ve = 0";
@@ -108,26 +79,41 @@ class SearchController extends BaseController {
 
         $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
 
-        // Debug: In ra câu truy vấn và tham số
+        // Debug: Log the query and parameters
         error_log("Search Query: " . $query);
         error_log("Search Params: " . print_r($params, true));
 
+        // Execute the query
         $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
+        
+        // Bind parameters and execute
+        if (!empty($params)) {
+            for ($i = 0; $i < count($params); $i++) {
+                // PDO parameters are 1-indexed
+                $stmt->bindValue($i + 1, $params[$i]);
+            }
+        }
+        
+        $stmt->execute();
         $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Debug: In ra số lượng kết quả
+        // Debug: Log the number of results
         error_log("Number of results: " . count($events));
 
-        // Lấy thông tin danh mục nếu có
+        // Get category info if category filter is applied
         $categoryInfo = null;
-        if (!empty($category)) {
+        if ($category !== null) {
             $stmt = $this->db->prepare("SELECT * FROM loaisukien WHERE maloaisukien = ?");
             $stmt->execute([$category]);
             $categoryInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
         require_once __DIR__ . '/../views/search/index.php';
+    }
+
+    public function search() {
+        // Redirect to index method to avoid duplicate code
+        $this->index();
     }
 
     private function applyFilters($events, $category, $date, $price, $location, $featured = false, $upcoming = false) {

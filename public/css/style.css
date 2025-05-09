@@ -837,10 +837,6 @@ main {
   transition: transform var(--transition-normal);
 }
 
-.event-card:hover .event-image img {
-  transform: scale(1.05);
-}
-
 .event-date {
   position: absolute;
   top: var(--spacing-3);
@@ -2526,5 +2522,67 @@ textarea:focus {
 
   .category-item {
     width: calc(50% - var(--spacing-3));
+  }
+}
+
+/* Error Page Styles */
+.error-page {
+  padding: var(--spacing-12) 0;
+  min-height: calc(100vh - 110px - 250px);
+  display: flex;
+  align-items: center;
+}
+
+.error-content {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-8);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.error-content h1 {
+  font-size: 6rem;
+  color: var(--accent-color);
+  margin-bottom: var(--spacing-4);
+  line-height: 1;
+}
+
+.error-content h2 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-4);
+}
+
+.error-content p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-6);
+  font-size: 1.1rem;
+}
+
+.error-content .btn {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.error-content .btn i {
+  margin-right: var(--spacing-2);
+}
+
+@media (max-width: 768px) {
+  .error-content h1 {
+    font-size: 4rem;
+  }
+
+  .error-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .error-content p {
+    font-size: 1rem;
   }
 }

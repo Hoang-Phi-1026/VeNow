@@ -18,7 +18,7 @@
     <?php else: ?>
         <div class="row">
             <?php foreach ($events as $event): ?>
-                <div class="col-md-6 col-lg-4 mb-4">
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card h-100">
                         <div class="card-img-top position-relative">
                             <?php if ($event['hinh_anh']): ?>
@@ -107,4 +107,4 @@ function deleteEvent(maSuKien) {
 }
 </script>
 
-<?php require_once __DIR__ . '/../../layouts/footer.php'; ?> 
+<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>

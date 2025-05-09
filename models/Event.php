@@ -122,7 +122,7 @@ class Event {
         return true;
     }
 
-    public function searchEvents($keyword, $date = null, $location = null) {
+    public function searchEvents($keyword, $category = null, $date = null, $location = null, $price = null) {
         $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
                         MIN(t.gia_ve) as gia_ve_min,
                         MAX(t.gia_ve) as gia_ve_max
@@ -131,29 +131,55 @@ class Event {
                  LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
                  LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
                  WHERE s.trang_thai = 'DA_DUYET'";
-    
+        
         $params = [];
-    
+        
         if (!empty($keyword)) {
             $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
-            $keyword = "%$keyword%";
-            $params = array_merge($params, [$keyword, $keyword, $keyword]);
+            $searchTerm = "%$keyword%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
         }
-    
-        if ($date) {
+        
+        if (!empty($category)) {
+            $query .= " AND s.maloaisukien = ?";
+            $params[] = $category;
+        }
+
+        if (!empty($date)) {
             $query .= " AND DATE(s.ngay_dien_ra) = ?";
             $params[] = $date;
         }
-    
-        if ($location) {
+
+        if (!empty($location)) {
             $query .= " AND s.dia_diem LIKE ?";
             $params[] = "%$location%";
         }
-    
+
+        if (!empty($price)) {
+            switch ($price) {
+                case 'free':
+                    $query .= " AND t.gia_ve = 0";
+                    break;
+                case 'paid':
+                    $query .= " AND t.gia_ve > 0";
+                    break;
+            }
+        }
+
         $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
-    
+        
         $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
+        
+        // Bind parameters manually
+        if (!empty($params)) {
+            for ($i = 0; $i < count($params); $i++) {
+                $stmt->bindValue($i + 1, $params[$i]);
+            }
+        }
+        
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

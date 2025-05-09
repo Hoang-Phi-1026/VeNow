@@ -18,6 +18,7 @@ require_once BASE_PATH . '/controllers/BaseController.php';
 require_once BASE_PATH . '/controllers/AuthController.php';
 require_once BASE_PATH . '/controllers/EventController.php';
 require_once BASE_PATH . '/controllers/SearchController.php';
+require_once BASE_PATH . '/controllers/AccountController.php';
 require_once BASE_PATH . '/controllers/UserController.php';
 require_once BASE_PATH . '/controllers/AdminController.php';
 require_once BASE_PATH . '/controllers/OrganizerEventController.php';
@@ -74,11 +75,6 @@ switch ($path) {
         $userController->create();
         break;
 
-    case '/users/delete':
-        $userController = new UserController();
-        $userController->delete();
-        break;
-
     case '/admin/pending-events':
         $adminController = new AdminController();
         $adminController->pendingEvents();
@@ -109,10 +105,30 @@ switch ($path) {
         $organizerEventController->delete($_GET['id']);
         break;
 
+    case '/account':
+        $accountController = new AccountController();
+        $accountController->index();
+        break;
+
+    case '/account/update':
+        $accountController = new AccountController();
+        $accountController->update();
+        break;
+
     case '/':
     case '':
         $eventController = new EventController();
         $eventController->index();
+        break;
+
+    case '/events/create':
+        $eventController = new EventController();
+        $eventController->create();
+        break;
+
+    case '/events/store':
+        $eventController = new EventController();
+        $eventController->store();
         break;
 
     default:

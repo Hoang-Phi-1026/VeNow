@@ -2,23 +2,20 @@
 .event-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    gap: 20px;
     padding: 20px 0;
   }
   
   .event-card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
+    background: #fff;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
-    border: 1px solid var(--border-color);
   }
   
   .event-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent-color);
+    transform: translateY(-2px);
   }
   
   .event-image {
@@ -43,16 +40,16 @@
   }
   
   .event-status.CHO_DUYET {
-    background: var(--warning-500);
+    background: #ffc107;
   }
   .event-status.DA_DUYET {
-    background: var(--success-500);
+    background: #28a745;
   }
   .event-status.TU_CHOI {
-    background: var(--error-500);
+    background: #dc3545;
   }
   .event-status.DA_HUY {
-    background: var(--neutral-500);
+    background: #6c757d;
   }
   
   .event-info {
@@ -63,7 +60,7 @@
     margin: 0 0 10px 0;
     font-size: 18px;
     font-weight: bold;
-    color: var(--text-primary);
+    color: #333;
   }
   
   .event-meta {
@@ -71,7 +68,7 @@
     justify-content: space-between;
     margin-bottom: 10px;
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #666;
   }
   
   .event-meta span {
@@ -81,7 +78,7 @@
   
   .event-meta i {
     margin-right: 5px;
-    color: var(--accent-color);
+    color: #1eb75c;
   }
   
   .event-actions {
@@ -117,7 +114,7 @@
     height: 20px;
     margin: -10px 0 0 -10px;
     border: 2px solid #f3f3f3;
-    border-top: 2px solid var(--accent-color);
+    border-top: 2px solid #1eb75c;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -131,205 +128,7 @@
     }
   }
   
-  /* Bootstrap-like utility classes for organizer page */
-  .d-flex {
-    display: flex;
-  }
-  
-  .justify-content-between {
-    justify-content: space-between;
-  }
-  
-  .align-items-center {
-    align-items: center;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1.5rem;
-  }
-  
-  .text-muted {
-    color: var(--text-tertiary);
-  }
-  
-  .btn-group {
-    display: inline-flex;
-    vertical-align: middle;
-  }
-  
-  .w-100 {
-    width: 100%;
-  }
-  
-  .btn-outline-info {
-    color: var(--primary-600);
-    border: 1px solid var(--primary-600);
-    background-color: transparent;
-  }
-  
-  .btn-outline-info:hover {
-    color: white;
-    background-color: var(--primary-600);
-  }
-  
-  .btn-outline-warning {
-    color: var(--warning-500);
-    border: 1px solid var(--warning-500);
-    background-color: transparent;
-  }
-  
-  .btn-outline-warning:hover {
-    color: white;
-    background-color: var(--warning-500);
-  }
-  
-  .btn-outline-danger {
-    color: var(--error-500);
-    border: 1px solid var(--error-500);
-    background-color: transparent;
-  }
-  
-  .btn-outline-danger:hover {
-    color: white;
-    background-color: var(--error-500);
-  }
-  
-  .alert-info {
-    color: var(--primary-700);
-    background-color: var(--primary-50);
-    border-color: var(--primary-100);
-    padding: var(--spacing-3) var(--spacing-4);
-    margin-bottom: var(--spacing-4);
-    border-radius: var(--radius-lg);
-  }
-  
-  .card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: var(--bg-secondary);
-    background-clip: border-box;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-  }
-  
-  .card-img-top {
-    width: 100%;
-    border-top-left-radius: calc(0.5rem - 1px);
-    border-top-right-radius: calc(0.5rem - 1px);
-    height: 200px;
-    object-fit: cover;
-  }
-  
-  .card-body {
-    flex: 1 1 auto;
-    min-height: 1px;
-    padding: 1.25rem;
-  }
-  
-  .card-footer {
-    padding: 0.75rem 1.25rem;
-    background-color: rgba(0, 0, 0, 0.03);
-    border-top: 1px solid var(--border-color);
-  }
-  
-  .bg-transparent {
-    background-color: transparent !important;
-  }
-  
-  .position-relative {
-    position: relative;
-  }
-  
-  .position-absolute {
-    position: absolute;
-  }
-  
-  .top-0 {
-    top: 0;
-  }
-  
-  .end-0 {
-    right: 0;
-  }
-  
-  .m-2 {
-    margin: 0.5rem;
-  }
-  
-  .badge {
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    font-size: 75%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.25rem;
-  }
-  
-  .bg-warning {
-    background-color: var(--warning-500);
-    color: white;
-  }
-  
-  .bg-success {
-    background-color: var(--success-500);
-    color: white;
-  }
-  
-  .bg-danger {
-    background-color: var(--error-500);
-    color: white;
-  }
-  
-  .bg-secondary {
-    background-color: var(--neutral-500);
-    color: white;
-  }
-  
-  .bg-primary {
-    background-color: var(--accent-color);
-    color: white;
-  }
-  
-  .h-100 {
-    height: 100%;
-  }
-  
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -10px;
-    margin-left: -10px;
-  }
-  
-  .col-md-6,
-  .col-lg-3 {
-    position: relative;
-    width: 100%;
-    padding-right: 10px;
-    padding-left: 10px;
-  }
-  
-  @media (min-width: 768px) {
-    .col-md-6 {
-      flex: 0 0 50%;
-      max-width: 50%;
-    }
-  }
-  
-  @media (min-width: 992px) {
-    .col-lg-3 {
-      flex: 0 0 25%;
-      max-width: 25%;
-    }
-  }
-  
-  /* Responsive adjustments for the 4-item grid */
+  /* Responsive adjustments */
   @media (max-width: 1200px) {
     .event-grid {
       grid-template-columns: repeat(3, 1fr);
@@ -346,24 +145,5 @@
     .event-grid {
       grid-template-columns: 1fr;
     }
-  }
-  
-  /* Improve dark mode colors */
-  [data-theme="dark"] .card {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-  }
-  
-  [data-theme="dark"] .card-body {
-    color: var(--text-primary);
-  }
-  
-  [data-theme="dark"] .card-footer {
-    background-color: rgba(255, 255, 255, 0.03);
-    border-color: var(--border-color);
-  }
-  
-  [data-theme="dark"] .text-muted {
-    color: var(--text-tertiary) !important;
   }
   

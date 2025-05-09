@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Event.php';
+require_once __DIR__ . '/BaseController.php';
 
 class EventController extends BaseController {
     private $eventModel;
@@ -24,6 +25,29 @@ class EventController extends BaseController {
             return;
         }
         require_once __DIR__ . '/../views/event/show.php';
+    }
+
+    public function create() {
+        // Kiểm tra đăng nhập và quyền tổ chức
+        if (!isset($_SESSION['user'])) {
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
+
+        if ($_SESSION['user']['vai_tro'] != 2) { // 2 là mã vai trò của tổ chức
+            $_SESSION['error'] = 'Bạn không có quyền tạo sự kiện';
+            header('Location: ' . BASE_URL);
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/event/create.php';
+    }
+
+    public function store() {
+        // Chỉ là mẫu, không xử lý gì cả
+        $_SESSION['success'] = 'Tạo sự kiện thành công!';
+        header('Location: ' . BASE_URL . '/organizer/events');
+        exit;
     }
 
     public function getFeaturedEvents() {
