@@ -37,10 +37,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <form action="<?php echo BASE_URL; ?>/search" method="GET" class="search-form">
                         <div class="search-input-wrapper">
                             <input type="text" name="q" class="search-input" placeholder="Tìm kiếm sự kiện...">
-                            <button type="submit" class="search-button">
-                                <i class="fas fa-search"></i>
-                            </button>
+                            <i class="fas fa-search search-icon"></i>
                         </div>
+                        <button type="submit" class="search-button">Tìm kiếm</button>
                     </form>
                 </div>
 
@@ -81,7 +80,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo BASE_URL; ?>/events/create">Tạo sự kiện</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/events/manage">Xóa sự kiện</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/events/manage">Sự kiện chờ duyệt</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/admin/pending-events">Sự kiện chờ duyệt</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">

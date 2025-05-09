@@ -1,41 +1,92 @@
 <?php
 require_once __DIR__ . '/../models/Event.php';
+require_once __DIR__ . '/BaseController.php';
 
-class SearchController {
+class SearchController extends BaseController {
     private $eventModel;
 
     public function __construct() {
+        parent::__construct();
         $this->eventModel = new Event();
     }
 
+    public function index() {
+        $keyword = $_GET['q'] ?? '';
+        $date = $_GET['date'] ?? null;
+        $location = $_GET['location'] ?? null;
+
+        $events = $this->eventModel->searchEvents($keyword, $date, $location);
+
+        require_once __DIR__ . '/../views/search/index.php';
+    }
+
     public function search() {
-        $keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $category = isset($_GET['category']) ? trim($_GET['category']) : '';
-        $date = isset($_GET['date']) ? trim($_GET['date']) : '';
-        $price = isset($_GET['price']) ? trim($_GET['price']) : '';
-        $location = isset($_GET['location']) ? trim($_GET['location']) : '';
-        $featured = isset($_GET['featured']) ? (bool)$_GET['featured'] : false;
-        $upcoming = isset($_GET['upcoming']) ? (bool)$_GET['upcoming'] : false;
+        $keyword = $_GET['keyword'] ?? '';
+        $category = $_GET['category'] ?? '';
+        $date = $_GET['date'] ?? '';
+        $location = $_GET['location'] ?? '';
+        $price = $_GET['price'] ?? '';
 
-        try {
-            // Nếu có từ khóa tìm kiếm, sử dụng searchEvents
-            if (!empty($keyword)) {
-                $events = $this->eventModel->searchEvents($keyword);
-            } else {
-                // Nếu không có từ khóa, lấy tất cả sự kiện
-                $events = $this->eventModel->getAllEvents();
-            }
+        // Lấy danh sách danh mục
+        $stmt = $this->db->prepare("SELECT * FROM loaisukien ORDER BY tenloaisukien ASC");
+        $stmt->execute();
+        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Áp dụng các bộ lọc
-            if (!empty($events)) {
-                $events = $this->applyFilters($events, $category, $date, $price, $location, $featured, $upcoming);
-            } else {
-                $events = [];
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
+                 FROM sukien s 
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                 WHERE s.trang_thai = 'DA_DUYET'";
+
+        $params = [];
+
+        if (!empty($keyword)) {
+            $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
+            $keyword = "%$keyword%";
+            $params = array_merge($params, [$keyword, $keyword, $keyword]);
+        }
+
+        if (!empty($category)) {
+            $query .= " AND s.maloaisukien = ?";
+            $params[] = $category;
+        }
+
+        if (!empty($date)) {
+            $query .= " AND DATE(s.ngay_dien_ra) = ?";
+            $params[] = $date;
+        }
+
+        if (!empty($location)) {
+            $query .= " AND s.dia_diem LIKE ?";
+            $params[] = "%$location%";
+        }
+
+        if (!empty($price)) {
+            switch ($price) {
+                case 'free':
+                    $query .= " AND t.gia_ve = 0";
+                    break;
+                case 'paid':
+                    $query .= " AND t.gia_ve > 0";
+                    break;
             }
-        } catch (Exception $e) {
-            // Xử lý lỗi nếu có
-            error_log("Error in SearchController: " . $e->getMessage());
-            $events = [];
+        }
+
+        $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Lấy thông tin danh mục nếu có
+        $categoryInfo = null;
+        if (!empty($category)) {
+            $stmt = $this->db->prepare("SELECT * FROM loaisukien WHERE maloaisukien = ?");
+            $stmt->execute([$category]);
+            $categoryInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
         require_once __DIR__ . '/../views/search/index.php';

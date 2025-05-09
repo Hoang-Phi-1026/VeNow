@@ -9,12 +9,13 @@ class Event {
     }
 
     public function getAllEvents($limit = null) {
-        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc,
-                        MIN(l.gia_ve) as gia_ve_thap_nhat,
-                        MAX(l.gia_ve) as gia_ve_cao_nhat
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
                  FROM sukien s 
-                 JOIN nguoidung n ON s.ma_nha_to_chuc = n.ma_nguoi_dung 
-                 LEFT JOIN loaive l ON s.ma_su_kien = l.ma_su_kien
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
                  WHERE s.trang_thai = 'DA_DUYET' 
                  GROUP BY s.ma_su_kien
                  ORDER BY s.ngay_dien_ra DESC";
@@ -32,9 +33,10 @@ class Event {
     }
 
     public function getEventById($id) {
-        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc 
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien 
                  FROM sukien s 
-                 JOIN nguoidung n ON s.ma_nha_to_chuc = n.ma_nguoi_dung 
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
                  WHERE s.ma_su_kien = ?";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
@@ -59,24 +61,26 @@ class Event {
     }
 
     public function createEvent($data) {
-        $query = "INSERT INTO sukien (ma_nha_to_chuc, ten_su_kien, ngay_dien_ra, gio_dien_ra, 
-                                    dia_diem, mo_ta, trang_thai) 
-                 VALUES (?, ?, ?, ?, ?, ?, 'CHO_DUYET')";
+        $query = "INSERT INTO sukien (ten_su_kien, ngay_dien_ra, gio_dien_ra, 
+                                    dia_diem, mo_ta, trang_thai, maloaisukien, ma_nha_to_chuc) 
+                 VALUES (?, ?, ?, ?, ?, 'CHO_DUYET', ?, ?)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
-            $data['ma_nha_to_chuc'],
             $data['ten_su_kien'],
             $data['ngay_dien_ra'],
             $data['gio_dien_ra'],
             $data['dia_diem'],
-            $data['mo_ta']
+            $data['mo_ta'],
+            $data['maloaisukien'],
+            $data['ma_nha_to_chuc']
         ]);
     }
 
     public function updateEvent($id, $data) {
         $query = "UPDATE sukien 
                  SET ten_su_kien = ?, ngay_dien_ra = ?, gio_dien_ra = ?, 
-                     dia_diem = ?, mo_ta = ?, trang_thai = 'CHO_DUYET' 
+                     dia_diem = ?, mo_ta = ?, maloaisukien = ?, ma_nha_to_chuc = ?,
+                     trang_thai = 'CHO_DUYET' 
                  WHERE ma_su_kien = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
@@ -85,6 +89,8 @@ class Event {
             $data['gio_dien_ra'],
             $data['dia_diem'],
             $data['mo_ta'],
+            $data['maloaisukien'],
+            $data['ma_nha_to_chuc'],
             $id
         ]);
     }
@@ -117,15 +123,16 @@ class Event {
     }
 
     public function searchEvents($keyword, $date = null, $location = null) {
-        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc,
-                        MIN(l.gia_ve) as gia_ve_thap_nhat,
-                        MAX(l.gia_ve) as gia_ve_cao_nhat
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
                  FROM sukien s 
-                 JOIN nguoidung n ON s.ma_nha_to_chuc = n.ma_nguoi_dung 
-                 LEFT JOIN loaive l ON s.ma_su_kien = l.ma_su_kien
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
                  WHERE s.trang_thai = 'DA_DUYET' 
-                 AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ?)";
-        $params = ["%$keyword%", "%$keyword%"];
+                 AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR n.tennhatochuc LIKE ?)";
+        $params = ["%$keyword%", "%$keyword%", "%$keyword%"];
 
         if ($date) {
             $query .= " AND s.ngay_dien_ra = ?";
@@ -145,12 +152,31 @@ class Event {
     }
 
     public function getFeaturedEvents() {
-        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc,
-                        MIN(l.gia_ve) as gia_ve_min,
-                        MAX(l.gia_ve) as gia_ve_max
+        $sql = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                       MIN(t.gia_ve) as gia_ve_min,
+                       MAX(t.gia_ve) as gia_ve_max
+                FROM sukien s 
+                LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien 
+                LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                WHERE s.trang_thai = 'DA_DUYET' 
+                GROUP BY s.ma_su_kien
+                ORDER BY s.ngay_tao DESC 
+                LIMIT 4";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getUpcomingEvents() {
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
                  FROM sukien s 
-                 JOIN nguoidung n ON s.ma_nha_to_chuc = n.ma_nguoi_dung 
-                 LEFT JOIN loaive l ON s.ma_su_kien = l.ma_su_kien
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
                  WHERE s.trang_thai = 'DA_DUYET'
                  GROUP BY s.ma_su_kien
                  ORDER BY s.ngay_dien_ra DESC
@@ -161,20 +187,74 @@ class Event {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getUpcomingEvents() {
-        $query = "SELECT s.*, n.ho_ten as ten_nha_to_chuc,
-                        MIN(l.gia_ve) as gia_ve_min,
-                        MAX(l.gia_ve) as gia_ve_max
+    public function getEventsByOrganizer($organizerId) {
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
                  FROM sukien s 
-                 JOIN nguoidung n ON s.ma_nha_to_chuc = n.ma_nguoi_dung 
-                 LEFT JOIN loaive l ON s.ma_su_kien = l.ma_su_kien
-                 WHERE s.trang_thai = 'DA_DUYET'
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                 WHERE s.ma_nha_to_chuc = ?
                  GROUP BY s.ma_su_kien
-                 ORDER BY s.ngay_dien_ra DESC
-                 LIMIT 4";
+                 ORDER BY s.ngay_dien_ra DESC";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$organizerId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getEventsByType($typeId) {
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
+                 FROM sukien s 
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                 WHERE s.maloaisukien = ? AND s.trang_thai = 'DA_DUYET'
+                 GROUP BY s.ma_su_kien
+                 ORDER BY s.ngay_dien_ra DESC";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$typeId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getEventCategories() {
+        $query = "SELECT * FROM loaisukien ORDER BY tenloaisukien ASC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllEventTypes() {
+        $query = "SELECT * FROM loaisukien ORDER BY tenloaisukien ASC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getPendingEvents() {
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
+                 FROM sukien s 
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                 WHERE s.trang_thai = 'CHO_DUYET'
+                 GROUP BY s.ma_su_kien
+                 ORDER BY s.ngay_tao DESC";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateEventStatus($eventId, $status) {
+        $query = "UPDATE sukien SET trang_thai = ? WHERE ma_su_kien = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$status, $eventId]);
     }
 } 

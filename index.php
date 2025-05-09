@@ -19,6 +19,7 @@ require_once BASE_PATH . '/controllers/AuthController.php';
 require_once BASE_PATH . '/controllers/EventController.php';
 require_once BASE_PATH . '/controllers/SearchController.php';
 require_once BASE_PATH . '/controllers/UserController.php';
+require_once BASE_PATH . '/controllers/AdminController.php';
 
 // Lấy đường dẫn hiện tại
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -70,6 +71,26 @@ switch ($path) {
     case '/users/create':
         $userController = new UserController();
         $userController->create();
+        break;
+
+    case '/users/delete':
+        $userController = new UserController();
+        $userController->delete();
+        break;
+
+    case '/admin/pending-events':
+        $adminController = new AdminController();
+        $adminController->pendingEvents();
+        break;
+
+    case '/admin/approve-event':
+        $adminController = new AdminController();
+        $adminController->approveEvent();
+        break;
+
+    case '/admin/reject-event':
+        $adminController = new AdminController();
+        $adminController->rejectEvent();
         break;
 
     case '/':

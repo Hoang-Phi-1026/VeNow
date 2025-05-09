@@ -7,6 +7,7 @@ $eventController = new EventController();
 // Lấy danh sách sự kiện nổi bật và sắp tới
 $featuredEvents = $eventController->getFeaturedEvents();
 $upcomingEvents = $eventController->getUpcomingEvents();
+$categories = $eventController->getAllEventTypes();
 
 // Check if constants are defined, if not define them
 if (!defined('BASE_PATH')) {
@@ -93,42 +94,13 @@ require_once __DIR__ . '/../layouts/header.php';
             <h2 class="section-title">Khám phá theo danh mục</h2>
         </div>
         
-        <div class="category-grid">
-            <a href="<?php echo BASE_URL; ?>/category/music" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-music"></i>
-                </div>
-                <h3 class="category-title">Âm nhạc</h3>
-            </a>
-            
-            <a href="<?php echo BASE_URL; ?>/category/nightlife" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-cocktail"></i>
-                </div>
-                <h3 class="category-title">Nightlife</h3>
-            </a>
-            
-            <a href="<?php echo BASE_URL; ?>/category/art" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-palette"></i>
-                </div>
-                <h3 class="category-title">Nghệ thuật & Văn hóa</h3>
-            </a>
-            
-            <a href="<?php echo BASE_URL; ?>/category/community" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3 class="category-title">Cộng đồng</h3>
-            </a>
-            
-            
-            <a href="<?php echo BASE_URL; ?>/category/sports" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-running"></i>
-                </div>
-                <h3 class="category-title">Thể thao</h3>
-            </a>
+        <div class="category-list">
+            <?php foreach ($categories as $category): ?>
+                <a href="<?php echo BASE_URL; ?>/search?category=<?php echo $category['maloaisukien']; ?>" class="category-item">
+                    <i class="<?php echo htmlspecialchars($category['icon'] ?? 'fas fa-calendar-alt'); ?>"></i>
+                    <span><?php echo htmlspecialchars($category['tenloaisukien']); ?></span>
+                </a>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
