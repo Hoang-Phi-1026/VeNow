@@ -44,4 +44,4 @@ class AdminController extends BaseController {
         header('Location: ' . BASE_URL . '/admin/pending-events');
         exit;
     }
-} 
+}

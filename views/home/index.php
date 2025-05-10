@@ -148,7 +148,7 @@ require_once __DIR__ . '/../layouts/header.php';
     <div class="container">
         <div class="newsletter-content">
             <h2 class="newsletter-title">Đừng bỏ lỡ sự kiện nào!</h2>
-            <p class="newsletter-description">Đăng ký nhận thông báo về các sự kiện mới nhất phù hợp với sở thích của bạn.</p>
+            <p class="newsletter-description">Đăng ký nhận thông báo về các sự kiện mới nhất phù hợp sở thích của bạn.</p>
             <form class="newsletter-form" action="<?php echo BASE_URL; ?>/subscribe" method="POST">
                 <input type="email" name="email" placeholder="Nhập email của bạn" class="newsletter-input" required>
                 <button type="submit" class="btn btn-primary">Đăng ký</button>

@@ -21,6 +21,10 @@ if (session_status() === PHP_SESSION_NONE) {
         echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/login.css">';
     } elseif (strpos($current_url, '/register') !== false) {
         echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/register.css">';
+    } elseif (strpos($current_url, '/reviews') !== false) {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/reviews.css">';
+    } elseif (strpos($current_url, '/admin') !== false || strpos($current_url, '/staff') !== false) {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/admin.css">';
     }
     ?>
     
@@ -116,7 +120,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             break;
                         case 3: // Staff
                             ?>
-                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/admin/pending-events">Yêu cầu sự kiện</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/staff/pending-events">Yêu cầu sự kiện</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/reviews">Đánh giá chờ duyệt</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/complaints">Xử lý khiếu nại</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>

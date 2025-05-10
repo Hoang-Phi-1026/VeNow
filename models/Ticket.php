@@ -25,4 +25,4 @@ class Ticket {
         $stmt->execute([$customerId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-} 
+}

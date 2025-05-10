@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Event.php';
+require_once __DIR__ . '/../models/Comment.php';
 require_once __DIR__ . '/BaseController.php';
 
 class EventController extends BaseController {
@@ -96,5 +97,65 @@ class EventController extends BaseController {
         $events = $this->getEventsByCategory($categoryId);
         
         require_once __DIR__ . '/../views/event/category.php';
+    }
+
+    /**
+     * Xử lý thêm bình luận
+     */
+    public function addComment() {
+        // Kiểm tra đăng nhập
+        if (!isset($_SESSION['user'])) {
+            $_SESSION['error'] = 'Vui lòng đăng nhập để bình luận';
+            header('Location: ' . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+
+        // Kiểm tra method POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL);
+            exit;
+        }
+
+        // Lấy dữ liệu từ form
+        $maSuKien = $_POST['event_id'] ?? '';
+        $noiDung = $_POST['comment'] ?? '';
+        $diemDanhGia = $_POST['rating'] ?? '';
+        $maKhachHang = $_SESSION['user']['id'];
+
+        // Debug
+        error_log("Form data - Event ID: $maSuKien, User ID: $maKhachHang, Rating: $diemDanhGia, Content: $noiDung");
+
+        // Validate dữ liệu
+        $errors = [];
+        if (empty($maSuKien)) {
+            $errors[] = 'Mã sự kiện không hợp lệ';
+        }
+        if (empty($noiDung)) {
+            $errors[] = 'Nội dung không được để trống';
+        }
+        if (empty($diemDanhGia) || $diemDanhGia < 1 || $diemDanhGia > 5) {
+            $errors[] = 'Điểm đánh giá không hợp lệ';
+        }
+
+        if (empty($errors)) {
+            try {
+                // Thêm bình luận
+                $commentModel = new Comment();
+                if ($commentModel->addComment($maSuKien, $maKhachHang, $noiDung, $diemDanhGia)) {
+                    $_SESSION['success'] = 'Bình luận của bạn đã được gửi và đang chờ duyệt';
+                } else {
+                    $_SESSION['error'] = 'Có lỗi xảy ra khi gửi bình luận';
+                }
+            } catch (Exception $e) {
+                error_log("Lỗi khi thêm bình luận: " . $e->getMessage());
+                $_SESSION['error'] = 'Có lỗi xảy ra khi gửi bình luận';
+            }
+        } else {
+            $_SESSION['error'] = implode('<br>', $errors);
+        }
+
+        // Chuyển hướng về trang sự kiện
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit;
     }
 }

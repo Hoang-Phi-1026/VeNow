@@ -20,4 +20,4 @@ define('ERROR_MESSAGES', [
     'login_failed' => 'Email hoặc mật khẩu không đúng',
     'not_logged_in' => 'Vui lòng đăng nhập để tiếp tục',
     'not_admin' => 'Bạn không có quyền truy cập trang này'
-]); 
+]);

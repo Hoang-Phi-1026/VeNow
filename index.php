@@ -24,6 +24,7 @@ require_once BASE_PATH . '/controllers/UserController.php';
 require_once BASE_PATH . '/controllers/AdminController.php';
 require_once BASE_PATH . '/controllers/OrganizerEventController.php';
 require_once BASE_PATH . '/controllers/TicketController.php';
+require_once BASE_PATH . '/controllers/StaffController.php';
 
 // Lấy đường dẫn hiện tại
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -136,6 +137,63 @@ switch ($path) {
     case '/events/store':
         $eventController = new EventController();
         $eventController->store();
+        break;
+
+    case '/event/:id':
+        $eventController = new EventController();
+        $eventController->show($path);
+        break;
+
+    case '/event/category/:id':
+        $eventController = new EventController();
+        $eventController->category($path);
+        break;
+
+    case '/event/comment/add':
+        $eventController = new EventController();
+        $eventController->addComment();
+        break;
+
+    // Staff routes
+    case '/reviews':
+    case '/staff/reviews':
+        $staffController = new StaffController();
+        $staffController->reviews();
+        break;
+
+    case '/staff/reviews/approve':
+        $staffController = new StaffController();
+        $commentId = isset($_POST['id']) ? $_POST['id'] : null;
+        if ($commentId) {
+            $staffController->approveReview($commentId);
+        } else {
+            header('Location: ' . BASE_URL . '/reviews');
+        }
+        break;
+
+    case '/staff/reviews/reject':
+        $staffController = new StaffController();
+        $commentId = isset($_POST['id']) ? $_POST['id'] : null;
+        if ($commentId) {
+            $staffController->rejectReview($commentId);
+        } else {
+            header('Location: ' . BASE_URL . '/reviews');
+        }
+        break;
+
+    case '/staff/pending-events':
+        $staffController = new StaffController();
+        $staffController->pendingEvents();
+        break;
+
+    case '/staff/approve-event':
+        $staffController = new StaffController();
+        $staffController->approveEvent();
+        break;
+
+    case '/staff/reject-event':
+        $staffController = new StaffController();
+        $staffController->rejectEvent();
         break;
 
     default:

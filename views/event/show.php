@@ -1,6 +1,8 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php require_once __DIR__ . '/../../models/Comment.php'; ?>
 
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-detail.css">
+<link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/comments.css">
 
 <div class="event-detail">
     <div class="container">
@@ -135,91 +137,239 @@
 
                 <!-- Right Column - Event Info & Tickets -->
                 <div class="event-sidebar">
-                    <!-- Event Info Card -->
-                    <div class="event-info">
-                        <div class="event-info-header">
-                            <i class="fas fa-calendar-alt"></i>
-                            <h3>Thông tin sự kiện</h3>
+                    <div class="sticky-sidebar-container">
+                        <!-- Event Info Card -->
+                        <div class="event-info">
+                            <div class="event-info-header">
+                                <i class="fas fa-calendar-alt"></i>
+                                <h3>Thông tin sự kiện</h3>
+                            </div>
+                            <div class="event-info-content">
+                                <div class="event-info-item">
+                                    <div class="event-info-icon">
+                                        <i class="fas fa-calendar-day"></i>
+                                    </div>
+                                    <div class="event-info-text">
+                                        <div class="event-info-label">Ngày diễn ra</div>
+                                        <div class="event-info-value"><?php echo date('d/m/Y', strtotime($event['ngay_dien_ra'])); ?></div>
+                                    </div>
+                                </div>
+                                <div class="event-info-item">
+                                    <div class="event-info-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="event-info-text">
+                                        <div class="event-info-label">Thời gian</div>
+                                        <div class="event-info-value"><?php echo date('H:i', strtotime($event['gio_dien_ra'])); ?></div>
+                                    </div>
+                                </div>
+                                <div class="event-info-item">
+                                    <div class="event-info-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div class="event-info-text">
+                                        <div class="event-info-label">Địa điểm</div>
+                                        <div class="event-info-value"><?php echo htmlspecialchars($event['dia_diem']); ?></div>
+                                    </div>
+                                </div>
+                                <div class="event-info-item">
+                                    <div class="event-info-icon">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                    <div class="event-info-text">
+                                        <div class="event-info-label">Thể loại</div>
+                                        <div class="event-info-value"><?php echo htmlspecialchars($event['tenloaisukien']); ?></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="event-info-content">
-                            <div class="event-info-item">
-                                <div class="event-info-icon">
-                                    <i class="fas fa-calendar-day"></i>
-                                </div>
-                                <div class="event-info-text">
-                                    <div class="event-info-label">Ngày diễn ra</div>
-                                    <div class="event-info-value"><?php echo date('d/m/Y', strtotime($event['ngay_dien_ra'])); ?></div>
-                                </div>
+
+                        <!-- Ticket Section -->
+                        <?php
+                        // Lấy thông tin vé từ model
+                        $eventModel = new Event();
+                        $tickets = $eventModel->getEventTickets($event['ma_su_kien']);
+                        ?>
+                        <div class="ticket-section">
+                            <div class="ticket-header">
+                                <i class="fas fa-ticket-alt"></i>
+                                <h3>Vé sự kiện</h3>
                             </div>
-                            <div class="event-info-item">
-                                <div class="event-info-icon">
-                                    <i class="fas fa-clock"></i>
+                            <div class="ticket-content">
+                                <div class="ticket-types">
+                                    <?php if (empty($tickets)): ?>
+                                        <p>Hiện chưa có thông tin vé cho sự kiện này.</p>
+                                    <?php else: ?>
+                                        <?php foreach ($tickets as $ticket): ?>
+                                            <div class="ticket-type">
+                                                <div class="ticket-type-info">
+                                                    <div class="ticket-type-name"><?php echo htmlspecialchars($ticket['ten_loai_ve']); ?></div>
+                                                    <div class="ticket-type-desc"><?php echo htmlspecialchars($ticket['mo_ta'] ?? 'Vé tham dự sự kiện'); ?></div>
+                                                </div>
+                                                <div class="ticket-type-price">
+                                                    <?php if ($ticket['gia_ve'] == 0): ?>
+                                                        Miễn phí
+                                                    <?php else: ?>
+                                                        <?php echo number_format($ticket['gia_ve']); ?>đ
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="event-info-text">
-                                    <div class="event-info-label">Thời gian</div>
-                                    <div class="event-info-value"><?php echo date('H:i', strtotime($event['gio_dien_ra'])); ?></div>
-                                </div>
-                            </div>
-                            <div class="event-info-item">
-                                <div class="event-info-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div class="event-info-text">
-                                    <div class="event-info-label">Địa điểm</div>
-                                    <div class="event-info-value"><?php echo htmlspecialchars($event['dia_diem']); ?></div>
-                                </div>
-                            </div>
-                            <div class="event-info-item">
-                                <div class="event-info-icon">
-                                    <i class="fas fa-tag"></i>
-                                </div>
-                                <div class="event-info-text">
-                                    <div class="event-info-label">Thể loại</div>
-                                    <div class="event-info-value"><?php echo htmlspecialchars($event['tenloaisukien']); ?></div>
+                                <div class="ticket-actions">
+                                    <button class="btn-buy-tickets">
+                                        <i class="fas fa-shopping-cart"></i> Mua vé ngay
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Ticket Section -->
-                    <?php
-                    // Lấy thông tin vé từ model
-                    $eventModel = new Event();
-                    $tickets = $eventModel->getEventTickets($event['ma_su_kien']);
-                    ?>
-                    <div class="ticket-section">
-                        <div class="ticket-header">
-                            <i class="fas fa-ticket-alt"></i>
-                            <h3>Vé sự kiện</h3>
+            <!-- Comments Section -->
+            <?php
+            // Khởi tạo model bình luận
+            $commentModel = new Comment();
+
+            // Lấy dữ liệu bình luận và đánh giá
+            $comments = $commentModel->getApprovedCommentsByEventId($event['ma_su_kien']);
+
+            // Debug information
+            error_log("Event ID: " . $event['ma_su_kien']);
+            error_log("Comments count: " . count($comments));
+            
+            // Thêm debug để kiểm tra dữ liệu bình luận
+            if (!empty($comments)) {
+                error_log("First comment data: " . print_r($comments[0], true));
+            }
+
+            $commentCount = count($comments);
+            $averageRating = $commentModel->getAverageRating($event['ma_su_kien']);
+            $ratingDistribution = $commentModel->getRatingDistribution($event['ma_su_kien']);
+
+            // Tính tổng số đánh giá
+            $totalRatings = array_sum($ratingDistribution);
+            ?>
+
+            <div class="comments-section">
+                <div class="comments-header">
+                    <i class="fas fa-comments"></i>
+                    <h3>Đánh giá và bình luận</h3>
+                </div>
+                <div class="comments-content">
+                    <!-- Rating Summary -->
+                    <div class="rating-summary">
+                        <div class="rating-average">
+                            <div class="rating-number"><?php echo number_format($averageRating, 1); ?></div>
+                            <div class="rating-stars">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <i class="<?php echo $i <= round($averageRating) ? 'fas' : 'far'; ?> fa-star"></i>
+                                <?php endfor; ?>
+                            </div>
+                            <div class="rating-count"><?php echo $totalRatings; ?> đánh giá</div>
                         </div>
-                        <div class="ticket-content">
-                            <div class="ticket-types">
-                                <?php if (empty($tickets)): ?>
-                                    <p>Hiện chưa có thông tin vé cho sự kiện này.</p>
+                        <div class="rating-distribution">
+                            <?php for ($i = 5; $i >= 1; $i--): ?>
+                                <div class="rating-bar">
+                                    <div class="rating-label">
+                                        <i class="fas fa-star"></i> <?php echo $i; ?>
+                                    </div>
+                                    <div class="rating-progress">
+                                        <?php
+                                        $percentage = $totalRatings > 0 ? ($ratingDistribution[$i] / $totalRatings) * 100 : 0;
+                                        ?>
+                                        <div class="rating-progress-bar" style="width: <?php echo $percentage; ?>%"></div>
+                                    </div>
+                                    <div class="rating-percent"><?php echo $ratingDistribution[$i]; ?></div>
+                                </div>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+
+                    <!-- Comment Form -->
+                    <div class="comment-form-container">
+                        <?php if (isset($_SESSION['user'])): ?>
+                            <?php
+                            // Kiểm tra xem người dùng đã bình luận cho sự kiện này chưa
+                            $hasCommented = $commentModel->hasUserCommented($event['ma_su_kien'], $_SESSION['user']['id']);
+                            
+                            if ($hasCommented):
+                                // Kiểm tra trạng thái bình luận
+                                $commentStatus = $commentModel->getUserCommentStatus($event['ma_su_kien'], $_SESSION['user']['id']);
+                                
+                                if ($commentStatus == 'CHO_DUYET'):
+                                ?>
+                                <div class="pending-comment-notice">
+                                    <i class="fas fa-info-circle"></i>
+                                    Bạn đã gửi bình luận cho sự kiện này. Bình luận của bạn đang chờ duyệt.
+                                </div>
                                 <?php else: ?>
-                                    <?php foreach ($tickets as $ticket): ?>
-                                        <div class="ticket-type">
-                                            <div class="ticket-type-info">
-                                                <div class="ticket-type-name"><?php echo htmlspecialchars($ticket['ten_loai_ve']); ?></div>
-                                                <div class="ticket-type-desc"><?php echo htmlspecialchars($ticket['mo_ta'] ?? 'Vé tham dự sự kiện'); ?></div>
-                                            </div>
-                                            <div class="ticket-type-price">
-                                                <?php if ($ticket['gia_ve'] == 0): ?>
-                                                    Miễn phí
-                                                <?php else: ?>
-                                                    <?php echo number_format($ticket['gia_ve']); ?>đ
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                                <div class="approved-comment-notice">
+                                    <i class="fas fa-check-circle"></i>
+                                    Bạn đã đánh giá cho sự kiện này.
+                                </div>
                                 <?php endif; ?>
+                            <?php else: ?>
+                                <h4 class="comment-form-header">Viết đánh giá của bạn</h4>
+                                <form action="<?php echo BASE_URL; ?>/event/comment/add" method="POST" class="comment-form">
+                                    <input type="hidden" name="event_id" value="<?php echo $event['ma_su_kien']; ?>">
+
+                                    <div class="star-rating">
+                                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                                            <input type="radio" id="star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" <?php echo $i == 5 ? 'checked' : ''; ?>>
+                                            <label for="star<?php echo $i; ?>"><i class="fas fa-star"></i></label>
+                                        <?php endfor; ?>
+                                    </div>
+
+                                    <textarea name="comment" class="comment-textarea" placeholder="Chia sẻ trải nghiệm của bạn về sự kiện này..." required></textarea>
+
+                                    <button type="submit" class="comment-submit">
+                                        <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <div class="login-to-comment">
+                                <i class="fas fa-user-lock"></i>
+                                <p>Vui lòng <a href="<?php echo BASE_URL; ?>/login">đăng nhập</a> để viết đánh giá</p>
                             </div>
-                            <div class="ticket-actions">
-                                <button class="btn-buy-tickets">
-                                    <i class="fas fa-shopping-cart"></i> Mua vé ngay
-                                </button>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Comment List -->
+                    <div class="comment-list">
+                        <?php if (!empty($comments)): ?>
+                            <?php foreach ($comments as $comment): ?>
+                                <div class="comment-item">
+                                    <div class="comment-avatar">
+                                        <?php if (!empty($comment['avatar'])): ?>
+                                            <img src="<?php echo BASE_URL; ?>/public/uploads/avatars/<?php echo htmlspecialchars($comment['avatar']); ?>" alt="Avatar">
+                                        <?php else: ?>
+                                            <img src="<?php echo BASE_URL; ?>/public/images/default-avatar.png" alt="Default Avatar">
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="comment-content">
+                                        <div class="comment-header">
+                                            <div class="comment-author"><?php echo htmlspecialchars($comment['ho_ten']); ?></div>
+                                            <div class="comment-date"><?php echo date('d/m/Y H:i', strtotime($comment['ngay_tao'])); ?></div>
+                                        </div>
+                                        <div class="comment-rating">
+                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                <i class="<?php echo $i <= $comment['diem_danh_gia'] ? 'fas' : 'far'; ?> fa-star"></i>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <div class="comment-text"><?php echo nl2br(htmlspecialchars($comment['noi_dung'])); ?></div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="no-comments">
+                                <i class="far fa-comment-dots"></i>
+                                <p>Chưa có đánh giá nào cho sự kiện này. Hãy là người đầu tiên đánh giá!</p>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -405,6 +555,48 @@ document.addEventListener('DOMContentLoaded', function() {
             card.style.borderColor = '';
         });
     });
+
+    // Star rating hover effect
+    const starLabels = document.querySelectorAll('.star-rating label');
+    const starInputs = document.querySelectorAll('.star-rating input');
+    
+    // Lưu trạng thái đã chọn
+    let selectedRating = 0;
+    
+    starInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            selectedRating = this.value;
+        });
+    });
+    
+    // Hiệu ứng hover
+    starLabels.forEach((label, index) => {
+        label.addEventListener('mouseenter', () => {
+            // Reset tất cả các sao về trạng thái ban đầu
+            starLabels.forEach((l, i) => {
+                if (i <= index) {
+                    l.querySelector('i').className = 'fas fa-star';
+                } else {
+                    l.querySelector('i').className = 'far fa-star';
+                }
+            });
+        });
+    });
+    
+    // Khi rời chuột khỏi container
+    const starRatingContainer = document.querySelector('.star-rating');
+    if (starRatingContainer) {
+        starRatingContainer.addEventListener('mouseleave', () => {
+            // Khôi phục trạng thái đã chọn
+            starLabels.forEach((label, index) => {
+                if (index < selectedRating) {
+                    label.querySelector('i').className = 'fas fa-star';
+                } else {
+                    label.querySelector('i').className = 'far fa-star';
+                }
+            });
+        });
+    }
 });
 </script>
 
@@ -437,6 +629,99 @@ document.addEventListener('DOMContentLoaded', function() {
 .event-description::-webkit-scrollbar-thumb {
     background-color: var(--accent-color);
     border-radius: var(--radius-full);
+}
+
+/* Sticky sidebar styles */
+.sticky-sidebar-container {
+    position: sticky;
+    top: 20px; /* Adjust as needed */
+}
+
+/* Comment styles */
+.comment-item {
+    display: flex;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-avatar {
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+.comment-avatar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-content {
+    flex-grow: 1;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.comment-date {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+.comment-rating {
+    margin-bottom: 8px;
+    color: var(--accent-color);
+}
+
+.comment-text {
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.no-comments {
+    text-align: center;
+    padding: 30px 0;
+    color: var(--text-secondary);
+}
+
+.no-comments i {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: var(--text-tertiary);
+}
+
+/* Notification styles */
+.pending-comment-notice, .approved-comment-notice {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pending-comment-notice i {
+    color: #ffc107;
+    font-size: 1.2em;
+}
+
+.approved-comment-notice i {
+    color: #28a745;
+    font-size: 1.2em;
+}
+
+.pending-comment-notice, .approved-comment-notice {
+    font-weight: 500;
 }
 </style>
 

@@ -183,4 +183,4 @@ class UserController extends BaseController {
         header('Location: ' . BASE_URL . '/users');
         exit();
     }
-} 
+}

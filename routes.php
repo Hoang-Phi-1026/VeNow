@@ -1,43 +1,107 @@
 <?php
-// Routes cho Admin
-$router->get('/admin/pending-events', 'AdminController@pendingEvents');
-$router->post('/admin/approve-event', 'AdminController@approveEvent');
-$router->post('/admin/reject-event', 'AdminController@rejectEvent');
-
-// Routes cho Organizer
-$router->get('/organizer/events', 'OrganizerEventController@index');
-$router->get('/organizer/events/edit/{id}', 'OrganizerEventController@edit');
-$router->post('/organizer/events/edit/{id}', 'OrganizerEventController@edit');
-$router->get('/organizer/events/delete/{id}', 'OrganizerEventController@delete');
-
-// Routes cho Event
-$router->get('/events', 'EventController@index');
-$router->get('/event/{id}', 'EventController@show');
-$router->get('/events/create', 'EventController@create');
-$router->post('/events/store', 'EventController@store');
-
-// Routes cho User
-$router->get('/login', 'AuthController@showLogin');
-$router->post('/login', 'AuthController@login');
-$router->get('/register', 'AuthController@showRegister');
-$router->post('/register', 'AuthController@register');
-$router->get('/logout', 'AuthController@logout');
-
-// Routes cho Search
-$router->get('/search', 'SearchController@index');
-$router->get('/search/index', 'SearchController@index');
-
-// Routes cho Account
-$router->get('/account', 'AccountController@index');
-$router->post('/account/update', 'AccountController@update');
-
+// Define routes
 $routes = [
-    // Các routes hiện có
-    'organizer/events' => ['OrganizerEventController', 'index'],
-    'organizer/events/edit/{id}' => ['OrganizerEventController', 'edit'],
-    'organizer/events/delete/{id}' => ['OrganizerEventController', 'delete'],
+    // Home routes
+    '/' => ['controller' => 'HomeController', 'action' => 'index'],
+    '/home' => ['controller' => 'HomeController', 'action' => 'index'],
     
-    // Routes cho Account
-    'account' => ['AccountController', 'index'],
-    'account/update' => ['AccountController', 'update'],
-]; 
+    // Auth routes
+    '/login' => ['controller' => 'AuthController', 'action' => 'login'],
+    '/register' => ['controller' => 'AuthController', 'action' => 'register'],
+    '/logout' => ['controller' => 'AuthController', 'action' => 'logout'],
+    
+    // Event routes
+    '/events' => ['controller' => 'EventController', 'action' => 'index'],
+    '/events/create' => ['controller' => 'EventController', 'action' => 'create'],
+    '/events/store' => ['controller' => 'EventController', 'action' => 'store'],
+    '/events/edit/{id}' => ['controller' => 'EventController', 'action' => 'edit'],
+    '/events/update/{id}' => ['controller' => 'EventController', 'action' => 'update'],
+    '/events/delete/{id}' => ['controller' => 'EventController', 'action' => 'delete'],
+    '/events/manage' => ['controller' => 'EventController', 'action' => 'manage'],
+    '/event/{id}' => ['controller' => 'EventController', 'action' => 'show'],
+    
+    // Organizer event routes
+    '/organizer/events' => ['controller' => 'OrganizerEventController', 'action' => 'index'],
+    
+    // Admin routes
+    '/admin/pending-events' => ['controller' => 'AdminController', 'action' => 'pendingEvents'],
+    '/admin/approve-event' => ['controller' => 'AdminController', 'action' => 'approveEvent'],
+    '/admin/reject-event' => ['controller' => 'AdminController', 'action' => 'rejectEvent'],
+    
+    // Staff routes
+    '/staff/pending-events' => ['controller' => 'StaffController', 'action' => 'pendingEvents'],
+    '/staff/approve-event' => ['controller' => 'StaffController', 'action' => 'approveEvent'],
+    '/staff/reject-event' => ['controller' => 'StaffController', 'action' => 'rejectEvent'],
+    '/reviews' => ['controller' => 'StaffController', 'action' => 'reviews'],
+    '/staff/reviews/approve' => ['controller' => 'StaffController', 'action' => 'approveReview'],
+    '/staff/reviews/reject' => ['controller' => 'StaffController', 'action' => 'rejectReview'],
+    
+    // User routes
+    '/users' => ['controller' => 'UserController', 'action' => 'index'],
+    '/users/create' => ['controller' => 'UserController', 'action' => 'create'],
+    '/users/store' => ['controller' => 'UserController', 'action' => 'store'],
+    '/users/edit/{id}' => ['controller' => 'UserController', 'action' => 'edit'],
+    '/users/update/{id}' => ['controller' => 'UserController', 'action' => 'update'],
+    '/users/delete/{id}' => ['controller' => 'UserController', 'action' => 'delete'],
+    
+    // Account routes
+    '/account' => ['controller' => 'AccountController', 'action' => 'index'],
+    '/account/update' => ['controller' => 'AccountController', 'action' => 'update'],
+    '/account/change-password' => ['controller' => 'AccountController', 'action' => 'changePassword'],
+    
+    // Ticket routes
+    '/tickets/buy/{event_id}' => ['controller' => 'TicketController', 'action' => 'buy'],
+    '/tickets/confirm/{event_id}' => ['controller' => 'TicketController', 'action' => 'confirm'],
+    '/tickets/history' => ['controller' => 'TicketController', 'action' => 'history'],
+    '/tickets/download/{id}' => ['controller' => 'TicketController', 'action' => 'download'],
+    
+    // Search routes
+    '/search' => ['controller' => 'SearchController', 'action' => 'index'],
+    
+    // Comment routes
+    '/comment/add' => ['controller' => 'CommentController', 'action' => 'add'],
+];
+
+// Get current URL path
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = str_replace('/venow', '', $path);
+if ($path === '') {
+    $path = '/';
+}
+
+// Match route
+$routeFound = false;
+$params = [];
+
+foreach ($routes as $route => $handler) {
+    // Convert route to regex pattern
+    $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[^/]+)', $route);
+    $pattern = '#^' . $pattern . '$#';
+    
+    if (preg_match($pattern, $path, $matches)) {
+        $routeFound = true;
+        
+        // Extract parameters
+        foreach ($matches as $key => $value) {
+            if (is_string($key)) {
+                $params[$key] = $value;
+            }
+        }
+        
+        // Load controller and call action
+        $controllerName = $handler['controller'];
+        $actionName = $handler['action'];
+        
+        require_once 'controllers/' . $controllerName . '.php';
+        $controller = new $controllerName();
+        call_user_func_array([$controller, $actionName], $params);
+        
+        break;
+    }
+}
+
+// If no route found, show 404 page
+if (!$routeFound) {
+    http_response_code(404);
+    require_once 'error/404.php';
+}

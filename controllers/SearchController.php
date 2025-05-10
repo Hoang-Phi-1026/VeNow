@@ -18,13 +18,6 @@ class SearchController extends BaseController {
         $location = isset($_GET['location']) && trim($_GET['location']) !== '' ? trim($_GET['location']) : null;
         $price = isset($_GET['price']) && trim($_GET['price']) !== '' ? trim($_GET['price']) : null;
 
-        // Debug log
-        error_log("Search parameters: keyword=" . ($keyword ?? 'null') . 
-                  ", category=" . ($category ?? 'null') . 
-                  ", date=" . ($date ?? 'null') . 
-                  ", location=" . ($location ?? 'null') . 
-                  ", price=" . ($price ?? 'null'));
-
         // Get categories for the filter dropdown
         $stmt = $this->db->prepare("SELECT * FROM loaisukien ORDER BY tenloaisukien ASC");
         $stmt->execute();
@@ -79,26 +72,18 @@ class SearchController extends BaseController {
 
         $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
 
-        // Debug: Log the query and parameters
-        error_log("Search Query: " . $query);
-        error_log("Search Params: " . print_r($params, true));
-
         // Execute the query
         $stmt = $this->db->prepare($query);
         
         // Bind parameters and execute
         if (!empty($params)) {
             for ($i = 0; $i < count($params); $i++) {
-                // PDO parameters are 1-indexed
                 $stmt->bindValue($i + 1, $params[$i]);
             }
         }
         
         $stmt->execute();
         $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Debug: Log the number of results
-        error_log("Number of results: " . count($events));
 
         // Get category info if category filter is applied
         $categoryInfo = null;

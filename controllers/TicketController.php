@@ -29,4 +29,4 @@ class TicketController extends BaseController {
         
         require_once __DIR__ . '/../views/ticket/history.php';
     }
-} 
+}
