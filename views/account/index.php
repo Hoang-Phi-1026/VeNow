@@ -76,6 +76,44 @@
                             </div>
                         </div>
                         
+                        <!-- Phần giới thiệu bản thân -->
+                        <div class="bio-section">
+                            <div class="bio-header">
+                                <div class="bio-display">
+                                    <h4><i class="fas fa-user-edit"></i> Giới thiệu về bạn</h4>
+                                    <div class="bio-content" id="bioContent">
+                                        <?php if (!empty($user['mo_ta'])): ?>
+                                            <?php echo nl2br(htmlspecialchars($user['mo_ta'])); ?>
+                                        <?php else: ?>
+                                            <em>Chưa có thông tin giới thiệu. Hãy một tả một chút về bạn.</em>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <button type="button" class="bio-edit-btn" id="bioEditBtn">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="bio-editor-container" id="bioEditorContainer">
+                                <div class="bio-editor">
+                                    <textarea id="mo_ta" name="mo_ta" rows="6" 
+                                        placeholder="Hãy giới thiệu một chút về bản thân..."><?php echo htmlspecialchars($user['mo_ta'] ?? ''); ?></textarea>
+                                    <div class="bio-counter"><span id="charCount">0</span>/500 ký tự</div>
+                                </div>
+                                <div class="bio-tips">
+                                    <i class="fas fa-lightbulb"></i> Gợi ý: Chia sẻ sở thích, kinh nghiệm hoặc lĩnh vực bạn quan tâm để mọi người hiểu hơn về bạn.
+                                </div>
+                                <div class="bio-actions">
+                                    <button type="button" class="btn-cancel" id="bioCancelBtn">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </button>
+                                    <button type="button" class="btn-save" id="bioSaveBtn">
+                                        <i class="fas fa-check"></i> Lưu thay đổi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="ho_ten">Họ tên</label>
@@ -105,28 +143,6 @@
                                     <option value="NU" <?php echo $user['gioi_tinh'] === 'NU' ? 'selected' : ''; ?>>Nữ</option>
                                     <option value="KHAC" <?php echo $user['gioi_tinh'] === 'KHAC' ? 'selected' : ''; ?>>Khác</option>
                                 </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group bio-section">
-                            <label for="mo_ta">
-                                <i class="fas fa-user-edit"></i> Giới thiệu về bạn
-                            </label>
-                            <div class="bio-container">
-                                <div class="bio-editor">
-                                    <textarea id="mo_ta" name="mo_ta" rows="4" 
-                                        placeholder="Hãy giới thiệu một chút về bản thân..."><?php echo htmlspecialchars($user['mo_ta'] ?? ''); ?></textarea>
-                                    <div class="bio-counter"><span id="charCount">0</span>/500 ký tự</div>
-                                </div>
-                                <div class="bio-preview">
-                                    <h4>Xem trước</h4>
-                                    <div id="bioPreview" class="bio-preview-content">
-                                        <?php echo !empty($user['mo_ta']) ? nl2br(htmlspecialchars($user['mo_ta'])) : '<em>Xem trước nội dung giới thiệu của bạn ở đây...</em>'; ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bio-tips">
-                                <i class="fas fa-lightbulb"></i> Gợi ý: Chia sẻ sở thích, kinh nghiệm hoặc lĩnh vực bạn quan tâm để mọi người hiểu hơn về bạn.
                             </div>
                         </div>
                     </div>
@@ -193,18 +209,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bio preview and character counter
+    // Bio editor functionality
     const bioTextarea = document.getElementById('mo_ta');
-    const bioPreview = document.getElementById('bioPreview');
     const charCount = document.getElementById('charCount');
+    const bioEditBtn = document.getElementById('bioEditBtn');
+    const bioCancelBtn = document.getElementById('bioCancelBtn');
+    const bioSaveBtn = document.getElementById('bioSaveBtn');
+    const bioEditorContainer = document.getElementById('bioEditorContainer');
+    const bioContent = document.getElementById('bioContent');
     
     // Set initial character count
     charCount.textContent = bioTextarea.value.length;
     
+    // Hide bio editor by default
+    bioEditorContainer.style.display = 'none';
+    
+    // Show bio editor when edit button is clicked
+    bioEditBtn.addEventListener('click', function() {
+        bioEditorContainer.style.display = 'block';
+        bioEditBtn.style.display = 'none';
+        bioTextarea.focus();
+    });
+    
+    // Hide bio editor when cancel button is clicked
+    bioCancelBtn.addEventListener('click', function() {
+        bioEditorContainer.style.display = 'none';
+        bioEditBtn.style.display = 'block';
+    });
+    
+    // Save bio content when save button is clicked
+    bioSaveBtn.addEventListener('click', function() {
+        const bioText = bioTextarea.value;
+        bioContent.innerHTML = bioText ? nl2br(bioText) : '<em>Chưa có thông tin giới thiệu. Nhấp vào biểu tượng bút để thêm.</em>';
+        bioEditorContainer.style.display = 'none';
+        bioEditBtn.style.display = 'block';
+    });
+    
     bioTextarea.addEventListener('input', function() {
-        // Update preview
-        bioPreview.innerHTML = this.value ? nl2br(this.value) : '<em>Xem trước nội dung giới thiệu của bạn ở đây...</em>';
-        
         // Update character count
         charCount.textContent = this.value.length;
         

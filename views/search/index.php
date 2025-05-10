@@ -32,6 +32,61 @@
             font-size: 12px;
             border-radius: 3px;
         }
+        
+        /* Styles for search form */
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .search-input {
+            flex: 2;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .reset-filters {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .form-group, .search-input, .form-actions {
+                flex: 100%;
+            }
+            
+            .form-actions {
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -52,9 +107,6 @@
 
             <!-- Debug information for administrators -->
             <?php if (isset($_SESSION['user']) && $_SESSION['user']['vai_tro'] == 1): ?>
-                <button class="debug-toggle" onclick="document.getElementById('searchDebug').classList.toggle('show')">
-                    Toggle Debug Info
-                </button>
                 <div id="searchDebug" class="search-debug">
                     <h4>Search Parameters:</h4>
                     <pre>
@@ -95,9 +147,14 @@ Price: <?php echo htmlspecialchars($price ?? 'null'); ?>
                             <option value="paid" <?php echo (isset($price) && $price === 'paid') ? 'selected' : ''; ?>>Có phí</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Tìm kiếm
-                    </button>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                        <a href="<?php echo BASE_URL; ?>/search" class="btn btn-secondary reset-filters">
+                            <i class="fas fa-undo"></i> Thiết lập lại
+                        </a>
+                    </div>
                 </form>
             </div>
 

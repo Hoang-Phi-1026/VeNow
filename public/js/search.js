@@ -81,5 +81,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       })
     }
+  
+    // Reset filters button
+    const resetButton = document.querySelector(".reset-filters")
+    if (resetButton) {
+      resetButton.addEventListener("click", (e) => {
+        // Prevent default anchor behavior
+        e.preventDefault()
+  
+        // Clear all form inputs
+        const form = document.querySelector(".search-form")
+        if (form) {
+          // Reset all select elements
+          form.querySelectorAll("select").forEach((select) => {
+            select.selectedIndex = 0
+          })
+  
+          // Reset all input elements
+          form.querySelectorAll("input").forEach((input) => {
+            if (input.type === "text" || input.type === "date") {
+              input.value = ""
+            }
+          })
+  
+          // Redirect to base search URL
+          window.location.href = form.action
+        }
+      })
+    }
   })
   
