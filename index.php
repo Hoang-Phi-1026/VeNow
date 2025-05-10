@@ -12,6 +12,7 @@ require_once BASE_PATH . '/config/database.php';
 // Include models
 require_once BASE_PATH . '/models/User.php';
 require_once BASE_PATH . '/models/Event.php';
+require_once BASE_PATH . '/models/Ticket.php';
 
 // Include controllers
 require_once BASE_PATH . '/controllers/BaseController.php';
@@ -22,6 +23,7 @@ require_once BASE_PATH . '/controllers/AccountController.php';
 require_once BASE_PATH . '/controllers/UserController.php';
 require_once BASE_PATH . '/controllers/AdminController.php';
 require_once BASE_PATH . '/controllers/OrganizerEventController.php';
+require_once BASE_PATH . '/controllers/TicketController.php';
 
 // Lấy đường dẫn hiện tại
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -113,6 +115,11 @@ switch ($path) {
     case '/account/update':
         $accountController = new AccountController();
         $accountController->update();
+        break;
+
+    case '/tickets/history':
+        $ticketController = new TicketController();
+        $ticketController->history();
         break;
 
     case '/':

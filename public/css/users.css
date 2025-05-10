@@ -1,574 +1,672 @@
 /* User Management Page Styles */
 .user-management {
-    padding: var(--spacing-6) 0;
-  }
-  
-  /* Page Header */
-  .user-management .page-header {
-    margin-bottom: var(--spacing-5);
-    padding-bottom: var(--spacing-3);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--spacing-3);
-  }
-  
-  .user-management .page-header h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    position: relative;
-    padding-bottom: var(--spacing-2);
-  }
-  
-  .user-management .page-header h1::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 36px;
-    height: 2px;
-    background: var(--accent-color);
-    border-radius: var(--radius-full);
-  }
-  
-  .user-management .btn-create {
-    background: var(--accent-color);
-    color: white;
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    transition: all var(--transition-normal);
-    border: none;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-  
-  .user-management .btn-create:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  /* Search and Filter Section */
-  .user-management .filter-section {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-4);
-    margin-bottom: var(--spacing-5);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    transition: all var(--transition-normal);
-  }
-  
-  .user-management .filter-section:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
-  }
-  
+  padding: var(--spacing-6) 0;
+}
+
+/* Page Header */
+.user-management .page-header {
+  margin-bottom: var(--spacing-5);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.user-management .page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  position: relative;
+  padding-bottom: var(--spacing-2);
+}
+
+.user-management .page-header h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 36px;
+  height: 2px;
+  background: var(--accent-color);
+  border-radius: var(--radius-full);
+}
+
+.user-management .btn-create {
+  background: var(--accent-color);
+  color: white;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  transition: all var(--transition-normal);
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.user-management .btn-create:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Search and Filter Section */
+.user-management .filter-section {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.user-management .filter-section:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+.user-management .filter-form {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.user-management .search-group {
+  flex: 1;
+  min-width: 250px;
+  position: relative;
+}
+
+.user-management .search-group i {
+  position: absolute;
+  left: var(--spacing-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  transition: color var(--transition-normal);
+}
+
+.user-management .search-input {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) var(--spacing-8);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  transition: all var(--transition-normal);
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+
+.user-management .search-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
+  outline: none;
+}
+
+.user-management .search-input:focus + i {
+  color: var(--accent-color);
+}
+
+.user-management .role-filter {
+  min-width: 180px;
+}
+
+.user-management .form-select {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.user-management .form-select:hover {
+  border-color: var(--accent-color);
+}
+
+.user-management .form-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
+}
+
+.user-management .filter-btn {
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.9rem;
+}
+
+.user-management .filter-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Table Styles */
+.user-management .table-container {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  transition: all var(--transition-normal);
+}
+
+.user-management .table-container:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.user-management .users-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.user-management .users-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-tertiary);
+}
+
+.user-management .users-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: left;
+  padding: var(--spacing-3);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  font-size: 0.85rem;
+}
+
+.user-management .table-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.user-management .table-container::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+}
+
+.user-management .table-container::-webkit-scrollbar-thumb {
+  background-color: var(--accent-color);
+  border-radius: var(--radius-full);
+}
+
+.user-management .users-table td {
+  padding: var(--spacing-3);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+  font-size: 0.85rem;
+}
+
+.user-management .users-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-management .users-table tr:hover td {
+  background: var(--hover-bg);
+}
+
+/* Status Badge */
+.user-management .status-badge {
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+}
+
+.user-management .status-active {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--success-600);
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+.user-management .status-inactive {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--error-600);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+/* Action Buttons */
+.user-management .action-buttons {
+  display: flex;
+  gap: var(--spacing-2);
+  justify-content: center;
+}
+
+.user-management .btn-edit,
+.user-management .btn-delete {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-management .btn-edit {
+  background: rgba(25, 127, 181, 0.1);
+  color: var(--accent-color);
+}
+
+.user-management .btn-delete {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--error-600);
+}
+
+.user-management .btn-edit:hover {
+  background: var(--accent-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.user-management .btn-delete:hover {
+  background: var(--error-600);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Empty State */
+.user-management .empty-state {
+  text-align: center;
+  padding: var(--spacing-8);
+  color: var(--text-secondary);
+}
+
+.user-management .empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-3);
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+.user-management .empty-state h3 {
+  font-size: 1.2rem;
+  margin-bottom: var(--spacing-2);
+  color: var(--text-primary);
+}
+
+.user-management .empty-state p {
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin: 0 auto;
+  font-size: 0.9rem;
+}
+
+/* Card Styles for Forms */
+.user-form .card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  margin-bottom: var(--spacing-6);
+}
+
+.user-form .card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.user-form .card-body {
+  padding: var(--spacing-5);
+}
+
+/* Form Styles */
+.user-form .form-label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.user-form .form-control {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  background: var(--input-bg);
+  color: var(--input-text);
+  transition: all var(--transition-normal);
+  margin-bottom: var(--spacing-4);
+}
+
+.user-form .form-control:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
+}
+
+.user-form .form-check {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.user-form .form-check-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+}
+
+.user-form .form-check-label {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.user-form .mb-3 {
+  margin-bottom: var(--spacing-4);
+}
+
+/* Button Styles */
+.user-form .btn {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  border: none;
+}
+
+.user-form .btn-primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.user-form .btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.user-form .btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.user-form .btn-secondary:hover {
+  background: var(--hover-bg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.user-form .d-flex {
+  display: flex;
+}
+
+.user-form .gap-2 {
+  gap: var(--spacing-3);
+}
+
+.user-form .justify-content-between {
+  justify-content: space-between;
+}
+
+.user-form .align-items-center {
+  align-items: center;
+}
+
+/* Alert Styles */
+.user-management .alert,
+.user-form .alert {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  position: relative;
+}
+
+.user-management .alert::before,
+.user-form .alert::before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.user-management .alert-success,
+.user-form .alert-success {
+  background: var(--success-50);
+  color: var(--success-700);
+  border-left: 3px solid var(--success-500);
+}
+
+.user-management .alert-danger,
+.user-form .alert-danger {
+  background: var(--error-50);
+  color: var(--error-700);
+  border-left: 3px solid var(--error-500);
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .user-management .alert-success,
+[data-theme="dark"] .user-form .alert-success {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--success-100);
+}
+
+[data-theme="dark"] .user-management .alert-danger,
+[data-theme="dark"] .user-form .alert-danger {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--error-100);
+}
+
+[data-theme="dark"] .user-management .status-active {
+  background: rgba(22, 163, 74, 0.2);
+  color: var(--success-100);
+}
+
+[data-theme="dark"] .user-management .status-inactive {
+  background: rgba(220, 38, 38, 0.2);
+  color: var(--error-100);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
   .user-management .filter-form {
-    display: flex;
-    gap: var(--spacing-3);
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .user-management .search-group {
-    flex: 1;
-    min-width: 250px;
-    position: relative;
-  }
-  
-  .user-management .search-group i {
-    position: absolute;
-    left: var(--spacing-3);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-tertiary);
-    transition: color var(--transition-normal);
-  }
-  
-  .user-management .search-input {
-    width: 100%;
-    padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) var(--spacing-8);
-    border: 1px solid var(--input-border);
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    transition: all var(--transition-normal);
-    background: var(--input-bg);
-    color: var(--input-text);
-  }
-  
-  .user-management .search-input:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
-    outline: none;
-  }
-  
-  .user-management .search-input:focus + i {
-    color: var(--accent-color);
-  }
-  
+
+  .user-management .search-group,
   .user-management .role-filter {
-    min-width: 180px;
-  }
-  
-  .user-management .form-select {
     width: 100%;
-    padding: var(--spacing-3);
-    border: 1px solid var(--input-border);
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    background-color: var(--input-bg);
-    color: var(--input-text);
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 30px;
+    min-width: 100%;
   }
-  
-  .user-management .form-select:hover {
-    border-color: var(--accent-color);
-  }
-  
-  .user-management .form-select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
-  }
-  
+
   .user-management .filter-btn {
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    font-size: 0.9rem;
+    align-self: flex-end;
   }
-  
-  .user-management .filter-btn:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  /* Table Styles */
-  .user-management .table-container {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-4);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    overflow-x: auto;
-    transition: all var(--transition-normal);
-    height: 350px;
-    overflow-y: auto;
-    position: relative;
-  }
-  
-  .user-management .table-container:hover {
-    box-shadow: var(--shadow-md);
-  }
-  
+}
+
+@media (max-width: 768px) {
   .user-management .users-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-  
-  .user-management .users-table thead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--bg-tertiary);
-  }
-  
-  .user-management .users-table th {
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    font-weight: 600;
-    text-align: left;
-    padding: var(--spacing-3);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 10;
     font-size: 0.85rem;
   }
-  
-  .user-management .table-container::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  
-  .user-management .table-container::-webkit-scrollbar-track {
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-full);
-  }
-  
-  .user-management .table-container::-webkit-scrollbar-thumb {
-    background-color: var(--accent-color);
-    border-radius: var(--radius-full);
-  }
-  
+
+  .user-management .users-table th,
   .user-management .users-table td {
-    padding: var(--spacing-3);
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-primary);
-    transition: all var(--transition-normal);
-    font-size: 0.85rem;
+    padding: var(--spacing-2);
   }
-  
-  .user-management .users-table tr:last-child td {
-    border-bottom: none;
+
+  .user-management .page-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .user-management .users-table tr:hover td {
-    background: var(--hover-bg);
-  }
-  
-  /* Status Badge */
-  .user-management .status-badge {
-    padding: var(--spacing-1) var(--spacing-3);
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 500;
-    display: inline-block;
-    text-align: center;
-  }
-  
-  .user-management .status-active {
-    background: rgba(22, 163, 74, 0.1);
-    color: var(--success-600);
-    border: 1px solid rgba(22, 163, 74, 0.2);
-  }
-  
-  .user-management .status-inactive {
-    background: rgba(220, 38, 38, 0.1);
-    color: var(--error-600);
-    border: 1px solid rgba(220, 38, 38, 0.2);
-  }
-  
-  /* Action Buttons */
-  .user-management .action-buttons {
-    display: flex;
-    gap: var(--spacing-2);
-    justify-content: center;
-  }
-  
-  .user-management .btn-edit,
-  .user-management .btn-delete {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-md);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .user-management .btn-edit {
-    background: rgba(25, 127, 181, 0.1);
-    color: var(--accent-color);
-  }
-  
-  .user-management .btn-delete {
-    background: rgba(220, 38, 38, 0.1);
-    color: var(--error-600);
-  }
-  
-  .user-management .btn-edit:hover {
-    background: var(--accent-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .user-management .btn-delete:hover {
-    background: var(--error-600);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  /* Empty State */
-  .user-management .empty-state {
-    text-align: center;
-    padding: var(--spacing-8);
-    color: var(--text-secondary);
-  }
-  
-  .user-management .empty-state i {
-    font-size: 2.5rem;
-    margin-bottom: var(--spacing-3);
-    color: var(--text-tertiary);
-    opacity: 0.7;
-  }
-  
-  .user-management .empty-state h3 {
-    font-size: 1.2rem;
-    margin-bottom: var(--spacing-2);
-    color: var(--text-primary);
-  }
-  
-  .user-management .empty-state p {
-    color: var(--text-secondary);
-    max-width: 400px;
-    margin: 0 auto;
-    font-size: 0.9rem;
-  }
-  
-  /* Card Styles for Forms */
-  .user-form .card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    transition: all var(--transition-normal);
-    margin-bottom: var(--spacing-6);
-  }
-  
-  .user-form .card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-  
+
   .user-form .card-body {
-    padding: var(--spacing-5);
-  }
-  
-  /* Form Styles */
-  .user-form .form-label {
-    display: block;
-    margin-bottom: var(--spacing-2);
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: 0.9rem;
-  }
-  
-  .user-form .form-control {
-    width: 100%;
     padding: var(--spacing-3);
-    border: 1px solid var(--input-border);
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    background: var(--input-bg);
-    color: var(--input-text);
-    transition: all var(--transition-normal);
-    margin-bottom: var(--spacing-4);
   }
-  
-  .user-form .form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
+}
+
+@media (max-width: 576px) {
+  .user-management .users-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
-  
-  .user-form .form-check {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    margin-bottom: var(--spacing-4);
-  }
-  
-  .user-form .form-check-input {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-    accent-color: var(--accent-color);
-  }
-  
-  .user-form .form-check-label {
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-  
-  .user-form .mb-3 {
-    margin-bottom: var(--spacing-4);
-  }
-  
-  /* Button Styles */
+
+  .user-form .form-control,
+  .user-form .form-select,
   .user-form .btn {
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    border: none;
+    font-size: 0.85rem;
+    padding: var(--spacing-2);
   }
-  
-  .user-form .btn-primary {
-    background: var(--accent-color);
-    color: white;
+}
+/* Simplified User Management styles */
+.user-management {
+  padding: var(--spacing-6) 0;
+}
+
+.user-management .page-header {
+  margin-bottom: var(--spacing-5);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.user-management .btn-create {
+  background: var(--accent-color);
+  color: white;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  transition: all var(--transition-normal);
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.user-management .filter-section {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.user-management .filter-form {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.user-management .table-container {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  transition: all var(--transition-normal);
+}
+
+.user-management .users-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.user-management .status-badge {
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+}
+
+.user-management .action-buttons {
+  display: flex;
+  gap: var(--spacing-2);
+  justify-content: center;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .user-management .filter-form {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .user-form .btn-primary:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 768px) {
+  .user-management .page-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .user-form .btn-secondary {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+}
+
+@media (max-width: 576px) {
+  .user-management .users-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
-  
-  .user-form .btn-secondary:hover {
-    background: var(--hover-bg);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .user-form .d-flex {
-    display: flex;
-  }
-  
-  .user-form .gap-2 {
-    gap: var(--spacing-3);
-  }
-  
-  .user-form .justify-content-between {
-    justify-content: space-between;
-  }
-  
-  .user-form .align-items-center {
-    align-items: center;
-  }
-  
-  /* Alert Styles */
-  .user-management .alert,
-  .user-form .alert {
-    padding: var(--spacing-3) var(--spacing-4);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-4);
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    position: relative;
-  }
-  
-  .user-management .alert::before,
-  .user-form .alert::before {
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 1rem;
-  }
-  
-  .user-management .alert-success,
-  .user-form .alert-success {
-    background: var(--success-50);
-    color: var(--success-700);
-    border-left: 3px solid var(--success-500);
-  }
-  
-  .user-management .alert-danger,
-  .user-form .alert-danger {
-    background: var(--error-50);
-    color: var(--error-700);
-    border-left: 3px solid var(--error-500);
-  }
-  
-  /* Dark Mode Adjustments */
-  [data-theme="dark"] .user-management .alert-success,
-  [data-theme="dark"] .user-form .alert-success {
-    background: rgba(22, 163, 74, 0.1);
-    color: var(--success-100);
-  }
-  
-  [data-theme="dark"] .user-management .alert-danger,
-  [data-theme="dark"] .user-form .alert-danger {
-    background: rgba(220, 38, 38, 0.1);
-    color: var(--error-100);
-  }
-  
-  [data-theme="dark"] .user-management .status-active {
-    background: rgba(22, 163, 74, 0.2);
-    color: var(--success-100);
-  }
-  
-  [data-theme="dark"] .user-management .status-inactive {
-    background: rgba(220, 38, 38, 0.2);
-    color: var(--error-100);
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 992px) {
-    .user-management .filter-form {
-      flex-direction: column;
-      align-items: stretch;
-    }
-  
-    .user-management .search-group,
-    .user-management .role-filter {
-      width: 100%;
-      min-width: 100%;
-    }
-  
-    .user-management .filter-btn {
-      align-self: flex-end;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .user-management .users-table {
-      font-size: 0.85rem;
-    }
-  
-    .user-management .users-table th,
-    .user-management .users-table td {
-      padding: var(--spacing-2);
-    }
-  
-    .user-management .page-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .user-form .card-body {
-      padding: var(--spacing-3);
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .user-management .users-table {
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
-    }
-  
-    .user-form .form-control,
-    .user-form .form-select,
-    .user-form .btn {
-      font-size: 0.85rem;
-      padding: var(--spacing-2);
-    }
-  }
-  
+}

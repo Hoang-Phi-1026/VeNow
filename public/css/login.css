@@ -34,11 +34,6 @@
   width: 50px;
   height: 2px;
   background: var(--accent-color);
-  border-radius: var(--radius-full);
-}
-
-.login-form {
-  margin-top: var(--spacing-5);
 }
 
 .form-group {
@@ -51,27 +46,6 @@
   color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.9rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: var(--spacing-3);
-  border: 1px solid var(--input-border);
-  border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  background: var(--input-bg);
-  color: var(--input-text);
-  transition: all var(--transition-normal);
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.15);
-}
-
-.form-actions {
-  margin-top: var(--spacing-5);
 }
 
 .btn-login {
@@ -100,42 +74,6 @@
   padding-top: var(--spacing-5);
 }
 
-.forgot-password {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.85rem;
-  transition: color var(--transition-normal);
-  display: inline-block;
-  margin-bottom: var(--spacing-3);
-}
-
-.forgot-password:hover {
-  color: var(--accent-color);
-  text-decoration: underline;
-}
-
-.register-link {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin: 0;
-}
-
-.register-link a {
-  color: var(--accent-color);
-  font-weight: 500;
-  transition: color var(--transition-normal);
-}
-
-.register-link a:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-}
-
-/* Alert styles specific to login page */
-.login-container .alert {
-  margin-bottom: var(--spacing-5);
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .login-container {
@@ -152,30 +90,4 @@
     padding: var(--spacing-4);
     border-radius: var(--radius-md);
   }
-
-  .login-title {
-    font-size: 1.4rem;
-  }
-
-  .form-group input {
-    padding: var(--spacing-2);
-  }
-
-  .btn-login {
-    padding: var(--spacing-2);
-  }
-}
-
-/* Focus styles */
-input:focus,
-button:focus {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
-
-input:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.2);
 }

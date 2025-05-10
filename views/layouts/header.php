@@ -111,13 +111,15 @@ if (session_status() === PHP_SESSION_NONE) {
                                     <li><a href="<?php echo BASE_URL; ?>/organizer/events">Sự kiện của tôi</a></li>
                                 </ul>
                             </li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>
                             <?php
                             break;
                         case 3: // Staff
                             ?>
-                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/events/requests">Yêu cầu sự kiện</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/admin/pending-events">Yêu cầu sự kiện</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/reviews">Đánh giá chờ duyệt</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/complaints">Xử lý khiếu nại</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>
                             <?php
                             break;
                         case 4: // Customer

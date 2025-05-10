@@ -46,7 +46,7 @@
                         <p class="category-description"><?php echo htmlspecialchars($categoryInfo['mota']); ?></p>
                     <?php endif; ?>
                 <?php else: ?>
-                    <h1 class="search-title">Tìm kiếm sự kiện</h1>
+                    <h3 class="search-title">Lọc sự kiện</h3>
                 <?php endif; ?>
             </div>
 
@@ -70,10 +70,7 @@ Price: <?php echo htmlspecialchars($price ?? 'null'); ?>
 
             <div class="search-filters">
                 <form action="<?php echo BASE_URL; ?>/search" method="GET" class="search-form">
-                    <div class="form-group">
-                        <input type="text" name="q" placeholder="Tìm kiếm sự kiện..." 
-                               value="<?php echo htmlspecialchars($keyword ?? ''); ?>" class="form-control">
-                    </div>
+                    
                     <div class="form-group">
                         <select name="category" class="form-control">
                             <option value="">Tất cả danh mục</option>

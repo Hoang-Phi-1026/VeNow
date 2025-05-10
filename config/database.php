@@ -22,7 +22,8 @@ class Database {
                 ]
             );
         } catch(PDOException $e) {
-            die("Lỗi kết nối database: " . $e->getMessage());
+            error_log("Database connection failed: " . $e->getMessage());
+            throw new Exception("Database connection failed");
         }
     }
 
@@ -30,7 +31,15 @@ class Database {
         if (self::$instance === null) {
             self::$instance = new self();
         }
-        return self::$instance->conn;
+        return self::$instance;
+    }
+
+    public function getConnection() {
+        return $this->conn;
+    }
+
+    public function prepare($sql) {
+        return $this->conn->prepare($sql);
     }
 
     // Ngăn chặn clone object
