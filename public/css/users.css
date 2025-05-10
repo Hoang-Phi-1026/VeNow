@@ -1,46 +1,53 @@
 /* User Management Page Styles */
 .user-management {
-  padding: var(--spacing-6) 0;
+  padding: var(--spacing-8) 0;
 }
 
 /* Page Header */
 .user-management .page-header {
-  margin-bottom: var(--spacing-5);
-  padding-bottom: var(--spacing-3);
+  margin-bottom: var(--spacing-6);
+  padding-bottom: var(--spacing-4);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-3);
+  gap: var(--spacing-4);
+  position: relative;
+}
+
+.user-management .page-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(to right, var(--accent-color), transparent);
+  border-radius: var(--radius-full);
 }
 
 .user-management .page-header h1 {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
-  position: relative;
-  padding-bottom: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
 }
 
-.user-management .page-header h1::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 36px;
-  height: 2px;
-  background: var(--accent-color);
-  border-radius: var(--radius-full);
+.user-management .page-header h1 i {
+  color: var(--accent-color);
+  font-size: 1.6rem;
 }
 
 .user-management .btn-create {
   background: var(--accent-color);
   color: white;
-  padding: var(--spacing-2) var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-5);
   border-radius: var(--radius-md);
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -48,7 +55,8 @@
   transition: all var(--transition-normal);
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .user-management .btn-create:hover {
@@ -57,27 +65,42 @@
   box-shadow: var(--shadow-md);
 }
 
+.user-management .btn-create i {
+  font-size: 0.9rem;
+}
+
 /* Search and Filter Section */
 .user-management .filter-section {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-4);
-  margin-bottom: var(--spacing-5);
-  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-5);
+  margin-bottom: var(--spacing-6);
+  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
   transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.user-management .filter-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--accent-color), transparent);
 }
 
 .user-management .filter-section:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--accent-color);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
 .user-management .filter-form {
   display: flex;
-  gap: var(--spacing-3);
-  align-items: center;
+  gap: var(--spacing-4);
+  align-items: flex-end;
   flex-wrap: wrap;
 }
 
@@ -94,6 +117,7 @@
   transform: translateY(-50%);
   color: var(--text-tertiary);
   transition: color var(--transition-normal);
+  font-size: 1rem;
 }
 
 .user-management .search-input {
@@ -101,15 +125,16 @@
   padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) var(--spacing-8);
   border: 1px solid var(--input-border);
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   transition: all var(--transition-normal);
   background: var(--input-bg);
   color: var(--input-text);
+  box-shadow: var(--shadow-sm);
 }
 
 .user-management .search-input:focus {
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.15);
   outline: none;
 }
 
@@ -118,7 +143,7 @@
 }
 
 .user-management .role-filter {
-  min-width: 180px;
+  min-width: 200px;
 }
 
 .user-management .form-select {
@@ -126,7 +151,7 @@
   padding: var(--spacing-3);
   border: 1px solid var(--input-border);
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   background-color: var(--input-bg);
   color: var(--input-text);
   cursor: pointer;
@@ -136,6 +161,7 @@
   background-repeat: no-repeat;
   background-position: right 10px center;
   padding-right: 30px;
+  box-shadow: var(--shadow-sm);
 }
 
 .user-management .form-select:hover {
@@ -145,23 +171,24 @@
 .user-management .form-select:focus {
   outline: none;
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.15);
 }
 
 .user-management .filter-btn {
-  padding: var(--spacing-3) var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-5);
   background: var(--accent-color);
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-normal);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .user-management .filter-btn:hover {
@@ -170,19 +197,24 @@
   box-shadow: var(--shadow-md);
 }
 
+.user-management .filter-btn i {
+  font-size: 0.9rem;
+}
+
 /* Table Styles */
 .user-management .table-container {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-4);
-  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-5);
+  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
-  overflow-x: auto;
+  overflow: hidden;
   transition: all var(--transition-normal);
+  position: relative;
 }
 
 .user-management .table-container:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .user-management .users-table {
@@ -195,7 +227,6 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--bg-tertiary);
 }
 
 .user-management .users-table th {
@@ -203,17 +234,27 @@
   color: var(--text-secondary);
   font-weight: 600;
   text-align: left;
-  padding: var(--spacing-3);
-  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 2px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 10;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-management .users-table th:first-child {
+  border-top-left-radius: var(--radius-md);
+}
+
+.user-management .users-table th:last-child {
+  border-top-right-radius: var(--radius-md);
 }
 
 .user-management .table-container::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 .user-management .table-container::-webkit-scrollbar-track {
@@ -227,19 +268,31 @@
 }
 
 .user-management .users-table td {
-  padding: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   transition: all var(--transition-normal);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  vertical-align: middle;
 }
 
 .user-management .users-table tr:last-child td {
   border-bottom: none;
 }
 
+.user-management .users-table tr {
+  transition: all var(--transition-normal);
+}
+
 .user-management .users-table tr:hover td {
   background: var(--hover-bg);
+}
+
+.user-management .users-table tr:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  z-index: 5;
 }
 
 /* Status Badge */
@@ -247,9 +300,12 @@
   padding: var(--spacing-1) var(--spacing-3);
   border-radius: var(--radius-full);
   font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
   text-align: center;
+  white-space: nowrap;
 }
 
 .user-management .status-active {
@@ -258,10 +314,41 @@
   border: 1px solid rgba(22, 163, 74, 0.2);
 }
 
+.user-management .status-active::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--success-500);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(22, 163, 74, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
 .user-management .status-inactive {
   background: rgba(220, 38, 38, 0.1);
   color: var(--error-600);
   border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.user-management .status-inactive::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--error-500);
 }
 
 /* Action Buttons */
@@ -273,8 +360,8 @@
 
 .user-management .btn-edit,
 .user-management .btn-delete {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
@@ -282,10 +369,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--shadow-sm);
 }
 
 .user-management .btn-edit {
-  background: rgba(25, 127, 181, 0.1);
+  background: rgba(255, 87, 34, 0.1);
   color: var(--accent-color);
 }
 
@@ -297,62 +385,88 @@
 .user-management .btn-edit:hover {
   background: var(--accent-color);
   color: white;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-3px) rotate(5deg);
+  box-shadow: var(--shadow-md);
 }
 
 .user-management .btn-delete:hover {
   background: var(--error-600);
   color: white;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-3px) rotate(-5deg);
+  box-shadow: var(--shadow-md);
+}
+
+.user-management .btn-edit i,
+.user-management .btn-delete i {
+  font-size: 1rem;
 }
 
 /* Empty State */
 .user-management .empty-state {
   text-align: center;
-  padding: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-6);
   color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--border-color);
 }
 
 .user-management .empty-state i {
-  font-size: 2.5rem;
-  margin-bottom: var(--spacing-3);
-  color: var(--text-tertiary);
+  font-size: 3.5rem;
+  margin-bottom: var(--spacing-4);
+  color: var(--accent-color);
   opacity: 0.7;
 }
 
 .user-management .empty-state h3 {
-  font-size: 1.2rem;
-  margin-bottom: var(--spacing-2);
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-3);
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 .user-management .empty-state p {
   color: var(--text-secondary);
-  max-width: 400px;
+  max-width: 500px;
+  margin: 0 auto var(--spacing-6);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.user-management .empty-state .btn-create {
   margin: 0 auto;
-  font-size: 0.9rem;
+  display: inline-flex;
 }
 
 /* Card Styles for Forms */
 .user-form .card {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
   overflow: hidden;
   transition: all var(--transition-normal);
   margin-bottom: var(--spacing-6);
+  position: relative;
+}
+
+.user-form .card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--accent-color), transparent);
 }
 
 .user-form .card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
 }
 
 .user-form .card-body {
-  padding: var(--spacing-5);
+  padding: var(--spacing-6);
 }
 
 /* Form Styles */
@@ -360,8 +474,8 @@
   display: block;
   margin-bottom: var(--spacing-2);
   color: var(--text-secondary);
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
 .user-form .form-control {
@@ -369,17 +483,18 @@
   padding: var(--spacing-3);
   border: 1px solid var(--input-border);
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   background: var(--input-bg);
   color: var(--input-text);
   transition: all var(--transition-normal);
   margin-bottom: var(--spacing-4);
+  box-shadow: var(--shadow-sm);
 }
 
 .user-form .form-control:focus {
   outline: none;
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(25, 127, 181, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.15);
 }
 
 .user-form .form-check {
@@ -390,15 +505,15 @@
 }
 
 .user-form .form-check-input {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
   accent-color: var(--accent-color);
 }
 
 .user-form .form-check-label {
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   cursor: pointer;
 }
 
@@ -408,16 +523,17 @@
 
 /* Button Styles */
 .user-form .btn {
-  padding: var(--spacing-2) var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-5);
   border-radius: var(--radius-md);
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all var(--transition-normal);
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
   border: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .user-form .btn-primary {
@@ -428,7 +544,7 @@
 .user-form .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .user-form .btn-secondary {
@@ -440,7 +556,7 @@
 .user-form .btn-secondary:hover {
   background: var(--hover-bg);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .user-form .d-flex {
@@ -462,47 +578,62 @@
 /* Alert Styles */
 .user-management .alert,
 .user-form .alert {
-  padding: var(--spacing-3) var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-5);
   border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-4);
-  font-size: 0.9rem;
+  margin-bottom: var(--spacing-5);
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
+  gap: var(--spacing-3);
   position: relative;
+  box-shadow: var(--shadow-sm);
+  border-left-width: 4px;
+  border-left-style: solid;
 }
 
 .user-management .alert::before,
 .user-form .alert::before {
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .user-management .alert-success,
 .user-form .alert-success {
   background: var(--success-50);
   color: var(--success-700);
-  border-left: 3px solid var(--success-500);
+  border-left-color: var(--success-500);
+}
+
+.user-management .alert-success::before,
+.user-form .alert-success::before {
+  content: "\f058"; /* check-circle */
+  color: var(--success-500);
 }
 
 .user-management .alert-danger,
 .user-form .alert-danger {
   background: var(--error-50);
   color: var(--error-700);
-  border-left: 3px solid var(--error-500);
+  border-left-color: var(--error-500);
+}
+
+.user-management .alert-danger::before,
+.user-form .alert-danger::before {
+  content: "\f057"; /* times-circle */
+  color: var(--error-500);
 }
 
 /* Dark Mode Adjustments */
 [data-theme="dark"] .user-management .alert-success,
 [data-theme="dark"] .user-form .alert-success {
-  background: rgba(22, 163, 74, 0.1);
+  background: rgba(22, 163, 74, 0.15);
   color: var(--success-100);
 }
 
 [data-theme="dark"] .user-management .alert-danger,
 [data-theme="dark"] .user-form .alert-danger {
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(220, 38, 38, 0.15);
   color: var(--error-100);
 }
 
@@ -514,6 +645,15 @@
 [data-theme="dark"] .user-management .status-inactive {
   background: rgba(220, 38, 38, 0.2);
   color: var(--error-100);
+}
+
+[data-theme="dark"] .user-management .empty-state {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .user-form .card::before {
+  background: linear-gradient(to right, var(--accent-color), rgba(255, 87, 34, 0.05));
 }
 
 /* Responsive Design */
@@ -550,6 +690,10 @@
   }
 
   .user-form .card-body {
+    padding: var(--spacing-4);
+  }
+
+  .user-management .table-container {
     padding: var(--spacing-3);
   }
 }
@@ -564,109 +708,59 @@
   .user-form .form-control,
   .user-form .form-select,
   .user-form .btn {
-    font-size: 0.85rem;
-    padding: var(--spacing-2);
+    font-size: 0.9rem;
+    padding: var(--spacing-2) var(--spacing-3);
   }
-}
-/* Simplified User Management styles */
-.user-management {
-  padding: var(--spacing-6) 0;
-}
 
-.user-management .page-header {
-  margin-bottom: var(--spacing-5);
-  padding-bottom: var(--spacing-3);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-3);
-}
-
-.user-management .btn-create {
-  background: var(--accent-color);
-  color: white;
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--radius-md);
-  font-weight: 500;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  transition: all var(--transition-normal);
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.user-management .filter-section {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-4);
-  margin-bottom: var(--spacing-5);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
-  transition: all var(--transition-normal);
-}
-
-.user-management .filter-form {
-  display: flex;
-  gap: var(--spacing-3);
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.user-management .table-container {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-4);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
-  overflow-x: auto;
-  transition: all var(--transition-normal);
-}
-
-.user-management .users-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.user-management .status-badge {
-  padding: var(--spacing-1) var(--spacing-3);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
-  text-align: center;
-}
-
-.user-management .action-buttons {
-  display: flex;
-  gap: var(--spacing-2);
-  justify-content: center;
-}
-
-/* Responsive Design */
-@media (max-width: 992px) {
-  .user-management .filter-form {
-    flex-direction: column;
-    align-items: stretch;
+  .user-management .btn-create {
+    width: 100%;
+    justify-content: center;
   }
 }
 
-@media (max-width: 768px) {
-  .user-management .page-header {
-    flex-direction: column;
-    align-items: flex-start;
+/* Animation for table rows */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (max-width: 576px) {
-  .user-management .users-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
+.user-management .users-table tr {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.user-management .users-table tr:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.user-management .users-table tr:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.user-management .users-table tr:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.user-management .users-table tr:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.user-management .users-table tr:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.user-management .users-table tr:nth-child(6) {
+  animation-delay: 0.3s;
+}
+.user-management .users-table tr:nth-child(7) {
+  animation-delay: 0.35s;
+}
+.user-management .users-table tr:nth-child(8) {
+  animation-delay: 0.4s;
+}
+.user-management .users-table tr:nth-child(9) {
+  animation-delay: 0.45s;
+}
+.user-management .users-table tr:nth-child(10) {
+  animation-delay: 0.5s;
 }

@@ -90,10 +90,44 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="so_dien_thoai">Số điện thoại</label>
-                            <input type="tel" id="so_dien_thoai" name="so_dien_thoai" 
-                                   value="<?php echo htmlspecialchars($user['so_dien_thoai'] ?? ''); ?>">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="so_dien_thoai">Số điện thoại</label>
+                                <input type="tel" id="so_dien_thoai" name="so_dien_thoai" 
+                                       value="<?php echo htmlspecialchars($user['so_dien_thoai'] ?? ''); ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gioi_tinh">Giới tính</label>
+                                <select id="gioi_tinh" name="gioi_tinh">
+                                    <option value="">Chọn giới tính</option>
+                                    <option value="NAM" <?php echo $user['gioi_tinh'] === 'NAM' ? 'selected' : ''; ?>>Nam</option>
+                                    <option value="NU" <?php echo $user['gioi_tinh'] === 'NU' ? 'selected' : ''; ?>>Nữ</option>
+                                    <option value="KHAC" <?php echo $user['gioi_tinh'] === 'KHAC' ? 'selected' : ''; ?>>Khác</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group bio-section">
+                            <label for="mo_ta">
+                                <i class="fas fa-user-edit"></i> Giới thiệu về bạn
+                            </label>
+                            <div class="bio-container">
+                                <div class="bio-editor">
+                                    <textarea id="mo_ta" name="mo_ta" rows="4" 
+                                        placeholder="Hãy giới thiệu một chút về bản thân..."><?php echo htmlspecialchars($user['mo_ta'] ?? ''); ?></textarea>
+                                    <div class="bio-counter"><span id="charCount">0</span>/500 ký tự</div>
+                                </div>
+                                <div class="bio-preview">
+                                    <h4>Xem trước</h4>
+                                    <div id="bioPreview" class="bio-preview-content">
+                                        <?php echo !empty($user['mo_ta']) ? nl2br(htmlspecialchars($user['mo_ta'])) : '<em>Xem trước nội dung giới thiệu của bạn ở đây...</em>'; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bio-tips">
+                                <i class="fas fa-lightbulb"></i> Gợi ý: Chia sẻ sở thích, kinh nghiệm hoặc lĩnh vực bạn quan tâm để mọi người hiểu hơn về bạn.
+                            </div>
                         </div>
                     </div>
 
@@ -132,33 +166,68 @@
     <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
 
     <script>
-    // Preview avatar image before upload
-    document.addEventListener('DOMContentLoaded', function() {
-        const avatarInput = document.getElementById('avt');
-        const avatarPreview = document.getElementById('avatar-preview-img');
-        const avatarPlaceholder = document.getElementById('avatar-placeholder');
-        
-        avatarInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    if (avatarPreview) {
-                        // If there's already an image element
-                        avatarPreview.src = e.target.result;
-                    } else if (avatarPlaceholder) {
-                        // If there's a placeholder, replace it with an image
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.id = 'avatar-preview-img';
-                        avatarPlaceholder.parentNode.replaceChild(img, avatarPlaceholder);
-                    }
+document.addEventListener('DOMContentLoaded', function() {
+    // Avatar preview functionality
+    const avatarInput = document.getElementById('avt');
+    const avatarPreview = document.getElementById('avatar-preview-img');
+    const avatarPlaceholder = document.getElementById('avatar-placeholder');
+    
+    avatarInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (avatarPreview) {
+                    // If there's already an image element
+                    avatarPreview.src = e.target.result;
+                } else if (avatarPlaceholder) {
+                    // If there's a placeholder, replace it with an image
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.id = 'avatar-preview-img';
+                    avatarPlaceholder.parentNode.replaceChild(img, avatarPlaceholder);
                 }
-                
-                reader.readAsDataURL(this.files[0]);
             }
-        });
+            
+            reader.readAsDataURL(this.files[0]);
+        }
     });
-    </script>
+
+    // Bio preview and character counter
+    const bioTextarea = document.getElementById('mo_ta');
+    const bioPreview = document.getElementById('bioPreview');
+    const charCount = document.getElementById('charCount');
+    
+    // Set initial character count
+    charCount.textContent = bioTextarea.value.length;
+    
+    bioTextarea.addEventListener('input', function() {
+        // Update preview
+        bioPreview.innerHTML = this.value ? nl2br(this.value) : '<em>Xem trước nội dung giới thiệu của bạn ở đây...</em>';
+        
+        // Update character count
+        charCount.textContent = this.value.length;
+        
+        // Change color based on length
+        if (this.value.length > 400) {
+            charCount.style.color = '#ff9800';
+        } else {
+            charCount.style.color = '';
+        }
+        
+        // Limit to 500 characters
+        if (this.value.length > 500) {
+            this.value = this.value.substring(0, 500);
+            charCount.textContent = 500;
+            charCount.style.color = '#f44336';
+        }
+    });
+    
+    // Helper function to convert newlines to <br> tags
+    function nl2br(str) {
+        return str.replace(/\n/g, '<br>');
+    }
+});
+</script>
 </body>
 </html>

@@ -24,15 +24,16 @@ class User {
     }
 
     public function register($data) {
-        $query = "INSERT INTO nguoidung (ma_vai_tro, email, mat_khau, ho_ten, so_dien_thoai) 
-                 VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO nguoidung (ma_vai_tro, email, mat_khau, ho_ten, so_dien_thoai, gioi_tinh) 
+                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
             $data['ma_vai_tro'],
             $data['email'],
             $data['mat_khau'],
             $data['ho_ten'],
-            $data['so_dien_thoai']
+            $data['so_dien_thoai'],
+            $data['gioi_tinh'] ?? null
         ]);
     }
 
@@ -59,11 +60,12 @@ class User {
     public function updateUser($id, $data) {
         $query = "UPDATE nguoidung 
                  SET email = ?, ho_ten = ?, so_dien_thoai = ?, 
-                     ma_vai_tro = ?, kich_hoat = ?";
+                     gioi_tinh = ?, ma_vai_tro = ?, kich_hoat = ?";
         $params = [
             $data['email'],
             $data['ho_ten'],
             $data['so_dien_thoai'],
+            $data['gioi_tinh'],
             $data['ma_vai_tro'],
             $data['kich_hoat']
         ];
@@ -114,14 +116,15 @@ class User {
     }
 
     public function createUser($data) {
-        $query = "INSERT INTO nguoidung (email, mat_khau, ho_ten, so_dien_thoai, ma_vai_tro) 
-                 VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO nguoidung (email, mat_khau, ho_ten, so_dien_thoai, gioi_tinh, ma_vai_tro) 
+                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
             $data['email'],
             $data['mat_khau'],
             $data['ho_ten'],
             $data['so_dien_thoai'],
+            $data['gioi_tinh'],
             $data['ma_vai_tro']
         ]);
     }

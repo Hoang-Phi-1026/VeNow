@@ -70,6 +70,7 @@
                             <th>Họ tên</th>
                             <th>Email</th>
                             <th>Số điện thoại</th>
+                            <th>Giới tính</th>
                             <th>Vai trò</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
@@ -83,6 +84,23 @@
                             <td><?php echo htmlspecialchars($user['ho_ten']); ?></td>
                             <td><?php echo htmlspecialchars($user['email']); ?></td>
                             <td><?php echo htmlspecialchars($user['so_dien_thoai']); ?></td>
+                            <td>
+                                <?php 
+                                switch($user['gioi_tinh']) {
+                                    case 'NAM':
+                                        echo 'Nam';
+                                        break;
+                                    case 'NU':
+                                        echo 'Nữ';
+                                        break;
+                                    case 'KHAC':
+                                        echo 'Khác';
+                                        break;
+                                    default:
+                                        echo '-';
+                                }
+                                ?>
+                            </td>
                             <td><?php echo htmlspecialchars($user['ten_vai_tro']); ?></td>
                             <td>
                                 <span class="status-badge <?php echo $user['kich_hoat'] ? 'status-active' : 'status-inactive'; ?>">

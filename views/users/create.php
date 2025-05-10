@@ -5,7 +5,7 @@
 <div class="user-management user-form">
     <div class="container">
         <div class="page-header">
-            <h1>Tạo tài khoản mới</h1>
+            <h1><i class="fas fa-user-plus"></i> Tạo tài khoản mới</h1>
             <a href="<?php echo BASE_URL; ?>/users" class="btn-create">
                 <i class="fas fa-arrow-left"></i> Quay lại danh sách
             </a>
@@ -24,27 +24,37 @@
             <div class="card-body">
                 <form action="<?php echo BASE_URL; ?>/users/create" method="POST">
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="email" class="form-label"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required placeholder="Nhập địa chỉ email">
                     </div>
 
                     <div class="mb-3">
-                        <label for="mat_khau" class="form-label">Mật khẩu</label>
-                        <input type="password" class="form-control" id="mat_khau" name="mat_khau" required>
+                        <label for="mat_khau" class="form-label"><i class="fas fa-lock"></i> Mật khẩu</label>
+                        <input type="password" class="form-control" id="mat_khau" name="mat_khau" required placeholder="Nhập mật khẩu">
                     </div>
 
                     <div class="mb-3">
-                        <label for="ho_ten" class="form-label">Họ tên</label>
-                        <input type="text" class="form-control" id="ho_ten" name="ho_ten" required>
+                        <label for="ho_ten" class="form-label"><i class="fas fa-user"></i> Họ tên</label>
+                        <input type="text" class="form-control" id="ho_ten" name="ho_ten" required placeholder="Nhập họ tên đầy đủ">
                     </div>
 
                     <div class="mb-3">
-                        <label for="so_dien_thoai" class="form-label">Số điện thoại</label>
-                        <input type="tel" class="form-control" id="so_dien_thoai" name="so_dien_thoai" required>
+                        <label for="so_dien_thoai" class="form-label"><i class="fas fa-phone"></i> Số điện thoại</label>
+                        <input type="tel" class="form-control" id="so_dien_thoai" name="so_dien_thoai" required placeholder="Nhập số điện thoại">
                     </div>
 
                     <div class="mb-3">
-                        <label for="ma_vai_tro" class="form-label">Vai trò</label>
+                        <label for="gioi_tinh" class="form-label"><i class="fas fa-venus-mars"></i> Giới tính</label>
+                        <select class="form-select" id="gioi_tinh" name="gioi_tinh" required>
+                            <option value="">Chọn giới tính</option>
+                            <option value="NAM">Nam</option>
+                            <option value="NU">Nữ</option>
+                            <option value="KHAC">Khác</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ma_vai_tro" class="form-label"><i class="fas fa-user-tag"></i> Vai trò</label>
                         <select class="form-select" id="ma_vai_tro" name="ma_vai_tro" required>
                             <option value="">Chọn vai trò</option>
                             <?php foreach ($roles as $role): ?>

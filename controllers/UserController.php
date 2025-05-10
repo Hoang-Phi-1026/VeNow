@@ -43,25 +43,69 @@ class UserController extends BaseController {
 
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'email' => $_POST['email'],
-                'mat_khau' => $_POST['mat_khau'],
-                'ho_ten' => $_POST['ho_ten'],
-                'so_dien_thoai' => $_POST['so_dien_thoai'],
-                'ma_vai_tro' => $_POST['ma_vai_tro']
-            ];
+            $email = $_POST['email'] ?? '';
+            $hoTen = $_POST['ho_ten'] ?? '';
+            $soDienThoai = $_POST['so_dien_thoai'] ?? '';
+            $gioiTinh = $_POST['gioi_tinh'] ?? null;
+            $maVaiTro = $_POST['ma_vai_tro'] ?? '';
+            $matKhau = $_POST['mat_khau'] ?? '';
 
-            if ($this->userModel->createUser($data)) {
-                $_SESSION['success'] = 'Tạo tài khoản thành công!';
-                header('Location: ' . BASE_URL . '/users');
-                exit();
-            } else {
-                $_SESSION['error'] = 'Có lỗi xảy ra khi tạo tài khoản!';
+            // Validate dữ liệu
+            $errors = [];
+            if (empty($email)) {
+                $errors[] = 'Email không được để trống';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Email không hợp lệ';
+            } elseif ($this->userModel->checkEmailExists($email)) {
+                $errors[] = 'Email đã tồn tại';
+            }
+
+            if (empty($hoTen)) {
+                $errors[] = 'Họ tên không được để trống';
+            }
+
+            if (empty($soDienThoai)) {
+                $errors[] = 'Số điện thoại không được để trống';
+            } elseif (!preg_match('/^[0-9]{10}$/', $soDienThoai)) {
+                $errors[] = 'Số điện thoại không hợp lệ';
+            }
+
+            if (empty($maVaiTro)) {
+                $errors[] = 'Vai trò không được để trống';
+            }
+
+            if (empty($matKhau)) {
+                $errors[] = 'Mật khẩu không được để trống';
+            } elseif (strlen($matKhau) < 6) {
+                $errors[] = 'Mật khẩu phải có ít nhất 6 ký tự';
+            }
+
+            if (empty($errors)) {
+                $data = [
+                    'email' => $email,
+                    'ho_ten' => $hoTen,
+                    'so_dien_thoai' => $soDienThoai,
+                    'gioi_tinh' => $gioiTinh,
+                    'ma_vai_tro' => $maVaiTro,
+                    'mat_khau' => $matKhau // Không mã hóa mật khẩu
+                ];
+
+                if ($this->userModel->createUser($data)) {
+                    $_SESSION['success'] = 'Thêm người dùng thành công!';
+                    header('Location: ' . BASE_URL . '/users');
+                    exit;
+                } else {
+                    $errors[] = 'Có lỗi xảy ra khi thêm người dùng';
+                }
+            }
+
+            if (!empty($errors)) {
+                $_SESSION['error'] = implode('<br>', $errors);
             }
         }
 
-        // Lấy danh sách vai trò trừ admin
-        $roles = $this->roleModel->getAllRolesExceptAdmin();
+        // Lấy danh sách vai trò
+        $roles = $this->userModel->getAllRoles();
         require_once __DIR__ . '/../views/users/create.php';
     }
 
@@ -92,13 +136,14 @@ class UserController extends BaseController {
                 'email' => $_POST['email'],
                 'ho_ten' => $_POST['ho_ten'],
                 'so_dien_thoai' => $_POST['so_dien_thoai'],
+                'gioi_tinh' => $_POST['gioi_tinh'],
                 'ma_vai_tro' => $_POST['ma_vai_tro'],
                 'kich_hoat' => isset($_POST['kich_hoat']) ? 1 : 0
             ];
 
             // Nếu có mật khẩu mới
             if (!empty($_POST['mat_khau'])) {
-                $data['mat_khau'] = $_POST['mat_khau'];
+                $data['mat_khau'] = password_hash($_POST['mat_khau'], PASSWORD_DEFAULT);
             }
 
             if ($this->userModel->updateUser($id, $data)) {

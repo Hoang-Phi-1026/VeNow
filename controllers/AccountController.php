@@ -37,6 +37,8 @@ class AccountController extends BaseController {
             $maNguoiDung = $_SESSION['user']['id'];
             $hoTen = $_POST['ho_ten'] ?? '';
             $soDienThoai = $_POST['so_dien_thoai'] ?? '';
+            $gioiTinh = $_POST['gioi_tinh'] ?? null;
+            $moTa = $_POST['mo_ta'] ?? null;
             $matKhau = $_POST['mat_khau'] ?? '';
             $matKhauMoi = $_POST['mat_khau_moi'] ?? '';
             $xacNhanMatKhau = $_POST['xac_nhan_mat_khau'] ?? '';
@@ -94,11 +96,12 @@ class AccountController extends BaseController {
 
             if (empty($errors)) {
                 try {
-                    $this->db->beginTransaction();
+                    $conn = $this->db->getConnection();
+                    $conn->beginTransaction();
 
                     // Cập nhật thông tin cơ bản
-                    $sql = "UPDATE nguoidung SET ho_ten = ?, so_dien_thoai = ?";
-                    $params = [$hoTen, $soDienThoai];
+                    $sql = "UPDATE nguoidung SET ho_ten = ?, so_dien_thoai = ?, gioi_tinh = ?, mo_ta = ?";
+                    $params = [$hoTen, $soDienThoai, $gioiTinh, $moTa];
 
                     // Thêm mật khẩu mới nếu có
                     if (!empty($matKhauMoi)) {
@@ -118,12 +121,12 @@ class AccountController extends BaseController {
                     $stmt = $this->db->prepare($sql);
                     $stmt->execute($params);
 
-                    $this->db->commit();
+                    $conn->commit();
                     $_SESSION['success'] = 'Cập nhật thông tin thành công!';
                     header('Location: ' . BASE_URL . '/account');
                     exit;
                 } catch (Exception $e) {
-                    $this->db->rollBack();
+                    $conn->rollBack();
                     $errors[] = 'Có lỗi xảy ra: ' . $e->getMessage();
                 }
             }
