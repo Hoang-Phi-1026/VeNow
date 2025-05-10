@@ -59,7 +59,7 @@ class AccountController extends BaseController {
                 $stmt->execute([$maNguoiDung]);
                 $currentPassword = $stmt->fetchColumn();
 
-                if (!password_verify($matKhau, $currentPassword)) {
+                if ($matKhau !== $currentPassword) {
                     $errors[] = 'Mật khẩu cũ không đúng';
                 } elseif (empty($matKhauMoi)) {
                     $errors[] = 'Vui lòng nhập mật khẩu mới';
@@ -106,7 +106,7 @@ class AccountController extends BaseController {
                     // Thêm mật khẩu mới nếu có
                     if (!empty($matKhauMoi)) {
                         $sql .= ", mat_khau = ?";
-                        $params[] = password_hash($matKhauMoi, PASSWORD_DEFAULT);
+                        $params[] = $matKhauMoi;
                     }
 
                     // Thêm ảnh đại diện nếu có

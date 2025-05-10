@@ -3,7 +3,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3 class="footer-heading">Về TicketBox</h3>
+                    <h3 class="footer-heading">Về VeNow</h3>
                     <ul class="footer-links">
                         <li><a href="<?php echo BASE_URL; ?>/about">Giới thiệu</a></li>
                         <li><a href="<?php echo BASE_URL; ?>/contact">Liên hệ</a></li>
@@ -34,7 +34,7 @@
             
             <div class="footer-bottom">
                 <div class="copyright">
-                    &copy; <?php echo date('Y'); ?> TicketBox. Tất cả quyền được bảo lưu.
+                    &copy; <?php echo date('Y'); ?> VeNow. Tất cả quyền được bảo lưu.
                 </div>
             </div>
         </div>

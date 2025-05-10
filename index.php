@@ -134,6 +134,11 @@ switch ($path) {
         $eventController->create();
         break;
 
+    case '/events/manage':
+        $eventController = new EventController();
+        $eventController->manage();
+        break;
+
     case '/events/store':
         $eventController = new EventController();
         $eventController->store();
@@ -194,6 +199,10 @@ switch ($path) {
     case '/staff/reject-event':
         $staffController = new StaffController();
         $staffController->rejectEvent();
+        break;
+
+    case '/about':
+        require_once BASE_PATH . '/views/about/index.php';
         break;
 
     default:

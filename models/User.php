@@ -89,7 +89,7 @@ class User {
                  WHERE ma_nguoi_dung = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
-            password_hash($newPassword, PASSWORD_DEFAULT),
+            $newPassword,
             $id
         ]);
     }

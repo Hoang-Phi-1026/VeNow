@@ -182,6 +182,57 @@ class Event {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
+    /**
+     * Tìm kiếm sự kiện cho trang quản lý của admin
+     */
+    public function searchEventsForAdmin($keyword = '', $category = '', $status = '') {
+        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+                        MIN(t.gia_ve) as gia_ve_min,
+                        MAX(t.gia_ve) as gia_ve_max
+                 FROM sukien s 
+                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                 LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                 LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                 WHERE 1=1";
+        
+        $params = [];
+        
+        // Tìm theo từ khóa
+        if (!empty($keyword)) {
+            $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
+            $searchTerm = "%$keyword%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+        
+        // Lọc theo danh mục
+        if (!empty($category)) {
+            $query .= " AND s.maloaisukien = ?";
+            $params[] = $category;
+        }
+        
+        // Lọc theo trạng thái
+        if (!empty($status)) {
+            $query .= " AND s.trang_thai = ?";
+            $params[] = $status;
+        }
+        
+        $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_tao DESC";
+        
+        $stmt = $this->db->prepare($query);
+        
+        // Bind parameters
+        if (!empty($params)) {
+            for ($i = 0; $i < count($params); $i++) {
+                $stmt->bindValue($i + 1, $params[$i]);
+            }
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function getFeaturedEvents() {
         $sql = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
@@ -288,5 +339,49 @@ class Event {
         $query = "UPDATE sukien SET trang_thai = ? WHERE ma_su_kien = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([$status, $eventId]);
+    }
+    
+    /**
+     * Xóa sự kiện và dữ liệu liên quan
+     */
+    public function deleteEvent($id) {
+        try {
+            // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+            $this->db->beginTransaction();
+            
+            // Xóa các bình luận liên quan
+            $query1 = "DELETE FROM binhluan WHERE ma_su_kien = ?";
+            $stmt1 = $this->db->prepare($query1);
+            $stmt1->execute([$id]);
+            
+            // Xóa các vé đã bán
+            $query2 = "DELETE FROM ve WHERE ma_su_kien = ?";
+            $stmt2 = $this->db->prepare($query2);
+            $stmt2->execute([$id]);
+            
+            // Xóa các chỗ ngồi
+            $query3 = "DELETE FROM chongoi WHERE ma_su_kien = ?";
+            $stmt3 = $this->db->prepare($query3);
+            $stmt3->execute([$id]);
+            
+            // Xóa các loại vé
+            $query4 = "DELETE FROM loaive WHERE ma_su_kien = ?";
+            $stmt4 = $this->db->prepare($query4);
+            $stmt4->execute([$id]);
+            
+            // Xóa sự kiện
+            $query5 = "DELETE FROM sukien WHERE ma_su_kien = ?";
+            $stmt5 = $this->db->prepare($query5);
+            $stmt5->execute([$id]);
+            
+            // Commit transaction
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            // Rollback nếu có lỗi
+            $this->db->rollBack();
+            error_log("Lỗi xóa sự kiện: " . $e->getMessage());
+            return false;
+        }
     }
 }

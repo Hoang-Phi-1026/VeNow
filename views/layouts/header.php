@@ -8,9 +8,9 @@ if (session_status() === PHP_SESSION_NONE) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TicketBox - Mua vé sự kiện trực tuyến</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css">
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/organizer.css">
+    <title>VeNow - Mua vé sự kiện trực tuyến</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css?v=2">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>/public/images/favicon.ico">
     
@@ -21,10 +21,10 @@ if (session_status() === PHP_SESSION_NONE) {
         echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/login.css">';
     } elseif (strpos($current_url, '/register') !== false) {
         echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/register.css">';
-    } elseif (strpos($current_url, '/reviews') !== false) {
-        echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/reviews.css">';
-    } elseif (strpos($current_url, '/admin') !== false || strpos($current_url, '/staff') !== false) {
-        echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/admin.css">';
+    } elseif (strpos($current_url, '/organizer') !== false) {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/organizer.css">';
+    } elseif (strpos($current_url, '/about') !== false) {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/about.css">';
     }
     ?>
     
@@ -35,7 +35,7 @@ if (session_status() === PHP_SESSION_NONE) {
         <div class="container">
             <div class="header-content">
                 <a href="<?php echo BASE_URL; ?>" class="logo">
-                    <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="TicketBox Logo" class="logo-image">
+                    <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="VeNow Logo" class="logo-image">
                 </a>
                 
                 <div class="search-container">
@@ -73,7 +73,8 @@ if (session_status() === PHP_SESSION_NONE) {
             </button>
             <ul class="nav-list">
                 <?php if (!isset($_SESSION['user'])): ?>
-                    <!-- Không hiển thị menu khi chưa đăng nhập -->
+                    <li class="nav-item"><a href="<?php echo BASE_URL; ?>/">Trang chủ</a></li>
+                    <li class="nav-item"><a href="<?php echo BASE_URL; ?>/about">Giới thiệu</a></li>
                 <?php else: ?>
                     <?php
                     $vai_tro = $_SESSION['user']['vai_tro'];
@@ -84,7 +85,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <a href="#">Quản lý sự kiện</a>
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo BASE_URL; ?>/events/create">Tạo sự kiện</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/events/manage">Xóa sự kiện</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/events/manage">Quản lý sự kiện</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/admin/pending-events">Sự kiện chờ duyệt</a></li>
                                 </ul>
                             </li>
@@ -121,13 +122,15 @@ if (session_status() === PHP_SESSION_NONE) {
                         case 3: // Staff
                             ?>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/staff/pending-events">Yêu cầu sự kiện</a></li>
-                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/reviews">Đánh giá chờ duyệt</a></li>
-                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/complaints">Xử lý khiếu nại</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/reviews">Duyệt bình luận</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/complaints">Xử lý yêu cầu</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>
                             <?php
                             break;
                         case 4: // Customer
                             ?>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/">Trang chủ</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/about">Giới thiệu</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/events">Sự kiện</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/tickets/history">Lịch sử đặt vé</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/points">Điểm tích lũy</a></li>

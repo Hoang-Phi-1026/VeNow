@@ -158,4 +158,61 @@ class EventController extends BaseController {
         header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit;
     }
+    
+    /**
+     * Hiển thị trang quản lý sự kiện cho admin
+     */
+    public function manage() {
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['user']) || $_SESSION['user']['vai_tro'] != 1) {
+            $_SESSION['error'] = 'Bạn không có quyền truy cập trang này';
+            header('Location: ' . BASE_URL);
+            exit;
+        }
+        
+        // Xử lý tìm kiếm
+        $keyword = $_GET['keyword'] ?? '';
+        $category = $_GET['category'] ?? '';
+        $status = $_GET['status'] ?? '';
+        
+        // Lấy danh sách sự kiện theo điều kiện tìm kiếm
+        $events = $this->eventModel->searchEventsForAdmin($keyword, $category, $status);
+        
+        // Lấy danh sách loại sự kiện cho dropdown tìm kiếm
+        $categories = $this->eventModel->getAllEventTypes();
+        
+        // Hiển thị view
+        require_once __DIR__ . '/../views/event/manage.php';
+    }
+    
+    /**
+     * Xóa sự kiện
+     */
+    public function delete($id) {
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['user']) || $_SESSION['user']['vai_tro'] != 1) {
+            $_SESSION['error'] = 'Bạn không có quyền xóa sự kiện';
+            header('Location: ' . BASE_URL);
+            exit;
+        }
+        
+        // Kiểm tra sự kiện tồn tại
+        $event = $this->eventModel->getEventById($id);
+        if (!$event) {
+            $_SESSION['error'] = 'Sự kiện không tồn tại';
+            header('Location: ' . BASE_URL . '/events/manage');
+            exit;
+        }
+        
+        // Thực hiện xóa sự kiện
+        if ($this->eventModel->deleteEvent($id)) {
+            $_SESSION['success'] = 'Xóa sự kiện thành công';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sự kiện';
+        }
+        
+        // Chuyển hướng về trang quản lý
+        header('Location: ' . BASE_URL . '/events/manage');
+        exit;
+    }
 }
