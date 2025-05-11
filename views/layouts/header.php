@@ -85,8 +85,8 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <a href="#">Quản lý sự kiện</a>
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo BASE_URL; ?>/events/create">Tạo sự kiện</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/events/manage">Quản lý sự kiện</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/admin/pending-events">Sự kiện chờ duyệt</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/events/manage">Quản lý sự kiện</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -108,15 +108,27 @@ if (session_status() === PHP_SESSION_NONE) {
                             break;
                         case 2: // Organizer
                             ?>
-                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/events/create">Tạo sự kiện</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/">Trang chủ</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/about">Giới thiệu</a></li>
                             <li class="nav-item dropdown">
-                                <a href="#">Thống kê doanh thu</a>
+                                <a href="#">Quản lý sự kiện</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/revenue">Báo cáo doanh thu</a></li>
+                                    <li class="nav-item"><a href="<?php echo BASE_URL; ?>/events/create">Tạo sự kiện</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/organizer/events">Sự kiện của tôi</a></li>
                                 </ul>
                             </li>
+                            
+                            <li class="nav-item dropdown">
+                                <a href="#">Thống kê & báo cáo</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/revenue">Báo cáo doanh thu</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/attendance">Lượt tham gia</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/sold-tickets">Vé đã bán</a></li>
+                                </ul>
+                            </li>
+
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>
+                            
                             <?php
                             break;
                         case 3: // Staff
@@ -131,9 +143,10 @@ if (session_status() === PHP_SESSION_NONE) {
                             ?>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/">Trang chủ</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/about">Giới thiệu</a></li>
-                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/events">Sự kiện</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/search">Sự kiện</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/tickets/history">Lịch sử đặt vé</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/points">Điểm tích lũy</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/support">Hỗ trợ</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>
                             <?php
                             break;
