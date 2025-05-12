@@ -4,60 +4,320 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo sự kiện mới - Venow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        /* Reset CSS nhẹ nhàng */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .input-icon {
+            position: relative;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+        .input-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
         }
-
-        header, footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 15px 0;
+        .input-icon input,
+        .input-icon select,
+        .input-icon textarea {
+            padding-left: 2.5rem;
         }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .required-field::after {
+            content: '*';
+            color: #ef4444;
+            margin-left: 4px;
         }
-
-        .h1 {
-            font-size: 48px;
-            color: #ff3c00;
-            font-weight: bold;
-            text-align: center;
-            transition: transform 0.3s ease, color 0.3s ease;
+        .form-note {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
         }
-
-        .h1:hover {
-            transform: scale(1.1);
-            color: #ff7f50;
+        .ticket-type {
+            display: grid;
+            grid-template-columns: 2fr 1fr 3fr 80px;
+            gap: 1rem;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .ticket-type {
+                grid-template-columns: 1fr;
+            }
+            .ticket-type > div:last-child {
+                display: flex;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans">
 
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-    <div class="main-content">
-        <div class="h1">TRANG TẠO SỰ KIỆN</div>
+<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden">
+        <div class="px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-800">
+            <h1 class="text-3xl font-bold text-white">Tạo sự kiện mới</h1>
+        </div>
+        
+        <div class="p-8">
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="mb-6 p-4 bg-green-100 text-green-700 rounded-lg"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <form action="<?php echo BASE_URL; ?>/events/store" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <!-- Thông tin cơ bản -->
+                <div class="space-y-4">
+                    <div class="form-group">
+                        <label for="ten_su_kien" class="block text-sm font-medium text-gray-700 required-field">Tên sự kiện</label>
+                        <div class="input-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                            <input type="text" id="ten_su_kien" name="ten_su_kien" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập tên sự kiện" required>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label for="ngay_dien_ra" class="block text-sm font-medium text-gray-700 required-field">Ngày diễn ra</label>
+                            <div class="input-icon">
+                                <i class="fas fa-calendar"></i>
+                                <input type="date" id="ngay_dien_ra" name="ngay_dien_ra" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required min="<?php echo date('Y-m-d'); ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gio_dien_ra" class="block text-sm font-medium text-gray-700 required-field">Giờ diễn ra</label>
+                            <div class="input-icon">
+                                <i class="fas fa-clock"></i>
+                                <input type="time" id="gio_dien_ra" name="gio_dien_ra" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dia_diem" class="block text-sm font-medium text-gray-700 required-field">Địa điểm</label>
+                        <div class="input-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <input type="text" id="dia_diem" name="dia_diem" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập địa điểm tổ chức" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maloaisukien" class="block text-sm font-medium text-gray-700 required-field">Loại sự kiện</label>
+                        <div class="input-icon">
+                            <i class="fas fa-tag"></i>
+                            <select id="maloaisukien" name="maloaisukien" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="">-- Chọn loại sự kiện --</option>
+                                <?php 
+                                $eventModel = new Event();
+                                $categories = $eventModel->getAllEventTypes();
+                                foreach ($categories as $category): 
+                                ?>
+                                    <option value="<?php echo $category['maloaisukien']; ?>"><?php echo $category['tenloaisukien']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mo_ta" class="block text-sm font-medium text-gray-700">Mô tả sự kiện</label>
+                        <textarea id="mo_ta" name="mo_ta" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Mô tả chi tiết về sự kiện" rows="4"></textarea>
+                        <p class="form-note">Mô tả chi tiết giúp người tham gia hiểu rõ hơn về sự kiện của bạn</p>
+                    </div>
+                </div>
+                
+                <!-- Thông tin vé và chỗ ngồi -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label for="so_luong_cho" class="block text-sm font-medium text-gray-700 required-field">Số lượng chỗ</label>
+                            <div class="input-icon">
+                                <i class="fas fa-chair"></i>
+                                <input type="number" id="so_luong_cho" name="so_luong_cho" min="1" value="100" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trang_thai_cho_ngoi" class="block text-sm font-medium text-gray-700">Trạng thái chỗ ngồi</label>
+                            <div class="input-icon">
+                                <i class="fas fa-check-circle"></i>
+                                <select id="trang_thai_cho_ngoi" name="trang_thai_cho_ngoi" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="CON_CHO">Còn chỗ</option>
+                                    <option value="HET_CHO">Hết chỗ</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Loại vé -->
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <label class="block text-sm font-medium text-gray-700 required-field mb-4">Loại vé</label>
+                        <div id="ticket-types" class="space-y-4">
+                            <div class="ticket-type">
+                                <div class="form-group">
+                                    <input type="text" name="ticket_types[0][ten_loai_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Tên loại vé (VD: VIP)" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" name="ticket_types[0][gia_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Giá vé" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea name="ticket_types[0][mo_ta]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Mô tả loại vé" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="add-ticket-btn mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-plus-circle mr-2"></i> Thêm loại vé
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="thoi_han_dat_ve" class="block text-sm font-medium text-gray-700">Thời hạn đặt vé</label>
+                        <div class="input-icon">
+                            <i class="fas fa-hourglass-end"></i>
+                            <input type="datetime-local" id="thoi_han_dat_ve" name="thoi_han_dat_ve" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" min="<?php echo date('Y-m-d\TH:i'); ?>">
+                        </div>
+                        <p class="form-note">Nếu không chọn, thời hạn đặt vé sẽ là đến khi sự kiện diễn ra</p>
+                    </div>
+                </div>
+                
+                <!-- Hình ảnh sự kiện -->
+                <div class="form-group">
+                    <label for="hinh_anh" class="block text-sm font-medium text-gray-700">Hình ảnh sự kiện</label>
+                    <input type="file" id="hinh_anh" name="hinh_anh" accept="image/jpeg,image/png,image/gif" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <p class="form-note">Hỗ trợ định dạng: JPG, PNG, GIF. Kích thước tối đa: 5MB</p>
+                </div>
+                
+                <!-- Thông tin nhà tổ chức -->
+                <div class="form-group">
+                    <label for="ma_nha_to_chuc" class="block text-sm font-medium text-gray-700 required-field">Nhà tổ chức</label>
+                    <div class="input-icon">
+                        <i class="fas fa-building"></i>
+                        <?php
+                        try {
+                            if (isset($_SESSION['user']) && $_SESSION['user']['vai_tro'] == 2) {
+                                $userId = $_SESSION['user']['id'];
+                                $db = Database::getInstance();
+                                $stmt = $db->prepare("SELECT n.ma_nha_to_chuc, n.tennhatochuc FROM nhatochuc n JOIN nguoidung u ON n.ma_nguoi_dung = u.ma_nguoi_dung WHERE u.ma_nguoi_dung = ?");
+                                $stmt->execute([$userId]);
+                                $organizer = $stmt->fetch(PDO::FETCH_ASSOC);
+                                
+                                if ($organizer) {
+                                    echo '<input type="text" id="ma_nha_to_chuc_display" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm bg-gray-100" value="' . htmlspecialchars($organizer['tennhatochuc']) . '" disabled>';
+                                    echo '<input type="hidden" id="ma_nha_to_chuc" name="ma_nha_to_chuc" value="' . $organizer['ma_nha_to_chuc'] . '">';
+                                } else {
+                                    echo '<input type="text" id="ma_nha_to_chuc_display" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm bg-gray-100" value="Chưa xác định - Vui lòng liên hệ quản trị viên" disabled>';
+                                    echo '<input type="hidden" id="ma_nha_to_chuc" name="ma_nha_to_chuc" value="">';
+                                }
+                            } else {
+                                echo '<input type="text" id="ma_nha_to_chuc_display" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm bg-gray-100" value="Chưa xác định" disabled>';
+                                echo '<input type="hidden" id="ma_nha_to_chuc" name="ma_nha_to_chuc" value="">';
+                            }
+                        } catch (PDOException $e) {
+                            error_log("Lỗi truy vấn nhà tổ chức: " . $e->getMessage());
+                            $_SESSION['error'] = 'Lỗi khi lấy thông tin nhà tổ chức';
+                            header('Location: ' . BASE_URL);
+                            exit;
+                        }
+                        ?>
+                    </div>
+                    <?php if (!isset($organizer) || !$organizer): ?>
+                    <p class="form-note text-red-600"><i class="fas fa-exclamation-triangle mr-1"></i> Bạn chưa được liên kết với nhà tổ chức nào. Vui lòng liên hệ quản trị viên.</p>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="form-group">
+                    <p class="form-note"><i class="fas fa-info-circle mr-1"></i> Lưu ý: Sự kiện sau khi tạo sẽ được gửi đến quản trị viên để duyệt trước khi hiển thị công khai.</p>
+                </div>
+                
+                <button type="submit" class="w-full inline-flex justify-center items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-calendar-plus mr-2"></i> TẠO SỰ KIỆN
+                </button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>
+
+<script>
+    let ticketIndex = 1;
+    document.querySelector('.add-ticket-btn').addEventListener('click', function() {
+        const ticketTypes = document.getElementById('ticket-types');
+        const newTicket = document.createElement('div');
+        newTicket.classList.add('ticket-type');
+        newTicket.innerHTML = `
+            <div class="form-group">
+                <input type="text" name="ticket_types[${ticketIndex}][ten_loai_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Tên loại vé (VD: VIP)" required>
+            </div>
+            <div class="form-group">
+                <input type="number" name="ticket_types[${ticketIndex}][gia_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Giá vé" min="0" required>
+            </div>
+            <div class="form-group">
+                <textarea name="ticket_types[${ticketIndex}][mo_ta]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Mô tả loại vé" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="button" class="remove-ticket-btn px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Xóa</button>
+            </div>
+        `;
+        ticketTypes.appendChild(newTicket);
+        ticketIndex++;
+
+        newTicket.querySelector('.remove-ticket-btn').addEventListener('click', function() {
+            newTicket.remove();
+        });
+    });
+
+    document.getElementById('hinh_anh').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (file && !allowedTypes.includes(file.type)) {
+            alert('Chỉ hỗ trợ file JPG, PNG, GIF');
+            e.target.value = '';
+        }
+    });
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const tenSuKien = document.getElementById('ten_su_kien').value.trim();
+        const ngayDienRa = document.getElementById('ngay_dien_ra').value;
+        const gioDienRa = document.getElementById('gio_dien_ra').value;
+        const diaDiem = document.getElementById('dia_diem').value.trim();
+        const loaiSuKien = document.getElementById('maloaisukien').value;
+        const soLuongCho = document.getElementById('so_luong_cho').value;
+        const maNhaToChuc = document.getElementById('ma_nha_to_chuc').value;
+        const thoiHanDatVe = document.getElementById('thoi_han_dat_ve').value;
+        
+        let errors = [];
+        
+        if (!tenSuKien) errors.push('Vui lòng nhập tên sự kiện');
+        if (!ngayDienRa) errors.push('Vui lòng chọn ngày diễn ra');
+        if (!gioDienRa) errors.push('Vui lòng chọn giờ diễn ra');
+        if (!diaDiem) errors.push('Vui lòng nhập địa điểm');
+        if (!loaiSuKien) errors.push('Vui lòng chọn loại sự kiện');
+        if (!soLuongCho || soLuongCho < 1) errors.push('Số lượng chỗ phải lớn hơn 0');
+        if (!maNhaToChuc) errors.push('Thông tin nhà tổ chức không hợp lệ');
+
+        if (thoiHanDatVe) {
+            const eventDateTime = new Date(`${ngayDienRa}T${gioDienRa}`);
+            const bookingDeadline = new Date(thoiHanDatVe);
+            if (bookingDeadline > eventDateTime) {
+                errors.push('Thời hạn đặt vé không được sau thời gian diễn ra sự kiện');
+            }
+        }
+
+        const ticketTypes = document.querySelectorAll('.ticket-type');
+        if (ticketTypes.length === 0) {
+            errors.push('Vui lòng thêm ít nhất một loại vé');
+        }
+
+        if (errors.length > 0) {
+            e.preventDefault();
+            alert(errors.join('\n'));
+        }
+    });
+</script>
 
 </body>
 </html>

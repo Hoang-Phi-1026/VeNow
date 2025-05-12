@@ -42,6 +42,23 @@ class Database {
         return $this->conn->prepare($sql);
     }
 
+    // Transaction methods
+    public function beginTransaction() {
+        return $this->conn->beginTransaction();
+    }
+
+    public function commit() {
+        return $this->conn->commit();
+    }
+
+    public function rollBack() {
+        return $this->conn->rollBack();
+    }
+
+    public function lastInsertId() {
+        return $this->conn->lastInsertId();
+    }
+
     // Ngăn chặn clone object
     private function __clone() {}
 
@@ -51,8 +68,8 @@ class Database {
 
 // Helper functions
 function query($sql, $params = []) {
-    global $conn;
-    $stmt = $conn->prepare($sql);
+    $db = Database::getInstance();
+    $stmt = $db->prepare($sql);
     $stmt->execute($params);
     return $stmt;
 }
@@ -70,6 +87,6 @@ function rowCount($sql, $params = []) {
 }
 
 function lastInsertId() {
-    global $conn;
-    return $conn->lastInsertId();
+    $db = Database::getInstance();
+    return $db->lastInsertId();
 }
