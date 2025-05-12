@@ -221,6 +221,11 @@ switch ($path) {
             $userController = new UserController();
             $userController->delete($matches[1]);
         }
+        // Kiểm tra xem có phải là route xóa sự kiện không
+        else if (preg_match('/^\/events\/delete\/(\d+)$/', $path, $matches)) {
+            $eventController = new EventController();
+            $eventController->delete($matches[1]);
+        }
         else {
             // Nếu không khớp với route nào, hiển thị trang 404
             http_response_code(404);

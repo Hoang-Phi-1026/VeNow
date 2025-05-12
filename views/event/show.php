@@ -41,7 +41,11 @@
 
             <!-- Event Gallery -->
             <div class="event-gallery">
-                <img src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" class="event-main-image" id="main-event-image">
+                <?php if (!empty($event['hinh_anh'])): ?>
+                    <img src="<?php echo BASE_URL . '/' . $event['hinh_anh']; ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" class="event-main-image" id="main-event-image">
+                <?php else: ?>
+                    <img src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" class="event-main-image" id="main-event-image">
+                <?php endif; ?>
                 <div class="event-thumbnails">
                     <div class="event-thumbnail active" data-src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>">
                         <img src="https://via.placeholder.com/100x100/1eb75c/FFFFFF" alt="Thumbnail 1">
@@ -103,10 +107,10 @@
                         </div>
                         <div class="organizer-content">
                             <div class="organizer-logo">
-                                <img src="https://via.placeholder.com/100x100/1eb75c/FFFFFF?text=<?php echo urlencode($event['tennhatochuc']); ?>" alt="Logo <?php echo htmlspecialchars($event['tennhatochuc']); ?>">
+                                <img src="https://via.placeholder.com/100x100/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_nha_to_chuc']); ?>" alt="Logo <?php echo htmlspecialchars($event['ten_nha_to_chuc']); ?>">
                             </div>
                             <div class="organizer-info">
-                                <h4 class="organizer-name"><?php echo htmlspecialchars($event['tennhatochuc']); ?></h4>
+                                <h4 class="organizer-name"><?php echo htmlspecialchars($event['ten_nha_to_chuc']); ?></h4>
                                 <p class="organizer-desc">Nhà tổ chức sự kiện chuyên nghiệp</p>
                                 <a href="#" class="organizer-link" aria-label="Xem thêm thông tin về nhà tổ chức">
                                     <i class="fas fa-external-link-alt"></i> Xem thêm về nhà tổ chức
@@ -290,7 +294,12 @@
 
                     <!-- Comment Form -->
                     <div class="comment-form-container">
-                        <?php if (isset($_SESSION['user'])): ?>
+                        <?php if ($event['trang_thai'] != 'DA_DUYET'): ?>
+                            <div class="pending-event-notice">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Sự kiện này đang chờ duyệt. Bình luận và đánh giá sẽ được mở sau khi sự kiện được duyệt.
+                            </div>
+                        <?php elseif (isset($_SESSION['user'])): ?>
                             <?php
                             // Kiểm tra xem người dùng đã bình luận cho sự kiện này chưa
                             $hasCommented = $commentModel->hasUserCommented($event['ma_su_kien'], $_SESSION['user']['id']);
@@ -722,6 +731,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .pending-comment-notice, .approved-comment-notice {
     font-weight: 500;
+}
+
+.pending-event-notice {
+    background-color: #fff3cd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid #ffc107;
+}
+
+.pending-event-notice i {
+    color: #ffc107;
+    font-size: 1.2em;
 }
 </style>
 

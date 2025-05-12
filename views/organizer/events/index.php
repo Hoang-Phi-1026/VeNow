@@ -32,8 +32,8 @@
       <?php foreach ($events as $event): ?>
         <div class="event-card">
           <div class="event-image">
-            <?php if (!empty($event['hinh_anh']) && file_exists(BASE_PATH . '/public/uploads/events/' . $event['hinh_anh'])): ?>
-              <img src="<?php echo BASE_URL; ?>/public/uploads/events/<?php echo $event['hinh_anh']; ?>" 
+            <?php if (!empty($event['hinh_anh']) && file_exists(BASE_PATH . '/' . $event['hinh_anh'])): ?>
+              <img src="<?php echo BASE_URL; ?>/<?php echo $event['hinh_anh']; ?>" 
                    alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>">
             <?php else: ?>
               <img src="https://via.placeholder.com/400x250/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" 

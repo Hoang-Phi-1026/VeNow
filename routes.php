@@ -69,6 +69,9 @@ if ($path === '') {
     $path = '/';
 }
 
+// Debug
+error_log("Current path: " . $path);
+
 // Match route
 $routeFound = false;
 $params = [];
@@ -77,6 +80,9 @@ foreach ($routes as $route => $handler) {
     // Convert route to regex pattern
     $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[^/]+)', $route);
     $pattern = '#^' . $pattern . '$#';
+    
+    // Debug
+    error_log("Checking route: " . $route . " against pattern: " . $pattern);
     
     if (preg_match($pattern, $path, $matches)) {
         $routeFound = true;
@@ -88,20 +94,36 @@ foreach ($routes as $route => $handler) {
             }
         }
         
+        // Debug
+        error_log("Route matched: " . $route);
+        error_log("Parameters: " . print_r($params, true));
+        
         // Load controller and call action
         $controllerName = $handler['controller'];
         $actionName = $handler['action'];
         
-        require_once 'controllers/' . $controllerName . '.php';
-        $controller = new $controllerName();
-        call_user_func_array([$controller, $actionName], $params);
+        $controllerFile = __DIR__ . '/controllers/' . $controllerName . '.php';
+        if (!file_exists($controllerFile)) {
+            error_log("Controller file not found: " . $controllerFile);
+            break;
+        }
         
+        require_once $controllerFile;
+        $controller = new $controllerName();
+        
+        if (!method_exists($controller, $actionName)) {
+            error_log("Action method not found: " . $actionName);
+            break;
+        }
+        
+        call_user_func_array([$controller, $actionName], $params);
         break;
     }
 }
 
 // If no route found, show 404 page
 if (!$routeFound) {
+    error_log("No route found for path: " . $path);
     http_response_code(404);
-    require_once 'error/404.php';
+    require_once __DIR__ . '/error/404.php';
 }

@@ -28,7 +28,13 @@
             <?php foreach ($events as $event): ?>
                 <div class="admin-event-card">
                     <div class="event-image">
-                        <img src="<?php echo !empty($event['hinh_anh']) ? BASE_URL . '/uploads/events/' . $event['hinh_anh'] : 'https://via.placeholder.com/400x250/1eb75c/FFFFFF?text=' . urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>">
+                        <?php if (!empty($event['hinh_anh']) && file_exists(BASE_PATH . '/' . $event['hinh_anh'])): ?>
+                            <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($event['hinh_anh']); ?>" 
+                                 alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>">
+                        <?php else: ?>
+                            <img src="<?php echo BASE_URL; ?>/public/images/placeholder.jpg" 
+                                 alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>">
+                        <?php endif; ?>
                         <div class="event-date">
                             <span class="day"><?php echo date('d', strtotime($event['ngay_dien_ra'])); ?></span>
                             <span class="month"><?php echo date('M', strtotime($event['ngay_dien_ra'])); ?></span>
@@ -37,7 +43,7 @@
                     <div class="event-info">
                         <h3 class="event-title"><?php echo htmlspecialchars($event['ten_su_kien']); ?></h3>
                         <div class="event-meta">
-                            <span><i class="fas fa-building"></i> <?php echo htmlspecialchars($event['tennhatochuc']); ?></span>
+                            <span><i class="fas fa-building"></i> <?php echo htmlspecialchars($event['ho_ten']); ?></span>
                             <span><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($event['dia_diem']); ?></span>
                             <span><i class="fas fa-calendar"></i> <?php echo date('d/m/Y', strtotime($event['ngay_dien_ra'])); ?></span>
                             <span><i class="fas fa-tag"></i> <?php echo htmlspecialchars($event['tenloaisukien']); ?></span>

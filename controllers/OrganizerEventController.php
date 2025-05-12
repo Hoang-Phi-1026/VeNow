@@ -14,10 +14,11 @@ class OrganizerEventController extends BaseController {
             // Lấy mã người dùng từ session
             $maNguoiDung = $_SESSION['user']['id'];
             
-            // Lấy thông tin nhà tổ chức
-            $sql = "SELECT n.* 
-                   FROM nhatochuc n 
-                   WHERE n.ma_nguoi_dung = :ma_nguoi_dung";
+            // Lấy thông tin nhà tổ chức từ bảng nguoidung
+            $sql = "SELECT nd.*, n.ma_nha_to_chuc
+                   FROM nguoidung nd
+                   LEFT JOIN nhatochuc n ON nd.ma_nguoi_dung = n.ma_nguoi_dung
+                   WHERE nd.ma_nguoi_dung = :ma_nguoi_dung AND nd.ma_vai_tro = 2";
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':ma_nguoi_dung', $maNguoiDung, PDO::PARAM_INT);
             $stmt->execute();
@@ -34,16 +35,16 @@ class OrganizerEventController extends BaseController {
                    (SELECT COUNT(*) FROM ve v WHERE v.ma_su_kien = s.ma_su_kien) as so_ve_da_ban
                    FROM sukien s
                    LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien 
-                   WHERE s.ma_nha_to_chuc = :ma_nha_to_chuc
+                   WHERE s.ma_nguoi_dung = :ma_nguoi_dung
                    ORDER BY s.ngay_dien_ra DESC";
-            
+
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':ma_nha_to_chuc', $organizer['manhatochuc'], PDO::PARAM_INT);
+            $stmt->bindParam(':ma_nguoi_dung', $maNguoiDung, PDO::PARAM_INT);
             $stmt->execute();
             $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Load view với thông tin nhà tổ chức
-            $organizerName = $organizer['tennhatochuc'];
+            $organizerName = $organizer['ho_ten'];
             require_once __DIR__ . '/../views/organizer/events/index.php';
         } catch (PDOException $e) {
             $_SESSION['error'] = 'Có lỗi xảy ra: ' . $e->getMessage();
@@ -57,10 +58,11 @@ class OrganizerEventController extends BaseController {
             // Lấy mã người dùng từ session
             $maNguoiDung = $_SESSION['user']['id'];
             
-            // Lấy thông tin nhà tổ chức
-            $sql = "SELECT n.* 
-                   FROM nhatochuc n 
-                   WHERE n.ma_nguoi_dung = :ma_nguoi_dung";
+            // Lấy thông tin nhà tổ chức từ bảng nguoidung
+            $sql = "SELECT nd.*, n.ma_nha_to_chuc
+                   FROM nguoidung nd
+                   LEFT JOIN nhatochuc n ON nd.ma_nguoi_dung = n.ma_nguoi_dung
+                   WHERE nd.ma_nguoi_dung = :ma_nguoi_dung AND nd.ma_vai_tro = 2";
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':ma_nguoi_dung', $maNguoiDung, PDO::PARAM_INT);
             $stmt->execute();

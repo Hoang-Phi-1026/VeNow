@@ -24,11 +24,11 @@ class SearchController extends BaseController {
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Base query
-        $query = "SELECT DISTINCT s.*, n.tennhatochuc, l.tenloaisukien,
-                  MIN(t.gia_ve) as gia_ve_min,
-                  MAX(t.gia_ve) as gia_ve_max
+        $query = "SELECT DISTINCT s.*, nd.ho_ten, l.tenloaisukien,
+                  COALESCE(MIN(t.gia_ve), 0) as gia_ve_min,
+                  COALESCE(MAX(t.gia_ve), 0) as gia_ve_max
                   FROM sukien s 
-                  LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.manhatochuc 
+                  LEFT JOIN nguoidung nd ON s.ma_nguoi_dung = nd.ma_nguoi_dung AND nd.ma_vai_tro = 2
                   LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
                   LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
                   WHERE s.trang_thai = 'DA_DUYET'";

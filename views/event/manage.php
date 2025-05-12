@@ -1,28 +1,28 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
+<link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-manage.css">
+
 <div class="container admin-container">
     <div class="page-header">
-        <h1>Quản lý sự kiện</h1>
+        <h1><i class="fas fa-calendar-alt"></i> Quản lý sự kiện</h1>
     </div>
     
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
             <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
         </div>
     <?php endif; ?>
     
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i>
             <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
         </div>
     <?php endif; ?>
     
     <!-- Form tìm kiếm -->
-    <div class="card mb-4">
+    <div class="card">
         <div class="card-header">
-            <h2>Tìm kiếm sự kiện</h2>
+            <h2><i class="fas fa-search"></i> Tìm kiếm sự kiện</h2>
         </div>
         <div class="card-body">
             <form action="<?php echo BASE_URL; ?>/events/manage" method="GET" class="filter-form">
@@ -62,7 +62,7 @@
     <!-- Danh sách sự kiện -->
     <div class="card">
         <div class="card-header">
-            <h2>Danh sách sự kiện</h2>
+            <h2><i class="fas fa-list"></i> Danh sách sự kiện</h2>
         </div>
         <div class="card-body">
             <?php if (empty($events)): ?>
@@ -94,7 +94,7 @@
                                             <?php echo htmlspecialchars($event['ten_su_kien']); ?>
                                         </a>
                                     </td>
-                                    <td><?php echo htmlspecialchars($event['tennhatochuc'] ?? 'Không có'); ?></td>
+                                    <td><?php echo htmlspecialchars($event['ho_ten'] ?? 'Không có'); ?></td>
                                     <td><?php echo htmlspecialchars($event['tenloaisukien'] ?? 'Không có'); ?></td>
                                     <td>
                                         <?php 
@@ -125,34 +125,12 @@
                                             <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-info btn-sm" title="Xem chi tiết">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $event['ma_su_kien']; ?>" title="Xóa sự kiện">
+                                            <a href="<?php echo BASE_URL; ?>/events/delete/<?php echo $event['ma_su_kien']; ?>" 
+                                               class="btn btn-danger btn-sm" 
+                                               title="Xóa sự kiện"
+                                               onclick="return confirmDelete('<?php echo htmlspecialchars($event['ten_su_kien']); ?>')">
                                                 <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                        
-                                        <!-- Modal xác nhận xóa -->
-                                        <div class="modal fade" id="deleteModal<?php echo $event['ma_su_kien']; ?>" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa sự kiện</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p>Bạn có chắc chắn muốn xóa sự kiện <strong><?php echo htmlspecialchars($event['ten_su_kien']); ?></strong>?</p>
-                                                        <div class="alert alert-danger">
-                                                            <i class="fas fa-exclamation-triangle me-2"></i>
-                                                            <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan đến sự kiện này (vé, chỗ ngồi, bình luận) sẽ bị xóa vĩnh viễn.
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                        <a href="<?php echo BASE_URL; ?>/events/delete/<?php echo $event['ma_su_kien']; ?>" class="btn btn-danger">
-                                                            <i class="fas fa-trash me-2"></i>Xóa sự kiện
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -164,5 +142,12 @@
         </div>
     </div>
 </div>
+
+<script>
+function confirmDelete(eventName) {
+    return confirm('Bạn có chắc chắn muốn xóa sự kiện "' + eventName + '"?\n\n' +
+                  'Cảnh báo: Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan đến sự kiện này (vé, chỗ ngồi, bình luận) sẽ bị xóa vĩnh viễn.');
+}
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

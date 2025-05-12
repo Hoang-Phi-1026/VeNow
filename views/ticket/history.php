@@ -54,14 +54,14 @@
                             <td>
                                 <?php
                                     switch ($ticket['trang_thai']) {
-                                        case 'THANH_CONG':
-                                            echo '<span class="status-badge status-success">Thành công</span>';
+                                        case 'DAT_VE':
+                                            echo '<span class="status-badge status-success">Đặt vé</span>';
                                             break;
-                                        case 'CHO_THANH_TOAN':
-                                            echo '<span class="status-badge status-pending">Chờ thanh toán</span>';
+                                        case 'HUY_VE':
+                                            echo '<span class="status-badge status-cancelled">Hủy vé</span>';
                                             break;
-                                        case 'DA_HUY':
-                                            echo '<span class="status-badge status-cancelled">Đã hủy</span>';
+                                        case 'HOAN_VE':
+                                            echo '<span class="status-badge status-pending">Hoàn vé</span>';
                                             break;
                                         default:
                                             echo '<span class="status-badge status-unknown">Không xác định</span>';

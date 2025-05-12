@@ -29,7 +29,15 @@ require_once __DIR__ . '/../layouts/header.php';
         <div class="hero-slider">
             <?php foreach ($featuredEvents as $index => $event): ?>
             <div class="slider-item <?php echo $index === 0 ? 'active' : ''; ?>">
-                <img src="https://via.placeholder.com/1200x500/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" class="slider-image">
+                <?php if (!empty($event['hinh_anh']) && file_exists(BASE_PATH . '/' . $event['hinh_anh'])): ?>
+                    <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($event['hinh_anh']); ?>" 
+                         alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" 
+                         class="slider-image">
+                <?php else: ?>
+                    <img src="<?php echo BASE_URL; ?>/public/images/placeholder.jpg" 
+                         alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" 
+                         class="slider-image">
+                <?php endif; ?>
                 <div class="slider-content">
                     <h2 class="slider-title"><?php echo htmlspecialchars($event['ten_su_kien']); ?></h2>
                     <p class="slider-description"><?php echo htmlspecialchars(substr($event['mo_ta'], 0, 200) . (strlen($event['mo_ta']) > 200 ? '...' : '')); ?></p>
@@ -59,31 +67,11 @@ require_once __DIR__ . '/../layouts/header.php';
         </div>
         
         <div class="event-grid">
-            <?php foreach ($featuredEvents as $event): ?>
-            <div class="event-card">
-                <div class="event-image">
-                    <img src="https://via.placeholder.com/400x250/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>">
-                    <div class="event-date">
-                        <span class="day"><?php echo date('d', strtotime($event['ngay_dien_ra'])); ?></span>
-                        <span class="month"><?php echo date('M', strtotime($event['ngay_dien_ra'])); ?></span>
-                    </div>
-                </div>
-                <div class="event-info">
-                    <h3 class="event-title"><?php echo htmlspecialchars($event['ten_su_kien']); ?></h3>
-                    <div class="event-meta">
-                        <span class="event-time"><i class="far fa-clock"></i> <?php echo date('H:i', strtotime($event['gio_dien_ra'])); ?></span>
-                        <span class="event-location"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($event['dia_diem']); ?></span>
-                    </div>
-                    <div class="event-price">
-                        <?php if ($event['gia_ve_min'] == $event['gia_ve_max']): ?>
-                            <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ</span>
-                        <?php else: ?>
-                            <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ - <?php echo number_format($event['gia_ve_max']); ?>đ</span>
-                        <?php endif; ?>
-                    </div>
-                    <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">Xem chi tiết</a>
-                </div>
-            </div>
+            <?php 
+            // Limit to only 4 featured events
+            $featuredEventsLimited = array_slice($featuredEvents, 0, 4);
+            foreach ($featuredEventsLimited as $event): ?>
+                <?php require __DIR__ . '/../partials/event-card.php'; ?>
             <?php endforeach; ?>
         </div>
     </div>
@@ -114,31 +102,11 @@ require_once __DIR__ . '/../layouts/header.php';
         </div>
         
         <div class="event-grid">
-            <?php foreach ($upcomingEvents as $event): ?>
-            <div class="event-card">
-                <div class="event-image">
-                    <img src="https://via.placeholder.com/400x250/333333/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>">
-                    <div class="event-date">
-                        <span class="day"><?php echo date('d', strtotime($event['ngay_dien_ra'])); ?></span>
-                        <span class="month"><?php echo date('M', strtotime($event['ngay_dien_ra'])); ?></span>
-                    </div>
-                </div>
-                <div class="event-info">
-                    <h3 class="event-title"><?php echo htmlspecialchars($event['ten_su_kien']); ?></h3>
-                    <div class="event-meta">
-                        <span class="event-time"><i class="far fa-clock"></i> <?php echo date('H:i', strtotime($event['gio_dien_ra'])); ?></span>
-                        <span class="event-location"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($event['dia_diem']); ?></span>
-                    </div>
-                    <div class="event-price">
-                        <?php if ($event['gia_ve_min'] == $event['gia_ve_max']): ?>
-                            <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ</span>
-                        <?php else: ?>
-                            <span class="price"><?php echo number_format($event['gia_ve_min']); ?>đ - <?php echo number_format($event['gia_ve_max']); ?>đ</span>
-                        <?php endif; ?>
-                    </div>
-                    <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">Xem chi tiết</a>
-                </div>
-            </div>
+            <?php 
+            // Limit to only 4 upcoming events
+            $upcomingEventsLimited = array_slice($upcomingEvents, 0, 4);
+            foreach ($upcomingEventsLimited as $event): ?>
+                <?php require __DIR__ . '/../partials/event-card.php'; ?>
             <?php endforeach; ?>
         </div>
     </div>

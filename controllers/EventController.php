@@ -61,9 +61,18 @@ class EventController extends BaseController {
             'thoi_han_dat_ve' => $_POST['thoi_han_dat_ve'] ?? null,
             'trang_thai_cho_ngoi' => $_POST['trang_thai_cho_ngoi'] ?? 'CON_CHO',
             'maloaisukien' => $_POST['maloaisukien'] ?? '',
-            'ma_nha_to_chuc' => $_POST['ma_nha_to_chuc'] ?? '',
+            'ma_nguoi_dung' => $_SESSION['user']['id'],
             'ticket_types' => $_POST['ticket_types'] ?? []
         ];
+
+        // Kiểm tra nhà tổ chức
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM nhatochuc WHERE ma_nguoi_dung = ?");
+        $stmt->execute([$data['ma_nguoi_dung']]);
+        if ($stmt->fetchColumn() == 0) {
+            $_SESSION['error'] = 'Bạn chưa đăng ký làm nhà tổ chức';
+            header('Location: ' . BASE_URL . '/events/create');
+            exit;
+        }
 
         // Xử lý file hình ảnh
         $hinh_anh = null;
@@ -71,11 +80,21 @@ class EventController extends BaseController {
             $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
             $max_size = 5 * 1024 * 1024; // 5MB
 
+            // Tạo thư mục uploads nếu chưa tồn tại
+            $upload_dir = BASE_PATH . '/public/uploads/events';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
             if (in_array($_FILES['hinh_anh']['type'], $allowed_types) && $_FILES['hinh_anh']['size'] <= $max_size) {
                 $ext = pathinfo($_FILES['hinh_anh']['name'], PATHINFO_EXTENSION);
-                $hinh_anh = 'uploads/events/' . uniqid() . '.' . $ext;
-                if (!move_uploaded_file($_FILES['hinh_anh']['tmp_name'], BASE_PATH . '/' . $hinh_anh)) {
-                    $_SESSION['error'] = 'Lỗi khi tải lên hình ảnh';
+                $filename = uniqid() . '.' . $ext;
+                $target_path = $upload_dir . '/' . $filename;
+                
+                if (move_uploaded_file($_FILES['hinh_anh']['tmp_name'], $target_path)) {
+                    $hinh_anh = 'public/uploads/events/' . $filename;
+                } else {
+                    $_SESSION['error'] = 'Lỗi khi tải lên hình ảnh. Vui lòng thử lại.';
                     header('Location: ' . BASE_URL . '/events/create');
                     exit;
                 }
@@ -115,14 +134,8 @@ class EventController extends BaseController {
         if (empty($data['maloaisukien'])) {
             $errors[] = 'Vui lòng chọn loại sự kiện';
         }
-        if (empty($data['ma_nha_to_chuc'])) {
+        if (empty($data['ma_nguoi_dung'])) {
             $errors[] = 'Thông tin nhà tổ chức không hợp lệ';
-        } else {
-            $stmt = $this->db->prepare("SELECT COUNT(*) FROM nhatochuc WHERE ma_nha_to_chuc = ?");
-            $stmt->execute([$data['ma_nha_to_chuc']]);
-            if ($stmt->fetchColumn() == 0) {
-                $errors[] = 'Nhà tổ chức không tồn tại';
-            }
         }
         if (!in_array($data['trang_thai_cho_ngoi'], ['CON_CHO', 'HET_CHO'])) {
             $errors[] = 'Trạng thái chỗ ngồi không hợp lệ';
@@ -156,7 +169,7 @@ class EventController extends BaseController {
             'thoi_han_dat_ve' => $data['thoi_han_dat_ve'] ?: null,
             'trang_thai_cho_ngoi' => $data['trang_thai_cho_ngoi'],
             'maloaisukien' => $data['maloaisukien'],
-            'ma_nha_to_chuc' => $data['ma_nha_to_chuc']
+            'ma_nguoi_dung' => $data['ma_nguoi_dung']
         ];
 
         try {
@@ -197,12 +210,12 @@ class EventController extends BaseController {
             }
 
             // Lưu yêu cầu sự kiện
-            $this->saveEventRequest($eventId, $data['ma_nha_to_chuc'], $eventData);
+            $this->saveEventRequest($eventId, $data['ma_nguoi_dung'], $eventData);
 
             $this->db->commit();
             $_SESSION['success'] = 'Tạo sự kiện thành công! Sự kiện đang chờ duyệt';
-            header('Location: ' . BASE_URL . '/organizer/events');
-            exit;
+        header('Location: ' . BASE_URL . '/organizer/events');
+        exit;
         } catch (Exception $e) {
             $this->db->rollBack();
             error_log("Lỗi khi tạo sự kiện: " . $e->getMessage());
@@ -212,7 +225,19 @@ class EventController extends BaseController {
         }
     }
 
-    private function saveEventRequest($eventId, $ma_nha_to_chuc, $eventData) {
+    private function saveEventRequest($eventId, $ma_nguoi_dung, $eventData) {
+        // Lấy ma_nha_to_chuc từ ma_nguoi_dung
+        $query = "SELECT ma_nha_to_chuc FROM nhatochuc WHERE ma_nguoi_dung = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$ma_nguoi_dung]);
+        $nhatochuc = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$nhatochuc) {
+            throw new Exception("Không tìm thấy thông tin nhà tổ chức");
+        }
+        
+        $ma_nha_to_chuc = $nhatochuc['ma_nha_to_chuc'];
+
         $query = "INSERT INTO yeucausukien (ma_su_kien, ma_nha_to_chuc, loai_yeu_cau, chi_tiet_yeu_cau, trang_thai)
                  VALUES (?, ?, 'TAO', ?, 'CHO_DUYET')";
         $stmt = $this->db->prepare($query);
@@ -226,7 +251,8 @@ class EventController extends BaseController {
             'so_luong_cho' => $eventData['so_luong_cho'],
             'thoi_han_dat_ve' => $eventData['thoi_han_dat_ve'],
             'trang_thai_cho_ngoi' => $eventData['trang_thai_cho_ngoi'],
-            'maloaisukien' => $eventData['maloaisukien']
+            'maloaisukien' => $eventData['maloaisukien'],
+            'ma_nguoi_dung' => $eventData['ma_nguoi_dung']
         ], JSON_UNESCAPED_UNICODE);
         $stmt->execute([$eventId, $ma_nha_to_chuc, $chi_tiet_yeu_cau]);
     }
@@ -244,11 +270,11 @@ class EventController extends BaseController {
     }
 
     public function getEventsByCategory($categoryId) {
-        $query = "SELECT s.*, n.tennhatochuc, l.tenloaisukien,
+        $query = "SELECT s.*, nd.ho_ten, l.tenloaisukien,
                         MIN(t.gia_ve) as gia_ve_min,
                         MAX(t.gia_ve) as gia_ve_max
                  FROM sukien s 
-                 LEFT JOIN nhatochuc n ON s.ma_nha_to_chuc = n.ma_nha_to_chuc 
+                 LEFT JOIN nguoidung nd ON s.ma_nguoi_dung = nd.ma_nguoi_dung AND nd.ma_vai_tro = 2
                  LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
                  LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
                  WHERE s.maloaisukien = ? AND s.trang_thai = 'DA_DUYET'
@@ -298,8 +324,10 @@ class EventController extends BaseController {
             $errors[] = 'Mã sự kiện không hợp lệ';
         } else {
             $event = $this->eventModel->getEventById($maSuKien);
-            if (!$event || $event['trang_thai'] != 'DA_DUYET') {
-                $errors[] = 'Sự kiện không tồn tại hoặc không ở trạng thái cho phép bình luận';
+            if (!$event) {
+                $errors[] = 'Sự kiện không tồn tại';
+            } elseif ($event['trang_thai'] != 'DA_DUYET') {
+                $errors[] = 'Sự kiện chưa được duyệt, không thể bình luận';
             }
         }
         if (empty($noiDung)) {
@@ -347,29 +375,43 @@ class EventController extends BaseController {
     }
     
     public function delete($id) {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['vai_tro'] != 1) {
+        // Kiểm tra quyền xóa
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['vai_tro'] != 1 && $_SESSION['user']['vai_tro'] != 2)) {
             $_SESSION['error'] = 'Bạn không có quyền xóa sự kiện';
-            header('Location: ' . BASE_URL);
-            exit;
-        }
-        
-        $event = $this->eventModel->getEventById($id);
-        if (!$event) {
-            $_SESSION['error'] = 'Sự kiện không tồn tại';
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
-        
-        try {
-            if ($this->eventModel->deleteEvent($id)) {
-                $_SESSION['success'] = 'Xóa sự kiện thành công';
-            } else {
-                $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sự kiện';
-            }
-        } catch (Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
+
+        // Kiểm tra sự kiện có tồn tại không
+        $event = $this->eventModel->getEventById($id);
+        if (!$event) {
+            $_SESSION['error'] = 'Không tìm thấy sự kiện';
+            header('Location: ' . BASE_URL . '/events/manage');
+            exit;
         }
-        
+
+        // Kiểm tra quyền xóa (chỉ admin hoặc người tạo sự kiện mới được xóa)
+        if ($_SESSION['user']['vai_tro'] != 1 && $event['ma_nguoi_dung'] != $_SESSION['user']['id']) {
+            $_SESSION['error'] = 'Bạn không có quyền xóa sự kiện này';
+            header('Location: ' . BASE_URL . '/events/manage');
+            exit;
+        }
+
+        // Xóa ảnh sự kiện nếu có
+        if (!empty($event['hinh_anh'])) {
+            $imagePath = BASE_PATH . '/' . $event['hinh_anh'];
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+
+        // Xóa sự kiện
+        if ($this->eventModel->deleteEvent($id)) {
+            $_SESSION['success'] = 'Xóa sự kiện thành công';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sự kiện';
+        }
+
         header('Location: ' . BASE_URL . '/events/manage');
         exit;
     }

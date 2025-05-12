@@ -41,7 +41,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="search-container">
                     <form action="<?php echo BASE_URL; ?>/search" method="GET" class="search-form">
                         <div class="search-input-wrapper">
-                            <input type="text" name="q" class="search-input" placeholder="Tìm kiếm sự kiện..." value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>">
+                            <input type="text" name="q" class="search-input" placeholder="Bạn tìm gì hôm nay?" value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>">
                             <i class="fas fa-search search-icon"></i>
                         </div>
                         <button type="submit" class="search-button">Tìm kiếm</button>
