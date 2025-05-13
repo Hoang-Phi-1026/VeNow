@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VeNow - Mua vé sự kiện trực tuyến</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css?v=2">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css?v=3">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>/public/images/favicon.ico">
@@ -34,9 +34,10 @@ if (session_status() === PHP_SESSION_NONE) {
     <header class="main-header">
         <div class="container">
             <div class="header-content">
-                <a href="<?php echo BASE_URL; ?>" class="logo">
-                    <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="VeNow Logo" class="logo-image">
+                <a href="<?php echo BASE_URL; ?>/" class="logo">
+                    <img src="<?php echo BASE_URL; ?>/public/images/logo.png" alt="VeNow Logo" class="logo-image" style="height: 40px; width: auto;">
                 </a>
+                
                 
                 <div class="search-container">
                     <form action="<?php echo BASE_URL; ?>/search" method="GET" class="search-form">

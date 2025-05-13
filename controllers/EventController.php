@@ -381,7 +381,7 @@ class EventController extends BaseController {
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
-
+        
         // Kiểm tra sự kiện có tồn tại không
         $event = $this->eventModel->getEventById($id);
         if (!$event) {
@@ -396,7 +396,7 @@ class EventController extends BaseController {
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
-
+        
         // Xóa ảnh sự kiện nếu có
         if (!empty($event['hinh_anh'])) {
             $imagePath = BASE_PATH . '/' . $event['hinh_anh'];
@@ -411,7 +411,7 @@ class EventController extends BaseController {
         } else {
             $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sự kiện';
         }
-
+        
         header('Location: ' . BASE_URL . '/events/manage');
         exit;
     }
