@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo sự kiện mới - Venow</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css">
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-create.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css?v=1">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-create.css?v=1">
 </head>
 <body>
 
@@ -135,31 +135,46 @@
     </div>
     
     <!-- Loại vé -->
-    <div class="bg-blue-50 p-6 rounded-lg">
-        <label class="block text-sm font-medium text-gray-700 required-field mb-4">Loại vé</label>
-        <div id="ticket-types" class="space-y-4">
-            <div class="ticket-type">
-                <div class="form-group">
-                    <input type="text" name="ticket_types[0][ten_loai_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Tên loại vé (VD: VIP)" required>
-                </div>
-                <div class="form-group">
-                    <input type="number" name="ticket_types[0][gia_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Giá vé" min="0" required>
-                </div>
-                <div class="form-group">
-                    <input type="number" name="ticket_types[0][so_hang]" class="block w-16 border-gray-100 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Số hàng" min="1" required>
-                </div>
-                <div class="form-group">
-                    <input type="number" name="ticket_types[0][so_cot]" class="block w-16 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Số cột" min="1" required>
-                </div>
-                <div class="form-group">
-                    <textarea name="ticket_types[0][mo_ta]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Mô tả loại vé" rows="2"></textarea>
-                </div>
+    <div class="ticket-types-section">
+    <div class="section-title">
+        <i class="fas fa-ticket-alt"></i>
+        <h2>Loại vé</h2>
+    </div>
+    
+    <div class="form-note-box">
+        <i class="fas fa-info-circle"></i>
+        <p>Thêm các loại vé khác nhau cho sự kiện của bạn (VD: Vé VIP, Vé thường, v.v.)</p>
+    </div>
+    
+    <div id="ticket-types" class="ticket-types-container">
+        <div class="ticket-type">
+            <div class="form-group">
+                <label for="ticket_name_0">Tên loại vé</label>
+                <input type="text" id="ticket_name_0" name="ticket_types[0][ten_loai_ve]" placeholder="VD: Vé VIP" required>
+            </div>
+            <div class="form-group">
+                <label for="ticket_price_0">Giá vé</label>
+                <input type="number" id="ticket_price_0" name="ticket_types[0][gia_ve]" placeholder="VD: 500000" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="ticket_rows_0">Số hàng</label>
+                <input type="number" id="ticket_rows_0" name="ticket_types[0][so_hang]" placeholder="VD: 5" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="ticket_cols_0">Số cột</label>
+                <input type="number" id="ticket_cols_0" name="ticket_types[0][so_cot]" placeholder="VD: 10" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="ticket_desc_0">Mô tả</label>
+                <textarea id="ticket_desc_0" name="ticket_types[0][mo_ta]" placeholder="Mô tả chi tiết về loại vé" rows="2"></textarea>
             </div>
         </div>
-        <button type="button" class="add-ticket-btn mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-plus-circle mr-2"></i> Thêm loại vé
-        </button>
     </div>
+    
+    <button type="button" class="add-ticket-btn">
+        <i class="fas fa-plus-circle"></i> Thêm loại vé
+    </button>
+</div>
 
     
     <div class="form-group">
@@ -259,23 +274,26 @@
         newTicket.classList.add('ticket-type');
         newTicket.innerHTML = `
             <div class="form-group">
-                <input type="text" name="ticket_types[${ticketIndex}][ten_loai_ve]" placeholder="Tên loại vé" required>
+                <label for="ticket_name_${ticketIndex}">Tên loại vé</label>
+                <input type="text" id="ticket_name_${ticketIndex}" name="ticket_types[${ticketIndex}][ten_loai_ve]" placeholder="VD: Vé VIP" required>
             </div>
             <div class="form-group">
-                <input type="number" name="ticket_types[${ticketIndex}][gia_ve]" placeholder="Giá vé" min="0" required>
+                <label for="ticket_price_${ticketIndex}">Giá vé</label>
+                <input type="number" id="ticket_price_${ticketIndex}" name="ticket_types[${ticketIndex}][gia_ve]" placeholder="VD: 500000" min="0" required>
             </div>
             <div class="form-group">
-                <input type="number" name="ticket_types[${ticketIndex}][so_hang]" placeholder="Số hàng" min="1" required>
+                <label for="ticket_rows_${ticketIndex}">Số hàng</label>
+                <input type="number" id="ticket_rows_${ticketIndex}" name="ticket_types[${ticketIndex}][so_hang]" placeholder="VD: 5" min="1" required>
             </div>
             <div class="form-group">
-                <input type="number" name="ticket_types[${ticketIndex}][so_cot]" placeholder="Số cột" min="1" required>
+                <label for="ticket_cols_${ticketIndex}">Số cột</label>
+                <input type="number" id="ticket_cols_${ticketIndex}" name="ticket_types[${ticketIndex}][so_cot]" placeholder="VD: 10" min="1" required>
             </div>
             <div class="form-group">
-                <textarea name="ticket_types[${ticketIndex}][mo_ta]" placeholder="Mô tả loại vé" rows="2"></textarea>
+                <label for="ticket_desc_${ticketIndex}">Mô tả</label>
+                <textarea id="ticket_desc_${ticketIndex}" name="ticket_types[${ticketIndex}][mo_ta]" placeholder="Mô tả chi tiết về loại vé" rows="2"></textarea>
             </div>
-            <div class="form-group remove-btn-container">
-                <button type="button" class="remove-ticket-btn"><i class="fas fa-trash-alt"></i></button>
-            </div>
+            <button type="button" class="remove-ticket-btn"><i class="fas fa-trash-alt"></i></button>
         `;
         ticketTypes.appendChild(newTicket);
         ticketIndex++;

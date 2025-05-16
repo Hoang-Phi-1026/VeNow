@@ -205,6 +205,10 @@ switch ($path) {
         require_once BASE_PATH . '/views/about/index.php';
         break;
 
+    case '/support':
+        require_once BASE_PATH . '/views/support/index.php';
+        break;
+
     default:
         // Kiểm tra xem có phải là route chi tiết sự kiện không
         if (preg_match('/^\/event\/(\d+)$/', $path, $matches)) {

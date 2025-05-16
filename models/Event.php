@@ -130,7 +130,7 @@ class Event {
         $query = "UPDATE sukien 
                  SET ten_su_kien = ?, ngay_dien_ra = ?, gio_dien_ra = ?, 
                      ngay_ket_thuc = ?, 
-                     dia_diem = ?, mo_t penetrating = ?, hinh_anh = ?, so_luong_cho = ?, 
+                     dia_diem = ?, mo_ta = ?, hinh_anh = ?, so_luong_cho = ?, 
                      thoi_han_dat_ve = ?, trang_thai_cho_ngoi = ?, 
                      maloaisukien = ?, ma_nguoi_dung = ?,
                      trang_thai = 'CHO_DUYET' 

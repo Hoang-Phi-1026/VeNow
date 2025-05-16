@@ -750,14 +750,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .pending-event-notice i {
     color: #ffc107;
-    font-size: 1.2em;
-}
-</style>
-
-<?php require_once __DIR__ . '/../layouts/footer.php'; ?>
-</merged_
-    font-size: 1.2em;
-}
-</style>
-
-<?php require_once __DIR__ . '/../layouts/footer.php'; ?>
