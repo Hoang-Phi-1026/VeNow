@@ -70,7 +70,6 @@ class Event {
     }
 
     public function createEvent($data) {
-        // Kiểm tra dữ liệu đầu vào
         $requiredFields = ['ten_su_kien', 'ngay_dien_ra', 'gio_dien_ra', 'dia_diem', 'so_luong_cho', 'maloaisukien', 'ma_nguoi_dung'];
         foreach ($requiredFields as $field) {
             if (empty($data[$field])) {
@@ -82,15 +81,16 @@ class Event {
         }
 
         $query = "INSERT INTO sukien (
-            ten_su_kien, ngay_dien_ra, gio_dien_ra, dia_diem, mo_ta, 
-            hinh_anh, so_luong_cho, thoi_han_dat_ve, trang_thai_cho_ngoi, 
-            trang_thai, maloaisukien, ma_nguoi_dung
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'CHO_DUYET', ?, ?)";
+            ten_su_kien, ngay_dien_ra, gio_dien_ra, ngay_ket_thuc, 
+            dia_diem, mo_ta, hinh_anh, so_luong_cho, thoi_han_dat_ve, 
+            trang_thai_cho_ngoi, trang_thai, maloaisukien, ma_nguoi_dung
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CHO_DUYET', ?, ?)";
         $stmt = $this->db->prepare($query);
         $result = $stmt->execute([
             $data['ten_su_kien'],
             $data['ngay_dien_ra'],
             $data['gio_dien_ra'],
+            $data['ngay_ket_thuc'] ?? null,
             $data['dia_diem'],
             $data['mo_ta'] ?? null,
             $data['hinh_anh'] ?? null,
@@ -118,18 +118,29 @@ class Event {
             }
         }
 
+        // Kiểm tra tổng số ghế của các loại vé
+        $query = "SELECT SUM(so_hang * so_cot) as total_seats FROM loaive WHERE ma_su_kien = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+        $totalSeats = $stmt->fetchColumn();
+        if ($totalSeats > $data['so_luong_cho']) {
+            throw new Exception("Tổng số chỗ ngồi của các loại vé vượt quá số lượng chỗ cho phép");
+        }
+
         $query = "UPDATE sukien 
-         SET ten_su_kien = ?, ngay_dien_ra = ?, gio_dien_ra = ?, 
-             dia_diem = ?, mo_ta = ?, hinh_anh = ?, so_luong_cho = ?, 
-             thoi_han_dat_ve = ?, trang_thai_cho_ngoi = ?, 
-             maloaisukien = ?, ma_nguoi_dung = ?,
-             trang_thai = 'CHO_DUYET' 
-         WHERE ma_su_kien = ?";
+                 SET ten_su_kien = ?, ngay_dien_ra = ?, gio_dien_ra = ?, 
+                     ngay_ket_thuc = ?, 
+                     dia_diem = ?, mo_t penetrating = ?, hinh_anh = ?, so_luong_cho = ?, 
+                     thoi_han_dat_ve = ?, trang_thai_cho_ngoi = ?, 
+                     maloaisukien = ?, ma_nguoi_dung = ?,
+                     trang_thai = 'CHO_DUYET' 
+                 WHERE ma_su_kien = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
             $data['ten_su_kien'],
             $data['ngay_dien_ra'],
             $data['gio_dien_ra'],
+            $data['ngay_ket_thuc'] ?? null,
             $data['dia_diem'],
             $data['mo_ta'] ?? null,
             $data['hinh_anh'] ?? null,
@@ -143,16 +154,18 @@ class Event {
     }
 
     public function addTicketType($data) {
-        if (empty($data['ma_su_kien']) || empty($data['ten_loai_ve']) || !isset($data['gia_ve'])) {
+        if (empty($data['ma_su_kien']) || empty($data['ten_loai_ve']) || !isset($data['gia_ve']) || empty($data['so_hang']) || empty($data['so_cot'])) {
             throw new Exception("Thiếu thông tin loại vé bắt buộc");
         }
-        $query = "INSERT INTO loaive (ma_su_kien, ten_loai_ve, gia_ve, mo_ta) 
-                 VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO loaive (ma_su_kien, ten_loai_ve, gia_ve, so_hang, so_cot, mo_ta) 
+                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
         $result = $stmt->execute([
             $data['ma_su_kien'],
             $data['ten_loai_ve'],
             $data['gia_ve'],
+            $data['so_hang'],
+            $data['so_cot'],
             $data['mo_ta'] ?? null
         ]);
         
@@ -164,6 +177,7 @@ class Event {
 
     public function addSeats($eventId, $seats) {
         if (!is_numeric($eventId) || $eventId < 1 || empty($seats)) {
+            error_log("Dữ liệu chỗ ngồi không hợp lệ: eventId=$eventId, seats=" . json_encode($seats));
             throw new Exception("Dữ liệu chỗ ngồi không hợp lệ");
         }
         $query = "INSERT INTO chongoi (ma_su_kien, so_cho, trang_thai, ma_loai_ve) 
@@ -172,8 +186,10 @@ class Event {
         
         foreach ($seats as $seat) {
             if (empty($seat['so_cho']) || empty($seat['ma_loai_ve'])) {
+                error_log("Thông tin chỗ ngồi không đầy đủ: " . json_encode($seat));
                 throw new Exception("Thông tin chỗ ngồi không đầy đủ");
             }
+            error_log("Thêm chỗ ngồi: eventId=$eventId, so_cho={$seat['so_cho']}, ma_loai_ve={$seat['ma_loai_ve']}");
             $stmt->execute([
                 $eventId,
                 $seat['so_cho'],
@@ -181,6 +197,54 @@ class Event {
             ]);
         }
         return true;
+    }
+
+    public function deleteTicketType($ticketId) {
+        if (!is_numeric($ticketId) || $ticketId < 1) {
+            throw new Exception("Mã loại vé không hợp lệ");
+        }
+
+        // Kiểm tra vé đã bán
+        $query = "SELECT COUNT(*) FROM ve WHERE ma_loai_ve = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$ticketId]);
+        if ($stmt->fetchColumn() > 0) {
+            throw new Exception("Không thể xóa loại vé đã có vé được bán");
+        }
+
+        // Lấy thông tin loại vé
+        $query = "SELECT ma_su_kien, so_hang, so_cot FROM loaive WHERE ma_loai_ve = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$ticketId]);
+        $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$ticket) {
+            throw new Exception("Loại vé không tồn tại");
+        }
+
+        // Kiểm tra tổng số ghế còn lại
+        $query = "SELECT so_luong_cho FROM sukien WHERE ma_su_kien = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$ticket['ma_su_kien']]);
+        $so_luong_cho = $stmt->fetchColumn();
+
+        $query = "SELECT SUM(so_hang * so_cot) as total_seats FROM loaive WHERE ma_su_kien = ? AND ma_loai_ve != ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$ticket['ma_su_kien'], $ticketId]);
+        $remainingSeats = $stmt->fetchColumn();
+
+        if ($remainingSeats > $so_luong_cho) {
+            throw new Exception("Tổng số chỗ ngồi còn lại vượt quá số lượng chỗ cho phép");
+        }
+
+        // Xóa chỗ ngồi liên quan
+        $query = "DELETE FROM chongoi WHERE ma_loai_ve = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$ticketId]);
+
+        // Xóa loại vé
+        $query = "DELETE FROM loaive WHERE ma_loai_ve = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$ticketId]);
     }
 
     public function searchEvents($keyword, $category = null, $date = null, $location = null, $price = null) {
@@ -536,4 +600,8 @@ class Event {
 CREATE INDEX idx_sukien_search ON sukien(ten_su_kien, dia_diem);
 CREATE INDEX idx_sukien_trang_thai ON sukien(trang_thai);
 CREATE INDEX idx_loaive_ma_su_kien ON loaive(ma_su_kien);
+CREATE INDEX idx_sukien_ngay_ket_thuc ON sukien(ngay_ket_thuc);
+CREATE INDEX idx_loaive_so_hang_cot ON loaive(so_hang, so_cot);
+CREATE INDEX idx_chongoi_ma_su_kien ON chongoi(ma_su_kien);
+CREATE INDEX idx_chongoi_ma_loai_ve ON chongoi(ma_loai_ve);
 */

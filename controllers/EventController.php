@@ -50,11 +50,35 @@ class EventController extends BaseController {
             exit;
         }
 
+        // Kiểm tra ticket_types
+        if (!isset($_POST['ticket_types']) || !is_array($_POST['ticket_types'])) {
+            error_log("Không nhận được dữ liệu ticket_types từ form");
+            $_SESSION['error'] = 'Vui lòng thêm ít nhất một loại vé';
+            header('Location: ' . BASE_URL . '/events/create');
+            exit;
+        }
+
+        // Lọc ticket_types để đảm bảo dữ liệu hợp lệ
+        $ticket_types = array_filter($_POST['ticket_types'], function($ticket) {
+            return !empty($ticket['ten_loai_ve']) && 
+                   isset($ticket['gia_ve']) && $ticket['gia_ve'] >= 0 && 
+                   !empty($ticket['so_hang']) && $ticket['so_hang'] > 0 && 
+                   !empty($ticket['so_cot']) && $ticket['so_cot'] > 0;
+        });
+
+        if (empty($ticket_types)) {
+            error_log("Dữ liệu ticket_types không hợp lệ sau khi lọc: " . json_encode($_POST['ticket_types']));
+            $_SESSION['error'] = 'Dữ liệu loại vé không hợp lệ';
+            header('Location: ' . BASE_URL . '/events/create');
+            exit;
+        }
+
         // Lấy dữ liệu từ form
         $data = [
             'ten_su_kien' => trim($_POST['ten_su_kien'] ?? ''),
             'ngay_dien_ra' => $_POST['ngay_dien_ra'] ?? '',
             'gio_dien_ra' => $_POST['gio_dien_ra'] ?? '',
+            'ngay_ket_thuc' => $_POST['ngay_ket_thuc'] ?? null,
             'dia_diem' => trim($_POST['dia_diem'] ?? ''),
             'mo_ta' => trim($_POST['mo_ta'] ?? ''),
             'so_luong_cho' => (int)($_POST['so_luong_cho'] ?? 0),
@@ -62,7 +86,7 @@ class EventController extends BaseController {
             'trang_thai_cho_ngoi' => $_POST['trang_thai_cho_ngoi'] ?? 'CON_CHO',
             'maloaisukien' => $_POST['maloaisukien'] ?? '',
             'ma_nguoi_dung' => $_SESSION['user']['id'],
-            'ticket_types' => $_POST['ticket_types'] ?? []
+            'ticket_types' => $ticket_types
         ];
 
         // Kiểm tra nhà tổ chức
@@ -80,7 +104,6 @@ class EventController extends BaseController {
             $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
             $max_size = 5 * 1024 * 1024; // 5MB
 
-            // Tạo thư mục uploads nếu chưa tồn tại
             $upload_dir = BASE_PATH . '/public/uploads/events';
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0777, true);
@@ -125,6 +148,12 @@ class EventController extends BaseController {
         if (empty($data['gio_dien_ra'])) {
             $errors[] = 'Giờ diễn ra không được để trống';
         }
+        if (!empty($data['ngay_ket_thuc'])) {
+            $ngay_ket_thuc = DateTime::createFromFormat('Y-m-d', $data['ngay_ket_thuc']);
+            if (!$ngay_ket_thuc || $ngay_ket_thuc < $ngay_dien_ra) {
+                $errors[] = 'Ngày kết thúc không hợp lệ hoặc trước ngày diễn ra';
+            }
+        }
         if (empty($data['dia_diem'])) {
             $errors[] = 'Địa điểm không được để trống';
         }
@@ -143,12 +172,44 @@ class EventController extends BaseController {
         if (!empty($data['thoi_han_dat_ve'])) {
             $thoi_han_dat_ve = DateTime::createFromFormat('Y-m-d\TH:i', $data['thoi_han_dat_ve']);
             $event_date_time = DateTime::createFromFormat('Y-m-d H:i', $data['ngay_dien_ra'] . ' ' . $data['gio_dien_ra']);
-            if (!$thoi_han_dat_ve || $thoi_han_dat_ve < new DateTime() || $thoi_han_dat_ve > $event_date_time) {
-                $errors[] = 'Thời hạn đặt vé không hợp lệ hoặc sau thời gian diễn ra sự kiện';
+            if (!$thoi_han_dat_ve || $thoi_han_dat_ve < new DateTime()) {
+                $errors[] = 'Thời hạn đặt vé không hợp lệ hoặc đã qua';
+            }
+            if (!empty($data['ngay_ket_thuc'])) {
+                $event_end_date = DateTime::createFromFormat('Y-m-d', $data['ngay_ket_thuc']);
+                $event_end_time = clone $event_end_date;
+                $event_end_time->setTime(23, 59);
+                if ($thoi_han_dat_ve > $event_end_time) {
+                    $errors[] = 'Thời hạn đặt vé không được sau ngày kết thúc sự kiện';
+                }
+            } elseif ($thoi_han_dat_ve > $event_date_time) {
+                $errors[] = 'Thời hạn đặt vé không được sau thời gian diễn ra sự kiện';
             }
         }
         if (empty($data['ticket_types'])) {
             $errors[] = 'Vui lòng thêm ít nhất một loại vé';
+        }
+        $totalSeats = 0;
+        foreach ($data['ticket_types'] as $index => $ticket) {
+            if (empty($ticket['ten_loai_ve'])) {
+                $errors[] = "Tên loại vé thứ " . ($index + 1) . " không được để trống";
+            }
+            if (!isset($ticket['gia_ve']) || $ticket['gia_ve'] < 0) {
+                $errors[] = "Giá vé thứ " . ($index + 1) . " không hợp lệ";
+            }
+            if (empty($ticket['so_hang']) || $ticket['so_hang'] < 1) {
+                $errors[] = "Số hàng của loại vé thứ " . ($index + 1) . " không hợp lệ";
+            }
+            if (empty($ticket['so_cot']) || $ticket['so_cot'] < 1) {
+                $errors[] = "Số cột của loại vé thứ " . ($index + 1) . " không hợp lệ";
+            }
+            $totalSeats += $ticket['so_hang'] * $ticket['so_cot'];
+        }
+        if ($totalSeats > $data['so_luong_cho']) {
+            $errors[] = 'Tổng số chỗ ngồi của các loại vé vượt quá số lượng chỗ cho phép';
+        }
+        if ($totalSeats < $data['so_luong_cho']) {
+            $errors[] = 'Tổng số chỗ ngồi của các loại vé phải bằng số lượng chỗ cho phép';
         }
 
         if (!empty($errors)) {
@@ -162,6 +223,7 @@ class EventController extends BaseController {
             'ten_su_kien' => $data['ten_su_kien'],
             'ngay_dien_ra' => $data['ngay_dien_ra'],
             'gio_dien_ra' => $data['gio_dien_ra'],
+            'ngay_ket_thuc' => $data['ngay_ket_thuc'] ?: null,
             'dia_diem' => $data['dia_diem'],
             'mo_ta' => $data['mo_ta'],
             'hinh_anh' => $data['hinh_anh'] ?? null,
@@ -181,32 +243,35 @@ class EventController extends BaseController {
                 throw new Exception('Không thể tạo sự kiện');
             }
 
-            // Lưu các loại vé
-            $ticketTypeIds = [];
+            // Lưu các loại vé và chỗ ngồi
             foreach ($data['ticket_types'] as $ticket) {
                 $ticketData = [
                     'ma_su_kien' => $eventId,
                     'ten_loai_ve' => trim($ticket['ten_loai_ve']),
                     'gia_ve' => (float)($ticket['gia_ve'] ?? 0),
+                    'so_hang' => (int)($ticket['so_hang'] ?? 0),
+                    'so_cot' => (int)($ticket['so_cot'] ?? 0),
                     'mo_ta' => trim($ticket['mo_ta'] ?? '')
                 ];
                 $ticketId = $this->eventModel->addTicketType($ticketData);
                 if (!$ticketId) {
                     throw new Exception('Không thể tạo loại vé: ' . $ticketData['ten_loai_ve']);
                 }
-                $ticketTypeIds[] = $ticketId;
-            }
 
-            // Tạo chỗ ngồi (phân bổ đều cho loại vé đầu tiên để đơn giản hóa)
-            $seats = [];
-            for ($i = 1; $i <= $data['so_luong_cho']; $i++) {
-                $seats[] = [
-                    'so_cho' => "A-$i",
-                    'ma_loai_ve' => $ticketTypeIds[0] // Gán cho loại vé đầu tiên
-                ];
-            }
-            if (!$this->eventModel->addSeats($eventId, $seats)) {
-                throw new Exception('Không thể tạo chỗ ngồi');
+                // Tạo chỗ ngồi dựa trên số hàng và số cột
+                $seats = [];
+                for ($row = 1; $row <= $ticketData['so_hang']; $row++) {
+                    for ($col = 1; $col <= $ticketData['so_cot']; $col++) {
+                        $seatNumber = chr(64 + $row) . '-' . $col; // Ví dụ: A-1, A-2, B-1, B-2
+                        $seats[] = [
+                            'so_cho' => $seatNumber,
+                            'ma_loai_ve' => $ticketId
+                        ];
+                    }
+                }
+                if (!$this->eventModel->addSeats($eventId, $seats)) {
+                    throw new Exception('Không thể tạo chỗ ngồi cho loại vé: ' . $ticketData['ten_loai_ve']);
+                }
             }
 
             // Lưu yêu cầu sự kiện
@@ -214,8 +279,8 @@ class EventController extends BaseController {
 
             $this->db->commit();
             $_SESSION['success'] = 'Tạo sự kiện thành công! Sự kiện đang chờ duyệt';
-        header('Location: ' . BASE_URL . '/organizer/events');
-        exit;
+            header('Location: ' . BASE_URL . '/organizer/events');
+            exit;
         } catch (Exception $e) {
             $this->db->rollBack();
             error_log("Lỗi khi tạo sự kiện: " . $e->getMessage());
@@ -226,7 +291,6 @@ class EventController extends BaseController {
     }
 
     private function saveEventRequest($eventId, $ma_nguoi_dung, $eventData) {
-        // Lấy ma_nha_to_chuc từ ma_nguoi_dung
         $query = "SELECT ma_nha_to_chuc FROM nhatochuc WHERE ma_nguoi_dung = ?";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$ma_nguoi_dung]);
@@ -245,6 +309,7 @@ class EventController extends BaseController {
             'ten_su_kien' => $eventData['ten_su_kien'],
             'ngay_dien_ra' => $eventData['ngay_dien_ra'],
             'gio_dien_ra' => $eventData['gio_dien_ra'],
+            'ngay_ket_thuc' => $eventData['ngay_ket_thuc'],
             'dia_diem' => $eventData['dia_diem'],
             'mo_ta' => $eventData['mo_ta'],
             'hinh_anh' => $eventData['hinh_anh'],
@@ -351,10 +416,9 @@ class EventController extends BaseController {
             }
         } else {
             $_SESSION['error'] = implode('<br>', $errors);
+            header('Location: ' . $_SERVER['HTTP_REFERER']);
+            exit;
         }
-
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
-        exit;
     }
     
     public function manage() {
@@ -375,14 +439,12 @@ class EventController extends BaseController {
     }
     
     public function delete($id) {
-        // Kiểm tra quyền xóa
         if (!isset($_SESSION['user']) || ($_SESSION['user']['vai_tro'] != 1 && $_SESSION['user']['vai_tro'] != 2)) {
             $_SESSION['error'] = 'Bạn không có quyền xóa sự kiện';
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
         
-        // Kiểm tra sự kiện có tồn tại không
         $event = $this->eventModel->getEventById($id);
         if (!$event) {
             $_SESSION['error'] = 'Không tìm thấy sự kiện';
@@ -390,14 +452,12 @@ class EventController extends BaseController {
             exit;
         }
 
-        // Kiểm tra quyền xóa (chỉ admin hoặc người tạo sự kiện mới được xóa)
         if ($_SESSION['user']['vai_tro'] != 1 && $event['ma_nguoi_dung'] != $_SESSION['user']['id']) {
             $_SESSION['error'] = 'Bạn không có quyền xóa sự kiện này';
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
         
-        // Xóa ảnh sự kiện nếu có
         if (!empty($event['hinh_anh'])) {
             $imagePath = BASE_PATH . '/' . $event['hinh_anh'];
             if (file_exists($imagePath)) {
@@ -405,13 +465,34 @@ class EventController extends BaseController {
             }
         }
 
-        // Xóa sự kiện
         if ($this->eventModel->deleteEvent($id)) {
             $_SESSION['success'] = 'Xóa sự kiện thành công';
         } else {
             $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sự kiện';
         }
         
+        header('Location: ' . BASE_URL . '/events/manage');
+        exit;
+    }
+
+    public function deleteTicketType($ticketId) {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['vai_tro'] != 1 && $_SESSION['user']['vai_tro'] != 2)) {
+            $_SESSION['error'] = 'Bạn không có quyền xóa loại vé';
+            header('Location: ' . BASE_URL . '/events/manage');
+            exit;
+        }
+
+        try {
+            if ($this->eventModel->deleteTicketType($ticketId)) {
+                $_SESSION['success'] = 'Xóa loại vé thành công';
+            } else {
+                $_SESSION['error'] = 'Có lỗi xảy ra khi xóa loại vé';
+            }
+        } catch (Exception $e) {
+            error_log("Lỗi khi xóa loại vé: " . $e->getMessage());
+            $_SESSION['error'] = 'Có lỗi xảy ra khi xóa loại vé: ' . $e->getMessage();
+        }
+
         header('Location: ' . BASE_URL . '/events/manage');
         exit;
     }

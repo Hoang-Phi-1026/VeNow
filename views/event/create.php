@@ -59,7 +59,13 @@
                 <input type="date" id="ngay_dien_ra" name="ngay_dien_ra" required min="<?php echo date('Y-m-d'); ?>">
             </div>
         </div>
-        
+        <div class="form-group">
+            <label for="ngay_ket_thuc" class="required-field">Ngày Kết thúc</label>
+            <div class="input-icon">
+                <i class="fas fa-calendar"></i>
+                <input type="date" id="ngay_ket_thuc" name="ngay_ket_thuc" required min="<?php echo date('Y-m-d'); ?>">
+            </div>
+        </div>
         <div class="form-group">
             <label for="gio_dien_ra" class="required-field">Giờ diễn ra</label>
             <div class="input-icon">
@@ -129,25 +135,32 @@
     </div>
     
     <!-- Loại vé -->
-    <div class="ticket-types-section">
-        <label class="required-field">Loại vé</label>
-        <div id="ticket-types" class="ticket-types-container">
+    <div class="bg-blue-50 p-6 rounded-lg">
+        <label class="block text-sm font-medium text-gray-700 required-field mb-4">Loại vé</label>
+        <div id="ticket-types" class="space-y-4">
             <div class="ticket-type">
                 <div class="form-group">
-                    <input type="text" name="ticket_types[0][ten_loai_ve]" placeholder="Tên loại vé (VD: VIP)" required>
+                    <input type="text" name="ticket_types[0][ten_loai_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Tên loại vé (VD: VIP)" required>
                 </div>
                 <div class="form-group">
-                    <input type="number" name="ticket_types[0][gia_ve]" placeholder="Giá vé" min="0" required>
+                    <input type="number" name="ticket_types[0][gia_ve]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Giá vé" min="0" required>
                 </div>
                 <div class="form-group">
-                    <textarea name="ticket_types[0][mo_ta]" placeholder="Mô tả loại vé" rows="2"></textarea>
+                    <input type="number" name="ticket_types[0][so_hang]" class="block w-16 border-gray-100 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Số hàng" min="1" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" name="ticket_types[0][so_cot]" class="block w-16 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Số cột" min="1" required>
+                </div>
+                <div class="form-group">
+                    <textarea name="ticket_types[0][mo_ta]" class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Mô tả loại vé" rows="2"></textarea>
                 </div>
             </div>
         </div>
-        <button type="button" class="add-ticket-btn">
-            <i class="fas fa-plus-circle"></i> Thêm loại vé
+        <button type="button" class="add-ticket-btn mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-plus-circle mr-2"></i> Thêm loại vé
         </button>
     </div>
+
     
     <div class="form-group">
         <label for="thoi_han_dat_ve">Thời hạn đặt vé</label>
@@ -240,16 +253,22 @@
 
 <script>
     let ticketIndex = 1;
-    document.querySelector('.add-ticket-btn').addEventListener('click', function() {
+    document.querySelector('.add-ticket-btn').addEventListener('click', function () {
         const ticketTypes = document.getElementById('ticket-types');
         const newTicket = document.createElement('div');
         newTicket.classList.add('ticket-type');
         newTicket.innerHTML = `
             <div class="form-group">
-                <input type="text" name="ticket_types[${ticketIndex}][ten_loai_ve]" placeholder="Tên loại vé (VD: VIP)" required>
+                <input type="text" name="ticket_types[${ticketIndex}][ten_loai_ve]" placeholder="Tên loại vé" required>
             </div>
             <div class="form-group">
                 <input type="number" name="ticket_types[${ticketIndex}][gia_ve]" placeholder="Giá vé" min="0" required>
+            </div>
+            <div class="form-group">
+                <input type="number" name="ticket_types[${ticketIndex}][so_hang]" placeholder="Số hàng" min="1" required>
+            </div>
+            <div class="form-group">
+                <input type="number" name="ticket_types[${ticketIndex}][so_cot]" placeholder="Số cột" min="1" required>
             </div>
             <div class="form-group">
                 <textarea name="ticket_types[${ticketIndex}][mo_ta]" placeholder="Mô tả loại vé" rows="2"></textarea>
@@ -261,10 +280,12 @@
         ticketTypes.appendChild(newTicket);
         ticketIndex++;
 
-        newTicket.querySelector('.remove-ticket-btn').addEventListener('click', function() {
+        newTicket.querySelector('.remove-ticket-btn').addEventListener('click', function () {
             newTicket.remove();
         });
     });
+
+    
 
     // File upload preview
     document.getElementById('hinh_anh').addEventListener('change', function(e) {
