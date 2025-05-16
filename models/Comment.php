@@ -149,10 +149,10 @@ class Comment {
                      LEFT JOIN sukien s ON b.ma_su_kien = s.ma_su_kien
                      WHERE b.trang_thai = 'CHO_DUYET'
                      ORDER BY b.ngay_tao DESC";
-            
+        
             $stmt = $this->db->prepare($query);
             $stmt->execute();
-            
+        
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Lỗi khi lấy bình luận chờ duyệt: " . $e->getMessage());

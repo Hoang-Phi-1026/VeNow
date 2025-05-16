@@ -34,7 +34,7 @@ class Event {
         if (!is_numeric($id) || $id < 1) {
             return false;
         }
-        $query = "SELECT s.*, nd.ho_ten as ten_nha_to_chuc, l.tenloaisukien,
+        $query = "SELECT s.*, nd.ho_ten as ten_nha_to_chuc, nd.avt as avatar_nha_to_chuc, l.tenloaisukien,
             (SELECT MIN(gia_ve) FROM loaive WHERE ma_su_kien = s.ma_su_kien AND trang_thai = 'CON_VE') as gia_ve_min,
             (SELECT MAX(gia_ve) FROM loaive WHERE ma_su_kien = s.ma_su_kien AND trang_thai = 'CON_VE') as gia_ve_max
      FROM sukien s 

@@ -107,7 +107,11 @@
                         </div>
                         <div class="organizer-content">
                             <div class="organizer-logo">
-                                <img src="https://via.placeholder.com/100x100/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_nha_to_chuc']); ?>" alt="Logo <?php echo htmlspecialchars($event['ten_nha_to_chuc']); ?>">
+                                <?php if (!empty($event['avatar_nha_to_chuc'])): ?>
+                                    <img src="<?php echo BASE_URL; ?>/public/uploads/avatars/<?php echo htmlspecialchars($event['avatar_nha_to_chuc']); ?>" alt="Avatar <?php echo htmlspecialchars($event['ten_nha_to_chuc']); ?>">
+                                <?php else: ?>
+                                    <img src="<?php echo BASE_URL; ?>/public/images/default-avatar.png" alt="Default Avatar">
+                                <?php endif; ?>
                             </div>
                             <div class="organizer-info">
                                 <h4 class="organizer-name"><?php echo htmlspecialchars($event['ten_nha_to_chuc']); ?></h4>
@@ -746,6 +750,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .pending-event-notice i {
     color: #ffc107;
+    font-size: 1.2em;
+}
+</style>
+
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>
+</merged_
     font-size: 1.2em;
 }
 </style>

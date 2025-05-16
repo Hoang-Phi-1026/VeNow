@@ -14,7 +14,7 @@ class StaffController extends BaseController {
         
         // Kiểm tra quyền staff
         if (!isset($_SESSION['user']) || $_SESSION['user']['vai_tro'] !== 3) {
-            header('Location: ' . BASE_URL . '/auth/login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
     }

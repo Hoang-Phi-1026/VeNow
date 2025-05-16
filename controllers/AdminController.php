@@ -11,7 +11,7 @@ class AdminController extends BaseController {
         
         // Kiểm tra quyền admin
         if (!isset($_SESSION['user']) || $_SESSION['user']['vai_tro'] !== 1) {
-            header('Location: ' . BASE_URL . '/auth/login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
     }
