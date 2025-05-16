@@ -328,6 +328,7 @@
                                 <h4 class="comment-form-header">Viết đánh giá của bạn</h4>
                                 <form action="<?php echo BASE_URL; ?>/event/comment/add" method="POST" class="comment-form">
                                     <input type="hidden" name="event_id" value="<?php echo $event['ma_su_kien']; ?>">
+                                    <input type="hidden" name="redirect" value="<?php echo BASE_URL; ?>">
 
                                     <div class="star-rating">
                                         <?php for ($i = 5; $i >= 1; $i--): ?>
@@ -750,3 +751,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .pending-event-notice i {
     color: #ffc107;
+}
+</style>

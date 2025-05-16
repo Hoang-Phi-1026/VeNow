@@ -59,7 +59,7 @@ $routes = [
     '/search' => ['controller' => 'SearchController', 'action' => 'index'],
     
     // Comment routes
-    '/comment/add' => ['controller' => 'CommentController', 'action' => 'add'],
+    '/event/comment/add' => ['controller' => 'EventController', 'action' => 'addComment'],
 ];
 
 // Get current URL path

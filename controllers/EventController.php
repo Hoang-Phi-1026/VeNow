@@ -407,12 +407,18 @@ class EventController extends BaseController {
                 $commentModel = new Comment();
                 if ($commentModel->addComment($maSuKien, $maKhachHang, $noiDung, $diemDanhGia)) {
                     $_SESSION['success'] = 'Bình luận của bạn đã được gửi và đang chờ duyệt';
+                    header('Location: ' . BASE_URL);
+                    exit;
                 } else {
                     $_SESSION['error'] = 'Có lỗi xảy ra khi gửi bình luận';
+                    header('Location: ' . $_SERVER['HTTP_REFERER']);
+                    exit;
                 }
             } catch (Exception $e) {
                 error_log("Lỗi khi thêm bình luận: " . $e->getMessage());
                 $_SESSION['error'] = 'Có lỗi xảy ra khi gửi bình luận: ' . $e->getMessage();
+                header('Location: ' . $_SERVER['HTTP_REFERER']);
+                exit;
             }
         } else {
             $_SESSION['error'] = implode('<br>', $errors);

@@ -67,7 +67,7 @@ class CommentController extends BaseController {
         }
 
         // Quay lại trang chi tiết sự kiện
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        header('Location: ' . BASE_URL . '/event/' . $eventId);
         exit;
     }
 }
