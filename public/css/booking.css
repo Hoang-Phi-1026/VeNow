@@ -271,7 +271,7 @@
   }
   
   .seat.sold {
-    background-color: var(--error-500);
+    background-color: rgb(126, 0, 0);
     color: white;
     border: 1px solid var(--error-700);
     cursor: not-allowed;

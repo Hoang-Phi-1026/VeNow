@@ -52,7 +52,7 @@
     </div>
 
     <div class="screen-container">
-        <div class="screen">MÀN HÌNH</div>
+        <div class="screen">SÂN KHẤU BIỂU DIỄN</div>
     </div>
 
     <div class="seating-container">
