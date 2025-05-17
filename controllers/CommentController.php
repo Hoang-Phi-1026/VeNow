@@ -67,7 +67,9 @@ class CommentController extends BaseController {
         }
 
         // Quay lại trang chi tiết sự kiện
-        header('Location: ' . BASE_URL . '/event/' . $eventId);
+        $redirectUrl = isset($_POST['redirect']) ? $_POST['redirect'] : (BASE_URL . '/event/' . $eventId);
+        header('Location: ' . $redirectUrl);
         exit;
+        
     }
 }

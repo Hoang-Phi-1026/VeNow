@@ -25,6 +25,7 @@ require_once BASE_PATH . '/controllers/AdminController.php';
 require_once BASE_PATH . '/controllers/OrganizerEventController.php';
 require_once BASE_PATH . '/controllers/TicketController.php';
 require_once BASE_PATH . '/controllers/StaffController.php';
+require_once BASE_PATH . '/controllers/BookingController.php';
 
 // Lấy đường dẫn hiện tại
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -229,6 +230,11 @@ switch ($path) {
         else if (preg_match('/^\/events\/delete\/(\d+)$/', $path, $matches)) {
             $eventController = new EventController();
             $eventController->delete($matches[1]);
+        }
+        // Kiểm tra xem có phải là route đặt vé không
+        else if (preg_match('/^\/booking\/(\d+)$/', $path, $matches)) {
+            $bookingController = new BookingController();
+            $bookingController->index($matches[1]);
         }
         else {
             // Nếu không khớp với route nào, hiển thị trang 404

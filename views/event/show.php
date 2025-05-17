@@ -1,5 +1,5 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
-<?php require_once __DIR__ . '/../../models/Comment.php'; ?>
+<?php require_once 'views/layouts/header.php'; ?>
+<?php require_once 'models/Comment.php'; ?>
 
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-detail.css">
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/comments.css">
@@ -46,17 +46,6 @@
                 <?php else: ?>
                     <img src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>" class="event-main-image" id="main-event-image">
                 <?php endif; ?>
-                <div class="event-thumbnails">
-                    <div class="event-thumbnail active" data-src="https://via.placeholder.com/1200x450/1eb75c/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>">
-                        <img src="https://via.placeholder.com/100x100/1eb75c/FFFFFF" alt="Thumbnail 1">
-                    </div>
-                    <div class="event-thumbnail" data-src="https://via.placeholder.com/1200x450/ff5722/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>">
-                        <img src="https://via.placeholder.com/100x100/ff5722/FFFFFF" alt="Thumbnail 2">
-                    </div>
-                    <div class="event-thumbnail" data-src="https://via.placeholder.com/1200x450/2196f3/FFFFFF?text=<?php echo urlencode($event['ten_su_kien']); ?>">
-                        <img src="https://via.placeholder.com/100x100/2196f3/FFFFFF" alt="Thumbnail 3">
-                    </div>
-                </div>
             </div>
 
             <!-- Event Content -->
@@ -140,6 +129,15 @@
                                 <i class="fas fa-link"></i>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Event Actions -->
+                    <div class="event-actions">
+                        <?php if (isset($_SESSION['user'])): ?>
+                            <a href="<?php echo BASE_URL; ?>/booking/<?php echo $event['ma_su_kien']; ?>" class="btn-buy-ticket">Mua vé ngay</a>
+                        <?php else: ?>
+                            <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . $event['ma_su_kien']); ?>" class="btn-buy-ticket">Đăng nhập để mua vé</a>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -225,10 +223,13 @@
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </div>
+                                
                                 <div class="ticket-actions">
-                                    <button class="btn-buy-tickets">
-                                        <i class="fas fa-shopping-cart"></i> Mua vé ngay
-                                    </button>
+                                    <?php if (isset($_SESSION['user'])): ?>
+                                        <a href="<?php echo BASE_URL; ?>/booking/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary btn-block">Mua vé ngay</a>
+                                    <?php else: ?>
+                                        <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . $event['ma_su_kien']); ?>" class="btn btn-primary btn-block">Đăng nhập để mua vé</a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -243,16 +244,6 @@
 
             // Lấy dữ liệu bình luận và đánh giá
             $comments = $commentModel->getApprovedCommentsByEventId($event['ma_su_kien']);
-
-            // Debug information
-            error_log("Event ID: " . $event['ma_su_kien']);
-            error_log("Comments count: " . count($comments));
-            
-            // Thêm debug để kiểm tra dữ liệu bình luận
-            if (!empty($comments)) {
-                error_log("First comment data: " . print_r($comments[0], true));
-            }
-
             $commentCount = count($comments);
             $averageRating = $commentModel->getAverageRating($event['ma_su_kien']);
             $ratingDistribution = $commentModel->getRatingDistribution($event['ma_su_kien']);
@@ -328,7 +319,7 @@
                                 <h4 class="comment-form-header">Viết đánh giá của bạn</h4>
                                 <form action="<?php echo BASE_URL; ?>/event/comment/add" method="POST" class="comment-form">
                                     <input type="hidden" name="event_id" value="<?php echo $event['ma_su_kien']; ?>">
-                                    <input type="hidden" name="redirect" value="<?php echo BASE_URL; ?>">
+                                    <input type="hidden" name="redirect" value="<?php echo BASE_URL; ?>/event/<?php echo intval($event['ma_su_kien']); ?>">
 
                                     <div class="star-rating">
                                         <?php for ($i = 5; $i >= 1; $i--): ?>
@@ -509,247 +500,6 @@ function copyEventLink() {
         }, 300);
     }, 3000);
 }
-
-// Image gallery functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const mainImage = document.getElementById('main-event-image');
-    const thumbnails = document.querySelectorAll('.event-thumbnail');
-    
-    thumbnails.forEach(thumbnail => {
-        thumbnail.addEventListener('click', function() {
-            // Remove active class from all thumbnails
-            thumbnails.forEach(t => t.classList.remove('active'));
-            
-            // Add active class to clicked thumbnail
-            this.classList.add('active');
-            
-            // Update main image
-            const newSrc = this.getAttribute('data-src');
-            mainImage.src = newSrc;
-            
-            // Add fade effect
-            mainImage.style.opacity = '0';
-            setTimeout(() => {
-                mainImage.style.opacity = '1';
-            }, 50);
-        });
-    });
-    
-    // Add smooth scroll to ticket section when clicking "Buy Tickets" button
-    const buyTicketsBtn = document.querySelector('.btn-buy-tickets');
-    if (buyTicketsBtn) {
-        buyTicketsBtn.addEventListener('click', function() {
-            const ticketSection = document.querySelector('.ticket-section');
-            if (ticketSection) {
-                ticketSection.scrollIntoView({ behavior: 'smooth' });
-                
-                // Add highlight effect
-                ticketSection.style.transition = 'box-shadow 0.3s ease';
-                ticketSection.style.boxShadow = '0 0 0 3px var(--accent-color)';
-                
-                setTimeout(() => {
-                    ticketSection.style.boxShadow = 'var(--shadow-md)';
-                }, 1500);
-            }
-        });
-    }
-    
-    // Add hover effect to event cards
-    const eventCards = document.querySelectorAll('.event-card');
-    eventCards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-8px)';
-            card.style.boxShadow = 'var(--shadow-lg)';
-            card.style.borderColor = 'var(--accent-color)';
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-            card.style.boxShadow = '';
-            card.style.borderColor = '';
-        });
-    });
-
-    // Star rating hover effect
-    const starLabels = document.querySelectorAll('.star-rating label');
-    const starInputs = document.querySelectorAll('.star-rating input');
-    
-    // Lưu trạng thái đã chọn
-    let selectedRating = 0;
-    
-    starInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            selectedRating = this.value;
-        });
-    });
-    
-    // Hiệu ứng hover
-    starLabels.forEach((label, index) => {
-        label.addEventListener('mouseenter', () => {
-            // Reset tất cả các sao về trạng thái ban đầu
-            starLabels.forEach((l, i) => {
-                if (i <= index) {
-                    l.querySelector('i').className = 'fas fa-star';
-                } else {
-                    l.querySelector('i').className = 'far fa-star';
-                }
-            });
-        });
-    });
-    
-    // Khi rời chuột khỏi container
-    const starRatingContainer = document.querySelector('.star-rating');
-    if (starRatingContainer) {
-        starRatingContainer.addEventListener('mouseleave', () => {
-            // Khôi phục trạng thái đã chọn
-            starLabels.forEach((label, index) => {
-                if (index < selectedRating) {
-                    label.querySelector('i').className = 'fas fa-star';
-                } else {
-                    label.querySelector('i').className = 'far fa-star';
-                }
-            });
-        });
-    }
-});
 </script>
 
-<style>
-/* Add some additional styles for better transitions */
-.event-main-image {
-    transition: opacity 0.3s ease;
-}
-
-.event-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-/* Add a custom scrollbar for the event description */
-.event-description {
-    max-height: 500px;
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-.event-description::-webkit-scrollbar {
-    width: 6px;
-}
-
-.event-description::-webkit-scrollbar-track {
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-full);
-}
-
-.event-description::-webkit-scrollbar-thumb {
-    background-color: var(--accent-color);
-    border-radius: var(--radius-full);
-}
-
-/* Sticky sidebar styles */
-.sticky-sidebar-container {
-    position: sticky;
-    top: 20px; /* Adjust as needed */
-}
-
-/* Comment styles */
-.comment-item {
-    display: flex;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.comment-avatar {
-    flex-shrink: 0;
-    margin-right: 15px;
-}
-
-.comment-avatar img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.comment-content {
-    flex-grow: 1;
-}
-
-.comment-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-}
-
-.comment-author {
-    font-weight: bold;
-    color: var(--text-primary);
-}
-
-.comment-date {
-    font-size: 0.85em;
-    color: var(--text-secondary);
-}
-
-.comment-rating {
-    margin-bottom: 8px;
-    color: var(--accent-color);
-}
-
-.comment-text {
-    line-height: 1.5;
-    color: var(--text-primary);
-}
-
-.no-comments {
-    text-align: center;
-    padding: 30px 0;
-    color: var(--text-secondary);
-}
-
-.no-comments i {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-    color: var(--text-tertiary);
-}
-
-/* Notification styles */
-.pending-comment-notice, .approved-comment-notice {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.pending-comment-notice i {
-    color: #ffc107;
-    font-size: 1.2em;
-}
-
-.approved-comment-notice i {
-    color: #28a745;
-    font-size: 1.2em;
-}
-
-.pending-comment-notice, .approved-comment-notice {
-    font-weight: 500;
-}
-
-.pending-event-notice {
-    background-color: #fff3cd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-left: 4px solid #ffc107;
-}
-
-.pending-event-notice i {
-    color: #ffc107;
-}
-</style>
+<?php require_once 'views/layouts/footer.php'; ?>

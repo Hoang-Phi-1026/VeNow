@@ -36,6 +36,11 @@ $routes = [
     '/staff/reviews/approve' => ['controller' => 'StaffController', 'action' => 'approveReview'],
     '/staff/reviews/reject' => ['controller' => 'StaffController', 'action' => 'rejectReview'],
     
+    // Review routes
+    '/review' => ['controller' => 'ReviewController', 'action' => 'index'],
+    '/reviews/approve' => ['controller' => 'ReviewController', 'action' => 'approve'],
+    '/reviews/reject' => ['controller' => 'ReviewController', 'action' => 'reject'],
+    
     // User routes
     '/users' => ['controller' => 'UserController', 'action' => 'index'],
     '/users/create' => ['controller' => 'UserController', 'action' => 'create'],
@@ -50,8 +55,6 @@ $routes = [
     '/account/change-password' => ['controller' => 'AccountController', 'action' => 'changePassword'],
     
     // Ticket routes
-    '/tickets/buy/{event_id}' => ['controller' => 'TicketController', 'action' => 'buy'],
-    '/tickets/confirm/{event_id}' => ['controller' => 'TicketController', 'action' => 'confirm'],
     '/tickets/history' => ['controller' => 'TicketController', 'action' => 'history'],
     '/tickets/download/{id}' => ['controller' => 'TicketController', 'action' => 'download'],
     
@@ -60,6 +63,10 @@ $routes = [
     
     // Comment routes
     '/event/comment/add' => ['controller' => 'EventController', 'action' => 'addComment'],
+    
+    // Booking routes
+    '/booking/{id}' => ['controller' => 'BookingController', 'action' => 'index'],
+    '/booking/process-selection' => ['controller' => 'BookingController', 'action' => 'processSelection'],
 ];
 
 // Get current URL path
