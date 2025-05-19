@@ -17,7 +17,7 @@ class User {
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && $password === $user['mat_khau']) {
+        if ($user && md5($password) === $user['mat_khau']) {
             return $user;
         }
         return false;
@@ -30,7 +30,7 @@ class User {
         return $stmt->execute([
             $data['ma_vai_tro'],
             $data['email'],
-            $data['mat_khau'],
+            md5($data['mat_khau']),
             $data['ho_ten'],
             $data['so_dien_thoai'],
             $data['gioi_tinh'] ?? null
@@ -71,9 +71,9 @@ class User {
         ];
 
         // Nếu có mật khẩu mới
-        if (isset($data['mat_khau'])) {
+        if (isset($data['mat_khau']) && !empty($data['mat_khau'])) {
             $query .= ", mat_khau = ?";
-            $params[] = $data['mat_khau'];
+            $params[] = md5($data['mat_khau']);
         }
 
         $query .= " WHERE ma_nguoi_dung = ?";
@@ -89,7 +89,7 @@ class User {
                  WHERE ma_nguoi_dung = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
-            $newPassword,
+            md5($newPassword),
             $id
         ]);
     }
@@ -121,7 +121,7 @@ class User {
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
             $data['email'],
-            $data['mat_khau'],
+            md5($data['mat_khau']),
             $data['ho_ten'],
             $data['so_dien_thoai'],
             $data['gioi_tinh'],

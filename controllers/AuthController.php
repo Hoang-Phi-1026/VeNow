@@ -28,9 +28,9 @@ class AuthController extends BaseController {
                 return;
             }
 
-            $user = $this->userModel->getUserByEmail($email);
+            $user = $this->userModel->login($email, $password);
 
-            if ($user && $password === $user['mat_khau']) {
+            if ($user) {
                 $_SESSION['user'] = [
                     'id' => $user['ma_nguoi_dung'],
                     'ma_nguoi_dung' => $user['ma_nguoi_dung'],  // Add this line to ensure compatibility
@@ -74,7 +74,7 @@ class AuthController extends BaseController {
             }
 
             // Kiểm tra email đã tồn tại chưa
-            if ($this->userModel->getUserByEmail($email)) {
+            if ($this->userModel->checkEmailExists($email)) {
                 $_SESSION['error'] = 'Email đã tồn tại';
                 $this->redirect('/register');
                 return;
@@ -84,7 +84,7 @@ class AuthController extends BaseController {
             $data = [
                 'ma_vai_tro' => 4,
                 'email' => $email,
-                'mat_khau' => $password,
+                'mat_khau' => $password, // Mật khẩu sẽ được mã hóa trong User::register
                 'ho_ten' => $fullname,
                 'so_dien_thoai' => $phone
             ];

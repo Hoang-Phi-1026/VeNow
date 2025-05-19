@@ -54,12 +54,17 @@ class AccountController extends BaseController {
 
             // Xử lý cập nhật mật khẩu nếu có
             if (!empty($matKhau)) {
-                // Kiểm tra mật khẩu cũ
+                // Lấy mật khẩu hiện tại từ cơ sở dữ liệu
                 $stmt = $this->db->prepare("SELECT mat_khau FROM nguoidung WHERE ma_nguoi_dung = ?");
                 $stmt->execute([$maNguoiDung]);
                 $currentPassword = $stmt->fetchColumn();
 
-                if ($matKhau !== $currentPassword) {
+                // Kiểm tra mật khẩu cũ (hỗ trợ MD5, bcrypt, và văn bản thuần)
+                $isPasswordCorrect = $currentPassword === md5($matKhau) || 
+                                    password_verify($matKhau, $currentPassword) || 
+                                    $currentPassword === $matKhau;
+
+                if (!$isPasswordCorrect) {
                     $errors[] = 'Mật khẩu cũ không đúng';
                 } elseif (empty($matKhauMoi)) {
                     $errors[] = 'Vui lòng nhập mật khẩu mới';
@@ -106,7 +111,7 @@ class AccountController extends BaseController {
                     // Thêm mật khẩu mới nếu có
                     if (!empty($matKhauMoi)) {
                         $sql .= ", mat_khau = ?";
-                        $params[] = $matKhauMoi;
+                        $params[] = md5($matKhauMoi);
                     }
 
                     // Thêm ảnh đại diện nếu có
