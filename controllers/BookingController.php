@@ -173,99 +173,114 @@ class BookingController extends BaseController {
 
     // Xử lý thanh toán
     public function processPayment() {
-        try {
-            // Kiểm tra đăng nhập
-            if (!isset($_SESSION['user'])) {
-                $_SESSION['error'] = 'Vui lòng đăng nhập để thanh toán';
-                header('Location: ' . BASE_URL . '/login');
-                exit;
-            }
+    try {
+        // Kiểm tra đăng nhập
+        if (!isset($_SESSION['user'])) {
+            $_SESSION['error'] = 'Vui lòng đăng nhập để thanh toán';
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
 
-            // Kiểm tra phương thức request
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                $_SESSION['error'] = 'Phương thức không hợp lệ';
-                header('Location: ' . BASE_URL . '/booking/payment');
-                exit;
-            }
+        // Kiểm tra phương thức request
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $_SESSION['error'] = 'Phương thức không hợp lệ';
+            header('Location: ' . BASE_URL . '/booking/payment');
+            exit;
+        }
 
-            // Kiểm tra thông tin đặt chỗ trong session
-            if (!isset($_SESSION['booking']) || empty($_SESSION['booking'])) {
-                $_SESSION['error'] = 'Dữ liệu đặt vé không hợp lệ hoặc đã hết hạn';
-                header('Location: ' . BASE_URL);
-                exit;
-            }
+        // Kiểm tra thông tin đặt chỗ trong session
+        if (!isset($_SESSION['booking']) || empty($_SESSION['booking'])) {
+            $_SESSION['error'] = 'Dữ liệu đặt vé không hợp lệ hoặc đã hết hạn';
+            header('Location: ' . BASE_URL);
+            exit;
+        }
 
-            // Lấy thông tin từ form
-            $paymentMethod = isset($_POST['paymentMethod']) ? $_POST['paymentMethod'] : 'MOMO';
-            $usedPoints = isset($_POST['usedPoints']) ? floatval($_POST['usedPoints']) : 0;
-            $discountAmount = isset($_POST['discountAmount']) ? floatval($_POST['discountAmount']) : 0;
-            $finalAmount = isset($_POST['finalAmount']) ? floatval($_POST['finalAmount']) : 0;
+        // Lấy thông tin từ form
+        $paymentMethod = isset($_POST['paymentMethod']) ? $_POST['paymentMethod'] : 'MOMO';
+        $usedPoints = isset($_POST['usedPoints']) ? floatval($_POST['usedPoints']) : 0;
+        $discountAmount = isset($_POST['discountAmount']) ? floatval($_POST['discountAmount']) : 0;
+        $finalAmount = isset($_POST['finalAmount']) ? floatval($_POST['finalAmount']) : 0;
+        
+        $booking = $_SESSION['booking'];
+        $eventId = $booking['event_id'];
+        $selectedSeats = $booking['selected_seats'];
+        $userId = $_SESSION['user']['ma_nguoi_dung'];
+        
+        error_log("Processing payment for user ID: $userId, event ID: $eventId");
+        error_log("Payment method: $paymentMethod, Used points: $usedPoints, Discount: $discountAmount, Final amount: $finalAmount");
+        
+        // Tính tổng tiền ban đầu
+        $totalAmount = 0;
+        foreach ($selectedSeats as $seatInfo) {
+            $totalAmount += $seatInfo['price'];
+        }
+        
+        // Nếu finalAmount không được cung cấp hoặc không hợp lệ, sử dụng totalAmount
+        if ($finalAmount <= 0) {
+            $finalAmount = $totalAmount;
+        }
+        
+        // Tính tỷ lệ giảm giá để áp dụng cho từng vé
+        $discountRatio = ($totalAmount > 0) ? $finalAmount / $totalAmount : 1;
+        error_log("Total amount: $totalAmount, Final amount: $finalAmount, Discount ratio: $discountRatio");
+        
+        // Kết nối database
+        $this->db = Database::getInstance();
+        
+        // Bắt đầu transaction
+        $this->db->beginTransaction();
+        error_log("Transaction started");
+        
+        $createdTickets = [];
+        $seatIdToTicketId = []; // Map để lưu trữ mã vé theo mã ghế
+        
+        // Lưu thông tin vé và cập nhật trạng thái ghế
+        foreach ($selectedSeats as $seatId => $seatInfo) {
+            error_log("Processing seat ID: $seatId");
             
-            $booking = $_SESSION['booking'];
-            $eventId = $booking['event_id'];
-            $selectedSeats = $booking['selected_seats'];
-            $userId = $_SESSION['user']['ma_nguoi_dung'];
+            // Tạo vé mới
+            $ticketData = [
+                'ma_su_kien' => $eventId,
+                'ma_khach_hang' => $userId,
+                'ma_cho_ngoi' => $seatId,
+                'ma_loai_ve' => $seatInfo['ticketType'],
+                'trang_thai' => 'DA_DAT'
+            ];
             
-            error_log("Processing payment for user ID: $userId, event ID: $eventId");
-            error_log("Payment method: $paymentMethod, Used points: $usedPoints, Discount: $discountAmount, Final amount: $finalAmount");
+            error_log("Creating ticket with data: " . print_r($ticketData, true));
+            $ticketId = $this->bookingModel->createTicket($ticketData);
+            error_log("Ticket created with ID: $ticketId");
             
-            // Tính tổng tiền ban đầu
-            $totalAmount = 0;
-            foreach ($selectedSeats as $seatInfo) {
-                $totalAmount += $seatInfo['price'];
-            }
+            $createdTickets[] = $ticketId;
+            $seatIdToTicketId[$seatId] = $ticketId; // Lưu mapping
             
-            // Nếu finalAmount không được cung cấp hoặc không hợp lệ, sử dụng totalAmount
-            if ($finalAmount <= 0) {
-                $finalAmount = $totalAmount;
-            }
-            
-            // Kết nối database
-            $this->db = Database::getInstance();
-            
-            // Bắt đầu transaction
-            $this->db->beginTransaction();
-            error_log("Transaction started");
-            
-            $createdTickets = [];
-            
-            // Lưu thông tin vé và cập nhật trạng thái ghế
-            foreach ($selectedSeats as $seatId => $seatInfo) {
-                error_log("Processing seat ID: $seatId");
+            // Cập nhật trạng thái ghế
+            error_log("Updating seat status for seat ID: $seatId");
+            $this->bookingModel->updateSeatStatus($seatId, 'DA_DAT');
+        }
+        
+        // Nếu có sử dụng điểm tích lũy
+        if ($usedPoints > 0) {
+            error_log("Using $usedPoints loyalty points");
+            // Trừ điểm tích lũy đã sử dụng
+            $this->bookingModel->useLoyaltyPoints($userId, $usedPoints);
+        }
+        
+        // Lưu thông tin giao dịch với số tiền đã giảm giá cho từng vé
+        foreach ($selectedSeats as $seatId => $seatInfo) {
+            if (isset($seatIdToTicketId[$seatId])) {
+                $ticketId = $seatIdToTicketId[$seatId];
                 
-                // Tạo vé mới
-                $ticketData = [
-                    'ma_su_kien' => $eventId,
-                    'ma_khach_hang' => $userId,
-                    'ma_cho_ngoi' => $seatId,
-                    'ma_loai_ve' => $seatInfo['ticketType'],
-                    'trang_thai' => 'DA_DAT'
-                ];
+                // Tính giá vé sau khi giảm giá
+                $originalPrice = $seatInfo['price'];
+                $discountedPrice = $originalPrice * $discountRatio;
                 
-                error_log("Creating ticket with data: " . print_r($ticketData, true));
-                $ticketId = $this->bookingModel->createTicket($ticketData);
-                error_log("Ticket created with ID: $ticketId");
+                error_log("Seat ID: $seatId, Original price: $originalPrice, Discounted price: $discountedPrice");
                 
-                $createdTickets[] = $ticketId;
-                
-                // Cập nhật trạng thái ghế
-                error_log("Updating seat status for seat ID: $seatId");
-                $this->bookingModel->updateSeatStatus($seatId, 'DA_DAT');
-            }
-            
-            // Nếu có sử dụng điểm tích lũy
-            if ($usedPoints > 0) {
-                error_log("Using $usedPoints loyalty points");
-                // Trừ điểm tích lũy đã sử dụng
-                $this->bookingModel->useLoyaltyPoints($userId, $usedPoints);
-            }
-            
-            // Lưu thông tin giao dịch với số tiền cuối cùng
-            foreach ($createdTickets as $ticketId) {
                 $transactionData = [
                     'ma_khach_hang' => $userId,
                     'ma_ve' => $ticketId,
-                    'so_tien' => $finalAmount / count($createdTickets), // Chia đều số tiền cho mỗi vé
+                    'so_tien' => $discountedPrice, // Giá đã giảm
                     'phuong_thuc_thanh_toan' => $paymentMethod,
                     'trang_thai' => 'THANH_CONG'
                 ];
@@ -273,49 +288,50 @@ class BookingController extends BaseController {
                 error_log("Creating transaction with data: " . print_r($transactionData, true));
                 $this->bookingModel->createTransaction($transactionData);
             }
-            
-            // Tính và lưu điểm tích lũy (dựa trên tổng tiền ban đầu, không phụ thuộc vào giảm giá)
-            $loyaltyPoints = $totalAmount * 0.00005;
-            error_log("Adding $loyaltyPoints loyalty points for user ID: $userId");
-            $this->bookingModel->addLoyaltyPoints($userId, $loyaltyPoints);
-            
-            // Lưu lịch sử đặt vé
-            foreach ($createdTickets as $ticketId) {
-                error_log("Adding ticket history for ticket ID: $ticketId");
-                $this->bookingModel->addTicketHistory($ticketId, $userId, 'DAT_VE', 'Đặt vé thành công');
-            }
-            
-            // Commit transaction
-            error_log("Committing transaction");
-            $this->db->commit();
-            
-            // Xóa thông tin đặt chỗ khỏi session
-            unset($_SESSION['booking']);
-            
-            // Đặt thông báo thành công
-            $_SESSION['payment_success'] = true;
-            $_SESSION['success'] = 'Đặt vé thành công';
-            
-            // Chuyển hướng đến trang lịch sử vé
-            header('Location: ' . BASE_URL . '/tickets/history');
-            exit;
-            
-        } catch (Exception $e) {
-            // Rollback transaction nếu có lỗi
-            if (isset($this->db) && $this->db->inTransaction()) {
-                error_log("Rolling back transaction due to error: " . $e->getMessage());
-                $this->db->rollBack();
-            }
-            
-            error_log("Payment processing error: " . $e->getMessage());
-            error_log("Error trace: " . $e->getTraceAsString());
-            
-            // Đặt thông báo lỗi
-            $_SESSION['error'] = 'Đã xảy ra lỗi trong quá trình đặt vé: ' . $e->getMessage();
-            
-            // Chuyển hướng về trang thanh toán
-            header('Location: ' . BASE_URL . '/booking/payment');
-            exit;
         }
+        
+        // Tính và lưu điểm tích lũy (dựa trên tổng tiền ban đầu, không phụ thuộc vào giảm giá)
+        $loyaltyPoints = $totalAmount * 0.00005;
+        error_log("Adding $loyaltyPoints loyalty points for user ID: $userId");
+        $this->bookingModel->addLoyaltyPoints($userId, $loyaltyPoints);
+        
+        // Lưu lịch sử đặt vé
+        foreach ($createdTickets as $ticketId) {
+            error_log("Adding ticket history for ticket ID: $ticketId");
+            $this->bookingModel->addTicketHistory($ticketId, $userId, 'DAT_VE', 'Đặt vé thành công');
+        }
+        
+        // Commit transaction
+        error_log("Committing transaction");
+        $this->db->commit();
+        
+        // Xóa thông tin đặt chỗ khỏi session
+        unset($_SESSION['booking']);
+        
+        // Đặt thông báo thành công
+        $_SESSION['payment_success'] = true;
+        $_SESSION['success'] = 'Đặt vé thành công';
+        
+        // Chuyển hướng đến trang vé của tôi
+        header('Location: ' . BASE_URL . '/tickets/my-tickets');
+        exit;
+        
+    } catch (Exception $e) {
+        // Rollback transaction nếu có lỗi
+        if (isset($this->db) && $this->db->inTransaction()) {
+            error_log("Rolling back transaction due to error: " . $e->getMessage());
+            $this->db->rollBack();
+        }
+        
+        error_log("Payment processing error: " . $e->getMessage());
+        error_log("Error trace: " . $e->getTraceAsString());
+        
+        // Đặt thông báo lỗi
+        $_SESSION['error'] = 'Đã xảy ra lỗi trong quá trình đặt vé: ' . $e->getMessage();
+        
+        // Chuyển hướng về trang thanh toán
+        header('Location: ' . BASE_URL . '/booking/payment');
+        exit;
     }
+}
 }

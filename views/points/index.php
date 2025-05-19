@@ -1,6 +1,6 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-<link rel="stylesheet" href="<?= BASE_URL ?>/public/css/points.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/public/css/points.css?v=1">
 
 <div class="container mt-4">
     <div class="page-header">
@@ -17,7 +17,7 @@
                         <span class="badge bg-light text-dark"><?= $user['ho_ten'] ?></span>
                     </div>
                     <div class="points-display">
-                        <h2><?= number_format($totalPoints, 2) ?></h2>
+                        <h2><?= number_format($totalPoints) ?></h2>
                         <p>Điểm tích lũy</p>
                     </div>
                     <div class="points-value">
@@ -40,19 +40,19 @@
                     <div class="stats-container">
                         <div class="stat-item">
                             <span class="stat-label">Tổng điểm đã tích lũy:</span>
-                            <span class="stat-value"><?= number_format($pointsStats['total_earned'], 2) ?></span>
+                            <span class="stat-value"><?= number_format($pointsStats['total_earned']) ?></span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Tổng điểm đã sử dụng:</span>
-                            <span class="stat-value"><?= number_format($pointsStats['total_used'], 2) ?></span>
+                            <span class="stat-value"><?= number_format($pointsStats['total_used']) ?></span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Điểm tích lũy tháng này:</span>
-                            <span class="stat-value"><?= number_format($pointsStats['this_month_earned'], 2) ?></span>
+                            <span class="stat-value"><?= number_format($pointsStats['this_month_earned']) ?></span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Điểm sử dụng tháng này:</span>
-                            <span class="stat-value"><?= number_format($pointsStats['this_month_used'], 2) ?></span>
+                            <span class="stat-value"><?= number_format($pointsStats['this_month_used']) ?></span>
                         </div>
                         <?php if ($pointsStats['last_transaction_date']): ?>
                         <div class="stat-item">
@@ -108,7 +108,7 @@
                                                 <?= $transaction['nguon_text'] ?>
                                             </td>
                                             <td class="<?= $transaction['so_diem'] > 0 ? 'text-success' : 'text-danger' ?>">
-                                                <?= $transaction['so_diem'] > 0 ? '+' : '' ?><?= number_format($transaction['so_diem'], 2) ?>
+                                                <?= $transaction['so_diem'] > 0 ? '+' : '' ?><?= number_format($transaction['so_diem']) ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -132,7 +132,7 @@
                         </div>
                         <div class="info-item">
                             <i class="fas fa-ticket-alt"></i>
-                            <p>Bạn nhận được điểm tích lũy khi mua vé sự kiện (2% giá trị đơn hàng).</p>
+                            <p>Bạn nhận được điểm tích lũy khi mua vé sự kiện (0.3% giá trị đơn hàng).</p>
                         </div>
                         <div class="info-item">
                             <i class="fas fa-gift"></i>

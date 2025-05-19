@@ -98,7 +98,7 @@
                 
                 <div class="loyalty-points">
                     <h4>Điểm tích lũy nhận được:</h4>
-                    <div id="new-points" class="points"><?php echo number_format($totalAmount * 0.00005); ?> điểm</div>
+                    <div id="new-points" class="points"><?php echo number_format($totalAmount * 0.00003); ?> điểm</div>
                     <div class="points-info">
                         <i class="fas fa-info-circle"></i>
                         <span>Bạn sẽ nhận được 2% tổng giá trị đơn hàng thành điểm tích lũy</span>

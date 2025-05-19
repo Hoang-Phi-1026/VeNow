@@ -58,6 +58,8 @@ $routes = [
     '/tickets/history' => ['controller' => 'TicketController', 'action' => 'history'],
     '/tickets/download/{id}' => ['controller' => 'TicketController', 'action' => 'download'],
     '/tickets/refund/{id}' => ['controller' => 'TicketController', 'action' => 'refund'],
+    '/tickets/my-tickets' => ['controller' => 'TicketController', 'action' => 'myTickets'],
+
     
     
     

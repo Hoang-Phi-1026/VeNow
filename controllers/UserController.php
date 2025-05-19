@@ -143,7 +143,7 @@ class UserController extends BaseController {
 
             // Nếu có mật khẩu mới
             if (!empty($_POST['mat_khau'])) {
-                $data['mat_khau'] = password_hash($_POST['mat_khau'], PASSWORD_DEFAULT);
+                $data['mat_khau'] = $_POST['mat_khau']; // Don't hash here, let the model handle it
             }
 
             if ($this->userModel->updateUser($id, $data)) {

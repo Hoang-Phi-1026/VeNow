@@ -4,7 +4,17 @@
 
 <div class="container ticket-history">
     <div class="ticket-history-header">
-        <h1>Lịch sử đặt vé</h1>
+        <div class="header-title">
+            <h1>Lịch sử đặt vé</h1>
+            <p class="text-muted">Xem lại tất cả các vé bạn đã đặt</p>
+        </div>
+        
+        <div class="header-actions">
+            <a href="<?php echo BASE_URL; ?>/tickets/my-tickets" class="btn btn-primary">
+                <i class="fas fa-ticket-alt"></i> Vé của tôi
+            </a>
+        </div>
+        
         <?php if (isset($_SESSION['error'])): ?>
             <div class="alert alert-danger">
                 <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
@@ -16,11 +26,6 @@
                 <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
             </div>
         <?php endif; ?>
-    </div>
-
-    <div class="refund-info-box">
-        <h3><i class="fas fa-info-circle"></i> Điều kiện hoàn vé</h3>
-        <p>Vé có thể hoàn nếu sự kiện chưa diễn ra trong vòng 5 ngày tới. Khi hoàn vé, bạn sẽ nhận được điểm tích lũy bằng 0.02% giá vé.</p>
     </div>
 
     <?php if (empty($tickets)): ?>
@@ -35,22 +40,29 @@
             <table class="ticket-table">
                 <thead>
                     <tr>
-                        <th>Sự kiện</th>
+                        <th>Tên sự kiện</th>
                         <th>Ngày diễn ra</th>
                         <th>Địa điểm</th>
                         <th>Loại vé</th>
                         <th>Số chỗ</th>
                         <th>Giá vé</th>
                         <th>Trạng thái</th>
-                        <th>Thời gian đặt</th>
-                        <th>Thao tác</th>
+                        <th>Thời gian thực hiện</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($tickets as $ticket): ?>
+                        <?php 
+                            // Tạo ID mã hóa nếu cần
+                            $ticketId = defined('ENCODE_URL_IDS') && ENCODE_URL_IDS ? encodeId($ticket['ma_ve']) : $ticket['ma_ve'];
+                            $eventId = defined('ENCODE_URL_IDS') && ENCODE_URL_IDS ? encodeId($ticket['ma_su_kien']) : $ticket['ma_su_kien'];
+                            
+                            // Kiểm tra xem có giảm giá không
+                            $hasDiscount = isset($ticket['gia_goc']) && isset($ticket['gia_ve']) && $ticket['gia_goc'] > $ticket['gia_ve'];
+                        ?>
                         <tr>
                             <td>
-                                <a href="<?php echo BASE_URL; ?>/event/<?php echo $ticket['ma_su_kien']; ?>" class="event-link">
+                                <a href="<?php echo BASE_URL; ?>/event/<?php echo $eventId; ?>" class="event-link">
                                     <?php echo htmlspecialchars($ticket['ten_su_kien']); ?>
                                 </a>
                             </td>
@@ -64,9 +76,12 @@
                             <td><?php echo htmlspecialchars($ticket['ten_loai_ve']); ?></td>
                             <td><?php echo htmlspecialchars($ticket['so_cho']); ?></td>
                             <td>
-                                <span class="price">
-                                    <?php echo number_format($ticket['gia_ve'], 0, ',', '.'); ?>đ
-                                </span>
+                                <?php if ($hasDiscount): ?>
+                                    <span class="price-original"><?php echo number_format($ticket['gia_goc'], 0, ',', '.'); ?>đ</span>
+                                    <span class="price-discounted"><?php echo number_format($ticket['gia_ve'], 0, ',', '.'); ?>đ</span>
+                                <?php else: ?>
+                                    <span class="price"><?php echo number_format($ticket['gia_ve'], 0, ',', '.'); ?>đ</span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <?php
@@ -91,27 +106,7 @@
                                     echo $date->format('d/m/Y H:i');
                                 ?>
                             </td>
-                            <td>
-                                <?php
-                                    // Chỉ kiểm tra thời gian sự kiện
-                                    $eventDate = new DateTime($ticket['ngay_dien_ra']);
-                                    $today = new DateTime();
-                                    $daysDiff = $today->diff($eventDate)->days;
-                                    
-                                    // Hiển thị nút hoàn vé nếu sự kiện còn ít nhất 5 ngày
-                                    if ($daysDiff >= 5 && $eventDate > $today):
-                                ?>
-                                    <button class="btn btn-refund" 
-                                            onclick="confirmRefund(<?php echo $ticket['ma_ve']; ?>, 
-                                                                  '<?php echo htmlspecialchars($ticket['ten_su_kien']); ?>', 
-                                                                  <?php echo $ticket['gia_ve']; ?>, 
-                                                                  '<?php echo $ticket['so_cho']; ?>')">
-                                        Hoàn vé
-                                    </button>
-                                <?php else: ?>
-                                    <span class="refund-not-available">Quá hạn hoàn vé</span>
-                                <?php endif; ?>
-                            </td>
+                            
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -120,146 +115,14 @@
     <?php endif; ?>
 </div>
 
-<!-- Modal xác nhận hoàn vé -->
-<div id="refundModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Xác nhận hoàn vé</h2>
-        <p id="refundEventName"></p>
-        <p id="refundSeatInfo"></p>
-        <p id="refundPriceInfo"></p>
-        <p id="refundPointsInfo"></p>
-        <p class="refund-warning">Lưu ý: Bạn chỉ có thể hoàn vé trước 5 ngày sự kiện diễn ra.</p>
-        <div class="modal-actions">
-            <button id="confirmRefundBtn" class="btn btn-primary">Xác nhận hoàn vé</button>
-            <button id="cancelRefundBtn" class="btn btn-secondary">Hủy</button>
-        </div>
-    </div>
-</div>
 
-<script>
-    // Hiển thị modal xác nhận hoàn vé
-    function confirmRefund(ticketId, eventName, ticketPrice, seatNumber) {
-        // Tính số điểm tích lũy sẽ nhận được (giá vé × 0.0002)
-        const loyaltyPoints = ticketPrice * 0.0002;
-        
-        // Cập nhật nội dung modal
-        document.getElementById('refundEventName').textContent = `Sự kiện: ${eventName}`;
-        document.getElementById('refundSeatInfo').textContent = `Số ghế: ${seatNumber}`;
-        document.getElementById('refundPriceInfo').textContent = `Giá vé: ${new Intl.NumberFormat('vi-VN').format(ticketPrice)}đ`;
-        document.getElementById('refundPointsInfo').textContent = `Điểm tích lũy nhận được: ${loyaltyPoints.toFixed(2)} điểm`;
-        
-        // Hiển thị modal
-        const modal = document.getElementById('refundModal');
-        modal.style.display = 'block';
-        
-        // Xử lý nút đóng modal
-        const closeBtn = document.getElementsByClassName('close')[0];
-        closeBtn.onclick = function() {
-            modal.style.display = 'none';
-        }
-        
-        // Xử lý nút hủy
-        document.getElementById('cancelRefundBtn').onclick = function() {
-            modal.style.display = 'none';
-        }
-        
-        // Xử lý nút xác nhận hoàn vé
-        document.getElementById('confirmRefundBtn').onclick = function() {
-            // Hiển thị thông báo đang xử lý
-            document.getElementById('confirmRefundBtn').textContent = 'Đang xử lý...';
-            document.getElementById('confirmRefundBtn').disabled = true;
-            
-            // Gửi yêu cầu hoàn vé
-            window.location.href = `<?php echo BASE_URL; ?>/tickets/refund/${ticketId}`;
-        }
-        
-        // Đóng modal khi click bên ngoài
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    }
-</script>
 
 <style>
-    /* CSS cho modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-    
-    .modal-content {
-        background-color: #fff;
-        margin: 15% auto;
-        padding: 20px;
-        border-radius: 8px;
-        width: 50%;
-        max-width: 500px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    
-    .close:hover {
-        color: #000;
-    }
-    
-    .modal h2 {
-        margin-top: 0;
-        color: #333;
-    }
-    
-    .modal p {
-        margin: 10px 0;
-        font-size: 16px;
-    }
-    
-    .refund-warning {
-        color: #e74c3c;
-        font-weight: bold;
-        margin: 15px 0;
-    }
-    
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 20px;
-        gap: 10px;
-    }
-    
-    /* CSS cho nút hoàn vé */
-    .btn-refund {
-        background-color: #e74c3c;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.3s;
-    }
-    
-    .btn-refund:hover {
-        background-color: #c0392b;
-    }
+  
     
     /* CSS cho trạng thái hoàn vé */
     .status-refunded {
-        background-color: #3498db;
+        background-color:rgba(220, 12, 12, 0.73);
     }
     
     /* CSS cho thông báo */
@@ -303,6 +166,20 @@
     
     .refund-info-box p {
         margin: 10px 0 0 0;
+    }
+    
+    /* CSS cho hiển thị giá vé có giảm giá */
+    .price-original {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 14px;
+        display: block;
+    }
+    
+    .price-discounted {
+        color: #e74c3c;
+        font-weight: bold;
+        display: block;
     }
 </style>
 

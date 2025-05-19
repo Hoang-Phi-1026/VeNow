@@ -292,4 +292,32 @@ class Booking {
         $stmt->execute([$userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Lấy mã chỗ ngồi từ mã vé
+     */
+    public function getSeatByTicketId($ticketId) {
+        try {
+            // Kiểm tra kết nối database
+            if (!$this->db) {
+                $this->db = Database::getInstance();
+                if (!$this->db) {
+                    error_log("Database connection failed in getSeatByTicketId");
+                    throw new Exception("Không thể kết nối đến cơ sở dữ liệu");
+                }
+            }
+        
+            $query = "SELECT ma_cho_ngoi FROM ve WHERE ma_ve = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$ticketId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+            error_log("Getting seat ID for ticket ID: $ticketId, Result: " . print_r($result, true));
+        
+            return $result ? $result['ma_cho_ngoi'] : null;
+        } catch (Exception $e) {
+            error_log("Exception in getSeatByTicketId: " . $e->getMessage());
+            throw $e;
+        }
+    }
 }

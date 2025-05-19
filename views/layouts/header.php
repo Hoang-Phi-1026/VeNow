@@ -145,7 +145,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/">Trang chủ</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/about">Giới thiệu</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/search">Sự kiện</a></li>
-                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/tickets/history">Lịch sử đặt vé</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/tickets/my-tickets">Vé của tôi</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/points">Điểm tích lũy</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/support">Hỗ trợ</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>

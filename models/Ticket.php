@@ -10,16 +10,19 @@ class Ticket {
 
     public function getTicketHistory($customerId) {
         $query = "SELECT l.ma_lich_su, l.thao_tac as trang_thai, l.ghi_chu, l.thoi_gian,
-                        v.ma_ve, v.ma_su_kien, v.trang_thai as trang_thai_ve, v.ma_khach_hang,
-                        s.ten_su_kien, s.ngay_dien_ra, s.gio_dien_ra, s.dia_diem,
-                        lv.ten_loai_ve, lv.gia_ve, c.so_cho, c.ma_cho_ngoi
-                 FROM lichsudatve l
-                 JOIN ve v ON l.ma_ve = v.ma_ve
-                 JOIN sukien s ON v.ma_su_kien = s.ma_su_kien
-                 JOIN loaive lv ON v.ma_loai_ve = lv.ma_loai_ve
-                 JOIN chongoi c ON v.ma_cho_ngoi = c.ma_cho_ngoi
-                 WHERE l.ma_khach_hang = ?
-                 ORDER BY l.thoi_gian DESC";
+                    v.ma_ve, v.ma_su_kien, v.trang_thai as trang_thai_ve, v.ma_khach_hang,
+                    s.ten_su_kien, s.ngay_dien_ra, s.gio_dien_ra, s.dia_diem, s.ngay_ket_thuc,
+                    lv.ten_loai_ve, lv.gia_ve as gia_goc, c.so_cho, c.ma_cho_ngoi,
+                    COALESCE(g.so_tien, lv.gia_ve) as gia_ve
+                    FROM lichsudatve l
+                    JOIN ve v ON l.ma_ve = v.ma_ve
+                    JOIN sukien s ON v.ma_su_kien = s.ma_su_kien
+                    JOIN loaive lv ON v.ma_loai_ve = lv.ma_loai_ve
+                    JOIN chongoi c ON v.ma_cho_ngoi = c.ma_cho_ngoi
+                    LEFT JOIN giaodich g ON v.ma_ve = g.ma_ve AND g.trang_thai = 'THANH_CONG'
+                    WHERE l.ma_khach_hang = ?
+                    ORDER BY l.thoi_gian DESC
+                    ";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$customerId]);
@@ -30,12 +33,14 @@ class Ticket {
         try {
             error_log("Getting ticket by ID: $ticketId");
             
-            $query = "SELECT v.*, s.ten_su_kien, s.ngay_dien_ra, s.gio_dien_ra, 
-                         lv.ten_loai_ve, lv.gia_ve, c.so_cho, c.ma_cho_ngoi
+            $query = "SELECT v.*, s.ten_su_kien, s.ngay_dien_ra, s.gio_dien_ra, s.ngay_ket_thuc,
+                         lv.ten_loai_ve, lv.gia_ve as gia_goc, c.so_cho, c.ma_cho_ngoi,
+                         COALESCE(g.so_tien, lv.gia_ve) as gia_ve
                   FROM ve v
                   JOIN sukien s ON v.ma_su_kien = s.ma_su_kien
                   JOIN loaive lv ON v.ma_loai_ve = lv.ma_loai_ve
                   JOIN chongoi c ON v.ma_cho_ngoi = c.ma_cho_ngoi
+                  LEFT JOIN giaodich g ON v.ma_ve = g.ma_ve AND g.trang_thai = 'THANH_TOAN'
                   WHERE v.ma_ve = ?";
             
             $stmt = $this->db->prepare($query);
@@ -85,11 +90,13 @@ class Ticket {
             error_log("Updated ticket status to HOAN_VE");
             
             // 2. Lấy thông tin vé và sự kiện
-            $query2 = "SELECT v.*, s.ten_su_kien, lv.gia_ve, c.ma_cho_ngoi 
+            $query2 = "SELECT v.*, s.ten_su_kien, lv.gia_ve, c.ma_cho_ngoi,
+                      COALESCE(g.so_tien, lv.gia_ve) as gia_thuc_te
                       FROM ve v 
                       JOIN sukien s ON v.ma_su_kien = s.ma_su_kien 
                       JOIN loaive lv ON v.ma_loai_ve = lv.ma_loai_ve 
                       JOIN chongoi c ON v.ma_cho_ngoi = c.ma_cho_ngoi 
+                      LEFT JOIN giaodich g ON v.ma_ve = g.ma_ve AND g.trang_thai = 'THANH_TOAN'
                       WHERE v.ma_ve = ?";
             $stmt2 = $this->db->prepare($query2);
             $stmt2->execute([$ticketId]);
@@ -106,8 +113,8 @@ class Ticket {
             $stmt3->execute([$ticket['ma_cho_ngoi']]);
             error_log("Updated seat status to TRONG");
             
-            // 4. Thêm điểm tích lũy - Sửa lại bảng nguoidung thay vì khachhang
-            $loyaltyPoints = $ticket['gia_ve'] * 0.0002;
+            // Sử dụng giá thực tế đã thanh toán để tính điểm tích lũy
+            $loyaltyPoints = $ticket['gia_thuc_te'] * 0.00006;
             
             // Kiểm tra xem cột diem_tich_luy có tồn tại trong bảng nguoidung không
             $checkColumnQuery = "SHOW COLUMNS FROM nguoidung LIKE 'diem_tich_luy'";
@@ -129,7 +136,7 @@ class Ticket {
             }
             
             // 5. Thêm lịch sử hoàn vé
-            $note = "Hoàn vé sự kiện: " . $ticket['ten_su_kien'] . ". Nhận " . number_format($loyaltyPoints, 2) . " điểm tích lũy.";
+            $note = "Hoàn vé sự kiện: " . $ticket['ten_su_kien'] . ". Nhận " . number_format($loyaltyPoints) . " điểm tích lũy.";
             $query5 = "INSERT INTO lichsudatve (ma_ve, ma_khach_hang, thao_tac, ghi_chu, thoi_gian) VALUES (?, ?, 'HOAN_VE', ?, NOW())";
             $stmt5 = $this->db->prepare($query5);
             $stmt5->execute([$ticketId, $customerId, $note]);
@@ -141,7 +148,7 @@ class Ticket {
             return [
                 'success' => true,
                 'points' => $loyaltyPoints,
-                'message' => 'Hoàn vé thành công! Bạn đã nhận được ' . number_format($loyaltyPoints, 2) . ' điểm tích lũy.'
+                'message' => 'Hoàn vé thành công! Bạn đã nhận được ' . number_format($loyaltyPoints) . ' điểm tích lũy.'
             ];
             
         } catch (Exception $e) {
@@ -187,5 +194,31 @@ class Ticket {
         return $stmt->fetchColumn();
     }
     
+    // Add a new method to get upcoming tickets
+    public function getUpcomingTickets($customerId) {
+        $query = "SELECT v.ma_ve, v.ma_su_kien, v.trang_thai as trang_thai_ve, v.ma_khach_hang,
+                        s.ten_su_kien, s.ngay_dien_ra, s.gio_dien_ra, s.dia_diem, s.hinh_anh,
+                        lv.ten_loai_ve, lv.gia_ve as gia_goc, c.so_cho, c.ma_cho_ngoi,
+                        g.so_tien as gia_ve
+
+                 FROM ve v
+                 JOIN sukien s ON v.ma_su_kien = s.ma_su_kien
+                 JOIN loaive lv ON v.ma_loai_ve = lv.ma_loai_ve
+                 JOIN chongoi c ON v.ma_cho_ngoi = c.ma_cho_ngoi
+                 LEFT JOIN (
+                     SELECT ma_ve, MAX(so_tien) as so_tien
+                     FROM giaodich
+                     WHERE trang_thai = 'THANH_CONG'
+                     GROUP BY ma_ve
+                 ) g ON v.ma_ve = g.ma_ve
+                 WHERE v.ma_khach_hang = ? 
+                   AND v.trang_thai = 'DA_DAT'
+                   AND s.ngay_dien_ra >= CURDATE()
+                 ORDER BY s.ngay_dien_ra ASC";
+    
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$customerId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
 }

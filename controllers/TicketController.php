@@ -20,33 +20,45 @@ class TicketController extends BaseController {
             exit;
         }
 
-        // Kiểm tra vai trò khách hàng
-        if ($_SESSION['user']['vai_tro'] != 4) {
-            $_SESSION['error'] = 'Bạn không có quyền truy cập trang này';
-            header('Location: ' . BASE_URL);
-            exit;
-        }
-
         // Lấy lịch sử đặt vé
         $tickets = $this->ticketModel->getTicketHistory($_SESSION['user']['id']);
         
         require_once __DIR__ . '/../views/ticket/history.php';
     }
+
+    // Add a new method for displaying upcoming tickets
+    public function myTickets() {
+        // Kiểm tra đăng nhập
+        if (!isset($_SESSION['user'])) {
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
+
+        // Lấy danh sách vé cho sự kiện sắp diễn ra
+        $upcomingTickets = $this->ticketModel->getUpcomingTickets($_SESSION['user']['id']);
+        
+        require_once __DIR__ . '/../views/ticket/my-tickets.php';
+    }
     
     public function refund($id)
 {
+    // Decode ID if URL encoding is enabled
+    if (defined('ENCODE_URL_IDS') && ENCODE_URL_IDS) {
+        try {
+            $id = decodeId($id);
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'ID vé không hợp lệ';
+            header('Location: ' . BASE_URL . '/tickets/history');
+            exit;
+        }
+    }
+
     // Kiểm tra đăng nhập
     if (!isset($_SESSION['user'])) {
         header('Location: ' . BASE_URL . '/login');
         exit;
     }
 
-    // Kiểm tra vai trò khách hàng
-    if ($_SESSION['user']['vai_tro'] != 4) {
-        $_SESSION['error'] = 'Bạn không có quyền thực hiện thao tác này';
-        header('Location: ' . BASE_URL);
-        exit;
-    }
 
     try {
         $userId = $_SESSION['user']['id'];
@@ -57,13 +69,13 @@ class TicketController extends BaseController {
 
         if (!$ticket) {
             $_SESSION['error'] = 'Vé không tồn tại';
-            header('Location: ' . BASE_URL . '/tickets/history');
+            header('Location: ' . BASE_URL . '/tickets/my-tickets');
             exit;
         }
 
         if ($ticket['ma_khach_hang'] != $userId) {
             $_SESSION['error'] = 'Bạn không có quyền hoàn vé này';
-            header('Location: ' . BASE_URL . '/tickets/history');
+            header('Location: ' . BASE_URL . '/tickets/my-tickets');
             exit;
         }
 
@@ -76,9 +88,6 @@ class TicketController extends BaseController {
             header('Location: ' . BASE_URL . '/tickets/history');
             exit;
         }
-        
-
-        
 
         // Kiểm tra thời gian sự kiện đang diễn ra
         $today = new DateTime();
@@ -91,8 +100,6 @@ class TicketController extends BaseController {
             header('Location: ' . BASE_URL . '/tickets/history');
             exit;
         }
-
-
 
         $today = new DateTime();
         $ngayDienRa = new DateTime($ticket['ngay_dien_ra']);
@@ -115,9 +122,6 @@ class TicketController extends BaseController {
             header('Location: ' . BASE_URL . '/tickets/history');
             exit;
         }
-        
-        
-        
 
         // Thực hiện hoàn vé
         $result = $this->ticketModel->simpleRefundTicket($id, $userId);
@@ -128,13 +132,13 @@ class TicketController extends BaseController {
             $_SESSION['error'] = $result['message'];
         }
 
-        header('Location: ' . BASE_URL . '/tickets/history');
+        header('Location: ' . BASE_URL . '/tickets/my-tickets');
         exit;
 
     } catch (Exception $e) {
         error_log("Error refunding ticket: " . $e->getMessage());
         $_SESSION['error'] = 'Đã xảy ra lỗi khi hoàn vé: ' . $e->getMessage();
-        header('Location: ' . BASE_URL . '/tickets/history');
+        header('Location: ' . BASE_URL . '/tickets/my-tickets');
         exit;
     }
 }

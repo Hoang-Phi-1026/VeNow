@@ -66,7 +66,7 @@
                                                 <?= $transaction['nguon_text'] ?>
                                             </td>
                                             <td class="<?= $transaction['so_diem'] > 0 ? 'text-success' : 'text-danger' ?>">
-                                                <?= $transaction['so_diem'] > 0 ? '+' : '' ?><?= number_format($transaction['so_diem'], 2) ?>
+                                                <?= $transaction['so_diem'] > 0 ? '+' : '' ?><?= number_format($transaction['so_diem']) ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

@@ -129,6 +129,10 @@ switch ($path) {
         $ticketController = new TicketController();
         $ticketController->history();
         break;
+    case '/tickets/my-tickets':
+        $ticketController = new TicketController();
+        $ticketController->myTickets();
+        break;
 
     case '/tickets/refund':
         $ticketController = new TicketController();
