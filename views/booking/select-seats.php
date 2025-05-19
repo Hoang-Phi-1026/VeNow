@@ -145,7 +145,11 @@
             <div id="total-price">0 VNĐ</div>
         </div>
         
-        <button id="checkout-btn" class="btn btn-primary" disabled>Thanh toán ngay</button>
+        <form action="<?php echo BASE_URL; ?>/booking/process-selection" method="POST">
+            <input type="hidden" name="eventId" value="<?php echo $event['ma_su_kien']; ?>">
+            <input type="hidden" id="selected-seats-input" name="selectedSeats" value="">
+            <button id="checkout-btn" class="btn btn-primary" disabled>Thanh toán ngay</button>
+        </form>
     </div>
 </div>
 
@@ -193,6 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Kích hoạt/vô hiệu hóa nút thanh toán
             checkoutBtn.disabled = Object.keys(selectedSeats).length === 0;
+            
+            // Cập nhật input ẩn
+            document.getElementById('selected-seats-input').value = JSON.stringify(selectedSeats);
         });
     });
     
@@ -223,40 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatCurrency(amount) {
         return new Intl.NumberFormat('vi-VN').format(amount);
     }
-    
-    // Xử lý sự kiện khi nhấn nút thanh toán
-    checkoutBtn.addEventListener('click', function() {
-        // Kiểm tra xem có ghế nào được chọn không
-        if (Object.keys(selectedSeats).length === 0) {
-            alert('Vui lòng chọn ít nhất một ghế');
-            return;
-        }
-        
-        // Gửi dữ liệu đến server
-        fetch('<?php echo BASE_URL; ?>/booking/process-selection', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                eventId: <?php echo $event['ma_su_kien']; ?>,
-                selectedSeats: selectedSeats
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Chuyển hướng đến trang thanh toán
-                window.location.href = data.redirect;
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Đã xảy ra lỗi khi xử lý yêu cầu');
-        });
-    });
 });
 </script>
 

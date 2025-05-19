@@ -57,6 +57,9 @@ $routes = [
     // Ticket routes
     '/tickets/history' => ['controller' => 'TicketController', 'action' => 'history'],
     '/tickets/download/{id}' => ['controller' => 'TicketController', 'action' => 'download'],
+    '/tickets/refund/{id}' => ['controller' => 'TicketController', 'action' => 'refund'],
+    
+    
     
     // Search routes
     '/search' => ['controller' => 'SearchController', 'action' => 'index'],
@@ -67,6 +70,12 @@ $routes = [
     // Booking routes
     '/booking/{id}' => ['controller' => 'BookingController', 'action' => 'index'],
     '/booking/process-selection' => ['controller' => 'BookingController', 'action' => 'processSelection'],
+    '/booking/payment' => ['controller' => 'BookingController', 'action' => 'payment'],
+    '/booking/process-payment' => ['controller' => 'BookingController', 'action' => 'processPayment'],
+    
+    // Points routes
+    '/points' => ['controller' => 'PointsController', 'action' => 'index'],
+    '/points/history' => ['controller' => 'PointsController', 'action' => 'history'],
 ];
 
 // Get current URL path

@@ -33,6 +33,7 @@ class AuthController extends BaseController {
             if ($user && $password === $user['mat_khau']) {
                 $_SESSION['user'] = [
                     'id' => $user['ma_nguoi_dung'],
+                    'ma_nguoi_dung' => $user['ma_nguoi_dung'],  // Add this line to ensure compatibility
                     'email' => $user['email'],
                     'ten_nguoi_dung' => $user['ho_ten'],
                     'vai_tro' => $user['ma_vai_tro']

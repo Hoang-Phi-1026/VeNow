@@ -54,6 +54,11 @@ class Database {
     public function rollBack() {
         return $this->conn->rollBack();
     }
+    
+    // Thêm phương thức inTransaction
+    public function inTransaction() {
+        return $this->conn->inTransaction();
+    }
 
     public function lastInsertId() {
         return $this->conn->lastInsertId();

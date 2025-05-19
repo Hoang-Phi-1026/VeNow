@@ -13,6 +13,7 @@ require_once BASE_PATH . '/config/database.php';
 require_once BASE_PATH . '/models/User.php';
 require_once BASE_PATH . '/models/Event.php';
 require_once BASE_PATH . '/models/Ticket.php';
+require_once BASE_PATH . '/models/Booking.php';
 
 // Include controllers
 require_once BASE_PATH . '/controllers/BaseController.php';
@@ -26,6 +27,8 @@ require_once BASE_PATH . '/controllers/OrganizerEventController.php';
 require_once BASE_PATH . '/controllers/TicketController.php';
 require_once BASE_PATH . '/controllers/StaffController.php';
 require_once BASE_PATH . '/controllers/BookingController.php';
+require_once BASE_PATH . '/controllers/PointsController.php';
+
 
 // Lấy đường dẫn hiện tại
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -36,6 +39,9 @@ $path = substr($request_uri, strlen($base_path));
 if (($pos = strpos($path, '?')) !== false) {
     $path = substr($path, 0, $pos);
 }
+
+// Debug log
+error_log("Processing path: " . $path);
 
 // Xử lý các route
 switch ($path) {
@@ -124,6 +130,11 @@ switch ($path) {
         $ticketController->history();
         break;
 
+    case '/tickets/refund':
+        $ticketController = new TicketController();
+        $ticketController->refund($_GET['id']);
+        break;
+    
     case '/':
     case '':
         $eventController = new EventController();
@@ -158,6 +169,16 @@ switch ($path) {
     case '/event/comment/add':
         $eventController = new EventController();
         $eventController->addComment();
+        break;
+
+    case '/points':
+        $pointsController = new PointsController();
+        $pointsController->index();
+        break;
+
+    case '/points/history':
+        $pointsController = new PointsController();
+        $pointsController->history();
         break;
 
     // Staff routes
@@ -210,6 +231,21 @@ switch ($path) {
         require_once BASE_PATH . '/views/support/index.php';
         break;
 
+    case '/booking/process-selection':
+        $bookingController = new BookingController();
+        $bookingController->processSelection();
+        break;
+
+    case '/booking/payment':
+        $bookingController = new BookingController();
+        $bookingController->payment();
+        break;
+
+    case '/booking/process-payment':
+        $bookingController = new BookingController();
+        $bookingController->processPayment();
+        break;
+
     default:
         // Kiểm tra xem có phải là route chi tiết sự kiện không
         if (preg_match('/^\/event\/(\d+)$/', $path, $matches)) {
@@ -236,10 +272,19 @@ switch ($path) {
             $bookingController = new BookingController();
             $bookingController->index($matches[1]);
         }
+        // Kiểm tra xem có phải là route hoàn vé không
+        else if (preg_match('/^\/tickets\/refund\/(\d+)$/', $path, $matches)) {
+            $ticketController = new TicketController();
+            $ticketController->refund($matches[1]);
+            error_log("Matched refund route with ID: " . $matches[1]);
+        }
         else {
             // Nếu không khớp với route nào, hiển thị trang 404
+            error_log("No route matched for path: " . $path);
             http_response_code(404);
             require_once BASE_PATH . '/error/404.php';
         }
+
+
         break;
 }

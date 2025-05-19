@@ -1,0 +1,446 @@
+/* Styles for Points Management */
+.loyalty-card {
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    color: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: relative;
+    transition: all var(--transition-normal);
+    border: none;
+  }
+  
+  .loyalty-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .loyalty-card::before {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 0;
+  }
+  
+  .loyalty-card::after {
+    content: "";
+    position: absolute;
+    bottom: -50px;
+    left: -50px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 0;
+  }
+  
+  .loyalty-card .card-body {
+    position: relative;
+    z-index: 1;
+    padding: var(--spacing-6);
+  }
+  
+  .points-display {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .points-display h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .points-display p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 5px;
+  }
+  
+  .points-value {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+  }
+  
+  .card-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-3);
+  }
+  
+  .card-actions .btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    transition: all var(--transition-normal);
+    font-weight: 500;
+    padding: var(--spacing-2) var(--spacing-4);
+  }
+  
+  .card-actions .btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  /* Stats Card */
+  .stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-3) 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
+  }
+  
+  .stat-item:last-child {
+    border-bottom: none;
+  }
+  
+  .stat-item:hover {
+    background-color: var(--hover-bg);
+    padding-left: var(--spacing-2);
+    border-radius: var(--radius-md);
+  }
+  
+  .stat-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  .stat-value {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  /* Info Card */
+  .info-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  
+  .info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-2);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+  }
+  
+  .info-item:hover {
+    background-color: var(--hover-bg);
+    transform: translateX(3px);
+  }
+  
+  .info-item i {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+    margin-top: 3px;
+  }
+  
+  .info-item p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  
+  /* Reward Cards */
+  .reward-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    height: 100%;
+    transition: all var(--transition-normal);
+    background-color: var(--bg-secondary);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .reward-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    border-color: var(--accent-color);
+  }
+  
+  .reward-card h6 {
+    font-weight: 600;
+    margin-bottom: var(--spacing-3);
+    color: var(--text-primary);
+  }
+  
+  .reward-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-4);
+    height: 40px;
+    overflow: hidden;
+  }
+  
+  .reward-card .badge {
+    font-size: 0.8rem;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-full);
+  }
+  
+  .reward-card .btn {
+    font-size: 0.85rem;
+    padding: var(--spacing-1) var(--spacing-3);
+  }
+  
+  .reward-card small {
+    display: block;
+    margin-top: var(--spacing-2);
+    font-size: 0.8rem;
+  }
+  
+  /* Recent Transactions Table */
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .table thead th {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  
+  .table tbody td {
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all var(--transition-normal);
+  }
+  
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .table tbody tr:hover td {
+    background-color: var(--hover-bg);
+  }
+  
+  .text-success {
+    color: var(--success-600) !important;
+    font-weight: 600;
+  }
+  
+  .text-danger {
+    color: var(--error-600) !important;
+    font-weight: 600;
+  }
+  
+  /* Filter Container */
+  .filter-container {
+    background-color: var(--bg-secondary);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-4);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
+  }
+  
+  .filter-container:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-color);
+  }
+  
+  .filter-container label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .filter-container select,
+  .filter-container input {
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    font-size: 0.9rem;
+    transition: all var(--transition-normal);
+  }
+  
+  .filter-container select:focus,
+  .filter-container input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.1);
+  }
+  
+  .filter-container .btn {
+    padding: var(--spacing-2) var(--spacing-4);
+    font-weight: 500;
+  }
+  
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-top: var(--spacing-4);
+    gap: var(--spacing-1);
+  }
+  
+  .pagination .page-item {
+    margin: 0;
+  }
+  
+  .pagination .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 var(--spacing-2);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+  }
+  
+  .pagination .page-link:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+  
+  .pagination .page-item.active .page-link:hover {
+    background-color: var(--accent-hover);
+  }
+  
+  /* Page Header */
+  .page-header {
+    margin-bottom: var(--spacing-6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+  }
+  
+  .page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    position: relative;
+    padding-bottom: var(--spacing-2);
+  }
+  
+  .page-header h1::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--accent-color);
+    border-radius: var(--radius-full);
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .points-display h2 {
+      font-size: 2.5rem;
+    }
+  
+    .stat-item {
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+  
+    .reward-card {
+      margin-bottom: var(--spacing-4);
+    }
+  
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .filter-container form {
+      flex-direction: column;
+    }
+  
+    .filter-container .col-md-4 {
+      margin-bottom: var(--spacing-3);
+    }
+  }
+  
+  /* Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .card {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  .card:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  
+  .card:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  
+  /* Dark mode adjustments */
+  [data-theme="dark"] .loyalty-card {
+    background: linear-gradient(135deg, #ff7a4d 0%, #ff5722 100%);
+  }
+  
+  [data-theme="dark"] .reward-card {
+    background-color: var(--bg-secondary);
+  }
+  
+  [data-theme="dark"] .text-success {
+    color: #4ade80 !important;
+  }
+  
+  [data-theme="dark"] .text-danger {
+    color: #f87171 !important;
+  }
+  
