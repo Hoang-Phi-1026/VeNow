@@ -250,6 +250,11 @@ switch ($path) {
         $bookingController->processPayment();
         break;
 
+    case '/organizer/revenue':
+        $organizerEventController = new OrganizerEventController();
+        $organizerEventController->revenue();
+        break;
+
     default:
         // Kiểm tra xem có phải là route chi tiết sự kiện không
         if (preg_match('/^\/event\/(\d+)$/', $path, $matches)) {
