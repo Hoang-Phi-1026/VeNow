@@ -22,6 +22,9 @@ $routes = [
     
     // Organizer event routes
     '/organizer/events' => ['controller' => 'OrganizerEventController', 'action' => 'index'],
+    '/organizer/events/edit/{id}' => ['controller' => 'OrganizerEventController', 'action' => 'edit'],
+    '/organizer/events/delete/{id}' => ['controller' => 'OrganizerEventController', 'action' => 'delete'],
+    '/organizer/revenue' => ['controller' => 'OrganizerEventController', 'action' => 'revenue'],
     
     // Admin routes
     '/admin/pending-events' => ['controller' => 'AdminController', 'action' => 'pendingEvents'],

@@ -120,6 +120,13 @@ switch ($path) {
         $organizerEventController = new OrganizerEventController();
         $organizerEventController->revenue();
         break;
+    
+    
+
+    case '/admin/revenue':
+        $adminController = new AdminController();
+        $adminController->revenue();
+        break;
 
     case '/account':
         $accountController = new AccountController();
