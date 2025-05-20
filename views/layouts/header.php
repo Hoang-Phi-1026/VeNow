@@ -85,9 +85,8 @@ if (session_status() === PHP_SESSION_NONE) {
                             <li class="nav-item dropdown">
                                 <a href="#">Quản lý sự kiện</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo BASE_URL; ?>/events/create">Tạo sự kiện</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/admin/pending-events">Sự kiện chờ duyệt</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/events/manage">Quản lý sự kiện</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/events/manage">Danh sách sự kiện</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">

@@ -59,21 +59,24 @@
                                                 echo '</div>';
                                             }
                                             
-                                            // Try different avatar field names
-                                            $avatarField = null;
-                                            if (isset($comment['avatar']) && !empty($comment['avatar'])) {
-                                                $avatarField = $comment['avatar'];
-                                            } elseif (isset($comment['avt']) && !empty($comment['avt'])) {
-                                                $avatarField = $comment['avt'];
-                                            }
-                                            
-                                            // Display avatar with fallback
+                                            // Luôn lấy trường avt từ comment
+                                            $avatarField = !empty($comment['avt']) ? $comment['avt'] : null;
+                                            $avatarPath = '/venow/public/images/default-avatar.png'; // Đường dẫn tương đối
+
                                             if ($avatarField) {
-                                                echo '<img src="' . BASE_URL . '/public/uploads/avatars/' . $avatarField . '" alt="User Avatar" class="user-avatar">';
-                                            } else {
-                                                echo '<img src="' . BASE_URL . '/public/images/default-avatar.png" alt="Default Avatar" class="user-avatar">';
+                                                if (preg_match('/^https?:\/\//', $avatarField)) {
+                                                    $avatarPath = $avatarField;
+                                                } else {
+                                                    $avatarPath = '/venow/public/uploads/avatars/' . rawurlencode(basename($avatarField));
+                                                }
+                                            }
+
+                                            // Debug đường dẫn ảnh
+                                            if (isset($_GET['debug'])) {
+                                                echo '<div class="debug-info">Avatar URL: ' . htmlspecialchars($avatarPath) . '</div>';
                                             }
                                             ?>
+                                            <img src="<?php echo htmlspecialchars($avatarPath); ?>" alt="User Avatar" class="user-avatar">
                                             <div class="user-details">
                                                 <h3 class="user-name"><?php echo htmlspecialchars($comment['ho_ten'] ?? 'Unknown User'); ?></h3>
                                                 <div class="rating">

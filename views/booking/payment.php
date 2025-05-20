@@ -29,7 +29,7 @@
     </div>
 
     <!-- Form thanh toán đơn giản -->
-    <form id="payment-form" method="POST" action="<?php echo BASE_URL; ?>/booking/process-payment">
+    <form id="payment-form" method="POST" action="<?php echo BASE_URL; ?>/momo-payment/process">
         <div class="payment-container">
             <div class="order-summary">
                 <h3>Thông tin đơn hàng</h3>
@@ -667,6 +667,9 @@
     margin: var(--spacing-5) 0;
     font-size: 0.85rem;
     color: var(--text-secondary);
+    padding: var(--spacing-  0);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
     padding: var(--spacing-3);
     border: 1px dashed var(--border-color);
     border-radius: var(--radius-md);
@@ -977,7 +980,7 @@ document.addEventListener('DOMContentLoaded', function() {
             discountAmountInput.value = discount;
             
             // Điểm tích lũy luôn dựa trên tổng tiền ban đầu, không thay đổi khi áp dụng điểm
-            const newLoyaltyPoints = totalAmount * 0.00005;
+            const newLoyaltyPoints = totalAmount * 0.00003;
             newPoints.textContent = newLoyaltyPoints.toFixed() + ' điểm';
             
             // Hiển thị thông tin giảm giá

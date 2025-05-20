@@ -28,6 +28,7 @@ require_once BASE_PATH . '/controllers/TicketController.php';
 require_once BASE_PATH . '/controllers/StaffController.php';
 require_once BASE_PATH . '/controllers/BookingController.php';
 require_once BASE_PATH . '/controllers/PointsController.php';
+require_once BASE_PATH . '/controllers/MomoPaymentController.php';
 
 
 // Lấy đường dẫn hiện tại
@@ -248,6 +249,26 @@ switch ($path) {
     case '/booking/process-payment':
         $bookingController = new BookingController();
         $bookingController->processPayment();
+        break;
+
+    case '/momo-payment/process':
+        $momoPaymentController = new MomoPaymentController();
+        $momoPaymentController->processPayment();
+        break;
+
+    case '/momo-payment/ipn':
+        $momoPaymentController = new MomoPaymentController();
+        $momoPaymentController->ipn();
+        break;
+
+    case '/momo-payment/return':
+        $momoPaymentController = new MomoPaymentController();
+        $momoPaymentController->return();
+        break;
+
+    case '/momo-payment/thanks':
+        $momoPaymentController = new MomoPaymentController();
+        $momoPaymentController->thanks();
         break;
 
     default:

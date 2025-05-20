@@ -32,20 +32,78 @@ class Booking {
      * Lấy thông tin loại vé theo mã loại vé
      */
     public function getTicketTypeById($typeId) {
-        $query = "SELECT * FROM loaive WHERE ma_loai_ve = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([$typeId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            // Kiểm tra kết nối database
+            if (!$this->db) {
+                $this->db = Database::getInstance();
+                if (!$this->db) {
+                    error_log("Database connection failed in getTicketTypeById");
+                    throw new Exception("Không thể kết nối đến cơ sở dữ liệu");
+                }
+            }
+        
+            $query = "SELECT * FROM loaive WHERE ma_loai_ve = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$typeId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+            error_log("Getting ticket type for ID: $typeId, Result: " . print_r($result, true));
+        
+            // Đảm bảo cấu trúc dữ liệu phù hợp với cách truy cập trong template
+            if ($result) {
+                return [
+                    'ma_loai_ve' => $result['ma_loai_ve'],
+                    'ten_loai_ve' => $result['ten_loai_ve'] ?? 'Không xác định',
+                    'gia_ve' => $result['gia_ve'] ?? 0,
+                    'mo_ta' => $result['mo_ta'] ?? ''
+                ];
+            }
+            
+            return null;
+        } catch (Exception $e) {
+            error_log("Exception in getTicketTypeById: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
      * Lấy thông tin chỗ ngồi theo mã chỗ ngồi
      */
     public function getSeatById($seatId) {
-        $query = "SELECT * FROM chongoi WHERE ma_cho_ngoi = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([$seatId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            // Kiểm tra kết nối database
+            if (!$this->db) {
+                $this->db = Database::getInstance();
+                if (!$this->db) {
+                    error_log("Database connection failed in getSeatById");
+                    throw new Exception("Không thể kết nối đến cơ sở dữ liệu");
+                }
+            }
+        
+            $query = "SELECT * FROM chongoi WHERE ma_cho_ngoi = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$seatId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+            error_log("Getting seat for ID: $seatId, Result: " . print_r($result, true));
+        
+            // Đảm bảo cấu trúc dữ liệu phù hợp với cách truy cập trong template
+            if ($result) {
+                return [
+                    'seat' => [
+                        'row' => $result['hang'] ?? '',
+                        'position' => $result['vi_tri'] ?? '',
+                        'area' => $result['khu_vuc'] ?? 'Không xác định',
+                        'status' => $result['trang_thai'] ?? ''
+                    ]
+                ];
+            }
+            
+            return null;
+        } catch (Exception $e) {
+            error_log("Exception in getSeatById: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
@@ -317,6 +375,34 @@ class Booking {
             return $result ? $result['ma_cho_ngoi'] : null;
         } catch (Exception $e) {
             error_log("Exception in getSeatByTicketId: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
+     * Lấy thông tin vé theo mã vé
+     */
+    public function getTicketById($ticketId) {
+        try {
+            // Kiểm tra kết nối database
+            if (!$this->db) {
+                $this->db = Database::getInstance();
+                if (!$this->db) {
+                    error_log("Database connection failed in getTicketById");
+                    throw new Exception("Không thể kết nối đến cơ sở dữ liệu");
+                }
+            }
+        
+            $query = "SELECT * FROM ve WHERE ma_ve = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$ticketId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+            error_log("Getting ticket for ID: $ticketId, Result: " . print_r($result, true));
+        
+            return $result;
+        } catch (Exception $e) {
+            error_log("Exception in getTicketById: " . $e->getMessage());
             throw $e;
         }
     }

@@ -65,9 +65,16 @@
                     <div class="ticket-header">
                         <div class="event-image">
                             <?php if (!empty($ticket['hinh_anh'])): ?>
-                                <img src="<?php echo BASE_URL; ?>/public/uploads/events/<?php echo htmlspecialchars($ticket['hinh_anh']); ?>" alt="<?php echo htmlspecialchars($ticket['ten_su_kien']); ?>">
+                                <img 
+                                    src="<?php echo BASE_URL; ?>/public/uploads/events/<?php echo htmlspecialchars($ticket['hinh_anh']); ?>" 
+                                    alt="<?php echo htmlspecialchars($ticket['ten_su_kien']); ?>"
+                                    onerror="this.onerror=null;this.src='<?php echo BASE_URL; ?>/public/uploads/events/placeholder.png';"
+                                >
                             <?php else: ?>
-                                <div class="no-image"><i class="fas fa-image"></i></div>
+                                <img 
+                                    src="<?php echo BASE_URL; ?>/public/uploads/events/placeholder.png" 
+                                    alt="No image"
+                                >
                             <?php endif; ?>
                         </div>
                         <div class="event-info">

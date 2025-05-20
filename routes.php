@@ -59,9 +59,6 @@ $routes = [
     '/tickets/download/{id}' => ['controller' => 'TicketController', 'action' => 'download'],
     '/tickets/refund/{id}' => ['controller' => 'TicketController', 'action' => 'refund'],
     '/tickets/my-tickets' => ['controller' => 'TicketController', 'action' => 'myTickets'],
-
-    
-    
     
     // Search routes
     '/search' => ['controller' => 'SearchController', 'action' => 'index'],
@@ -74,10 +71,17 @@ $routes = [
     '/booking/process-selection' => ['controller' => 'BookingController', 'action' => 'processSelection'],
     '/booking/payment' => ['controller' => 'BookingController', 'action' => 'payment'],
     '/booking/process-payment' => ['controller' => 'BookingController', 'action' => 'processPayment'],
+    '/booking/thanks' => ['controller' => 'BookingController', 'action' => 'thanks'],
     
     // Points routes
     '/points' => ['controller' => 'PointsController', 'action' => 'index'],
     '/points/history' => ['controller' => 'PointsController', 'action' => 'history'],
+    
+    // MoMo Payment routes
+    '/momo-payment/process' => ['controller' => 'MomoPaymentController', 'action' => 'processPayment'],
+    '/momo-payment/ipn' => ['controller' => 'MomoPaymentController', 'action' => 'ipn'],
+    '/momo-payment/return' => ['controller' => 'MomoPaymentController', 'action' => 'return'],
+    '/momo-payment/thanks' => ['controller' => 'MomoPaymentController', 'action' => 'thanks'],
 ];
 
 // Get current URL path
