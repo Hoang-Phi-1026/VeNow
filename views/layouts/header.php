@@ -99,7 +99,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             <li class="nav-item dropdown">
                                 <a href="#">Thống kê & báo cáo</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo BASE_URL; ?>/reports/revenue">Doanh thu</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/admin/revenue">Doanh thu</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/reports/attendance">Lượt tham gia</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/reports/featured">Sự kiện nổi bật</a></li>
                                 </ul>
@@ -121,7 +121,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             <li class="nav-item dropdown">
                                 <a href="#">Thống kê & báo cáo</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/revenue">Báo cáo doanh thu</a></li>
+                                    <li><a href="<?php echo BASE_URL; ?>/organizer/revenue">Báo cáo doanh thu</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/reports/organizer/attendance">Lượt tham gia</a></li>
                                     <li><a href="<?php echo BASE_URL; ?>/reports/organizer/sold-tickets">Vé đã bán</a></li>
                                 </ul>

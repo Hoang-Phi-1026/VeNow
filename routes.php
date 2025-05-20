@@ -27,6 +27,7 @@ $routes = [
     '/admin/pending-events' => ['controller' => 'AdminController', 'action' => 'pendingEvents'],
     '/admin/approve-event' => ['controller' => 'AdminController', 'action' => 'approveEvent'],
     '/admin/reject-event' => ['controller' => 'AdminController', 'action' => 'rejectEvent'],
+    '/admin/revenue' => ['controller' => 'AdminController', 'action' => 'revenue'],
     
     // Staff routes
     '/staff/pending-events' => ['controller' => 'StaffController', 'action' => 'pendingEvents'],

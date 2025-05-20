@@ -6,9 +6,14 @@
       <h2>Sự kiện của tôi</h2>
       <p class="text-muted">Nhà tổ chức: <?php echo htmlspecialchars($organizerName); ?></p>
     </div>
-    <a href="<?php echo BASE_URL; ?>/events/create" class="btn btn-primary">
-      <i class="fas fa-plus"></i> Tạo sự kiện mới
-    </a>
+    <div>
+      <a href="<?php echo BASE_URL; ?>/events/create" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tạo sự kiện mới
+      </a>
+      <a href="<?php echo BASE_URL; ?>/organizer/revenue" class="btn btn-success ms-2">
+        <i class="fas fa-chart-line"></i> Báo cáo doanh thu
+      </a>
+    </div>
   </div>
 
   <?php if (isset($_SESSION['success'])): ?>

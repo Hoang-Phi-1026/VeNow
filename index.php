@@ -251,6 +251,7 @@ switch ($path) {
         $bookingController->processPayment();
         break;
 
+<<<<<<< HEAD
     case '/momo-payment/process':
         $momoPaymentController = new MomoPaymentController();
         $momoPaymentController->processPayment();
@@ -269,6 +270,11 @@ switch ($path) {
     case '/momo-payment/thanks':
         $momoPaymentController = new MomoPaymentController();
         $momoPaymentController->thanks();
+=======
+    case '/organizer/revenue':
+        $organizerEventController = new OrganizerEventController();
+        $organizerEventController->revenue();
+>>>>>>> 29a30cc95cb325296d0375b539830bd2c3adede8
         break;
 
     default:
