@@ -153,7 +153,7 @@ class MomoPaymentController extends BaseController {
                     }
                     
                     // Tính và lưu điểm tích lũy (dựa trên tổng tiền ban đầu, không phụ thuộc vào giảm giá)
-                    $loyaltyPoints = $totalAmount * 0.00005;
+                    $loyaltyPoints = $totalAmount * 0.00003;
                     error_log("Adding $loyaltyPoints loyalty points for user ID: $userId");
                     $this->bookingModel->addLoyaltyPoints($userId, $loyaltyPoints);
                     
@@ -435,7 +435,7 @@ class MomoPaymentController extends BaseController {
                 
                 // Tính và lưu điểm tích lũy (dựa trên tổng tiền ban đầu, không phụ thuộc vào giảm giá)
                 $totalAmount = array_sum(array_column($selectedSeats, 'price'));
-                $loyaltyPoints = $totalAmount * 0.00005;
+                $loyaltyPoints = $totalAmount * 0.00003;
                 error_log("Adding $loyaltyPoints loyalty points for user ID: $userId");
                 $this->bookingModel->addLoyaltyPoints($userId, $loyaltyPoints);
                 

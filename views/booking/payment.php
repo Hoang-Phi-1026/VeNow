@@ -101,7 +101,7 @@
                     <div id="new-points" class="points"><?php echo number_format($totalAmount * 0.00003); ?> điểm</div>
                     <div class="points-info">
                         <i class="fas fa-info-circle"></i>
-                        <span>Bạn sẽ nhận được 2% tổng giá trị đơn hàng thành điểm tích lũy</span>
+                        <span>Bạn sẽ nhận được điểm tích lũy tương ứng với giá trị đơn hàng</span>
                     </div>
                 </div>
                 
