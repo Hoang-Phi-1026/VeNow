@@ -22,12 +22,16 @@ $routes = [
     
     // Organizer event routes
     '/organizer/events' => ['controller' => 'OrganizerEventController', 'action' => 'index'],
+    '/organizer/events/update' => ['controller' => 'OrganizerEventController', 'action' => 'update'],
+    '/organizer/events/edit/{id}' => ['controller' => 'OrganizerEventController', 'action' => 'edit'],
+    '/organizer/events/delete-ticket' => ['controller' => 'OrganizerEventController', 'action' => 'deleteTicket'],
     
     // Admin routes
+    '/admin/revenue' => ['controller' => 'AdminController', 'action' => 'revenue'],
+    '/venow/admin/revenue' => ['controller' => 'AdminController', 'action' => 'revenue'],
     '/admin/pending-events' => ['controller' => 'AdminController', 'action' => 'pendingEvents'],
     '/admin/approve-event' => ['controller' => 'AdminController', 'action' => 'approveEvent'],
     '/admin/reject-event' => ['controller' => 'AdminController', 'action' => 'rejectEvent'],
-    '/admin/revenue' => ['controller' => 'AdminController', 'action' => 'revenue'],
     
     // Staff routes
     '/staff/pending-events' => ['controller' => 'StaffController', 'action' => 'pendingEvents'],
@@ -72,17 +76,10 @@ $routes = [
     '/booking/process-selection' => ['controller' => 'BookingController', 'action' => 'processSelection'],
     '/booking/payment' => ['controller' => 'BookingController', 'action' => 'payment'],
     '/booking/process-payment' => ['controller' => 'BookingController', 'action' => 'processPayment'],
-    '/booking/thanks' => ['controller' => 'BookingController', 'action' => 'thanks'],
     
     // Points routes
     '/points' => ['controller' => 'PointsController', 'action' => 'index'],
     '/points/history' => ['controller' => 'PointsController', 'action' => 'history'],
-    
-    // MoMo Payment routes
-    '/momo-payment/process' => ['controller' => 'MomoPaymentController', 'action' => 'processPayment'],
-    '/momo-payment/ipn' => ['controller' => 'MomoPaymentController', 'action' => 'ipn'],
-    '/momo-payment/return' => ['controller' => 'MomoPaymentController', 'action' => 'return'],
-    '/momo-payment/thanks' => ['controller' => 'MomoPaymentController', 'action' => 'thanks'],
 ];
 
 // Get current URL path
