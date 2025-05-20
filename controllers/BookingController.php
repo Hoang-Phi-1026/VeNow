@@ -115,6 +115,8 @@ class BookingController extends BaseController {
             header('Location: ' . BASE_URL);
             exit;
         }
+        
+        
 
         // Lấy thông tin sự kiện
         $eventId = $_SESSION['booking']['event_id'];

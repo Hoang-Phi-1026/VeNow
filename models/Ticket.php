@@ -114,7 +114,7 @@ class Ticket {
             error_log("Updated seat status to TRONG");
             
             // Sử dụng giá thực tế đã thanh toán để tính điểm tích lũy
-            $loyaltyPoints = $ticket['gia_thuc_te'] * 0.00006;
+            $loyaltyPoints = $ticket['gia_thuc_te'] * 0.0002;
             
             // Kiểm tra xem cột diem_tich_luy có tồn tại trong bảng nguoidung không
             $checkColumnQuery = "SHOW COLUMNS FROM nguoidung LIKE 'diem_tich_luy'";

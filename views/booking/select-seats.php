@@ -145,7 +145,7 @@
             <div id="total-price">0 VNĐ</div>
         </div>
         
-        <form action="<?php echo BASE_URL; ?>/booking/process-selection" method="POST">
+        <form id="booking-form" action="<?php echo BASE_URL; ?>/booking/process-selection" method="POST">
             <input type="hidden" name="eventId" value="<?php echo $event['ma_su_kien']; ?>">
             <input type="hidden" id="selected-seats-input" name="selectedSeats" value="">
             <button id="checkout-btn" class="btn btn-primary" disabled>Thanh toán ngay</button>
@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedSeatsList = document.getElementById('selected-seats-list');
     const totalPriceElement = document.getElementById('total-price');
     const checkoutBtn = document.getElementById('checkout-btn');
+    const bookingForm = document.getElementById('booking-form');
     
     // Biến lưu trữ ghế đã chọn và tổng tiền
     let selectedSeats = {};
@@ -230,6 +231,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatCurrency(amount) {
         return new Intl.NumberFormat('vi-VN').format(amount);
     }
+
+    // Truyền trạng thái sự kiện từ PHP sang JS
+    const eventStatus = "<?php echo isset($event['trang_thai']) ? $event['trang_thai'] : ''; ?>";
+
+    // Chỉ cho phép thanh toán nếu trạng thái là DA_DUYET
+    bookingForm.addEventListener('submit', function(e) {
+        if (eventStatus !== 'DA_DUYET') {
+            e.preventDefault();
+            alert('Sự kiện chưa được duyệt, không thể thanh toán!');
+        }
+    });
 });
 </script>
 

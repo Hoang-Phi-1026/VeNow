@@ -70,7 +70,7 @@
                                     } else {
                                         echo 'Không xác định';
                                     }
-                                ?> (<?php echo isset($ticket['seat']['khu_vuc']) ? htmlspecialchars($ticket['seat']['khu_vuc']) : 'Không xác định'; ?>)</span>
+                                ?>
                             </div>
                             <div class="price-info">
                                 <i class="fas fa-tag"></i>
