@@ -117,7 +117,9 @@
                                                     echo '<span class="status-badge status-inactive">Từ chối</span>';
                                                     break;
                                                 default:
-                                                    echo '<span class="status-badge">Không xác định</span>';
+                                                    echo '<span class="status-badge">Đã hủy</span>';
+                                                    break;
+                                                
                                             }
                                         ?>
                                     </td>
