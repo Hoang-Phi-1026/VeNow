@@ -130,10 +130,11 @@ class User {
     }
 
     public function deleteUser($id) {
-        $query = "DELETE FROM nguoidung WHERE ma_nguoi_dung = ?";
+        $query = "UPDATE nguoidung SET kich_hoat = 0, mat_khau = NULL WHERE ma_nguoi_dung = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([$id]);
     }
+    
 
     public function checkEmailExists($email, $excludeId = null) {
         $query = "SELECT COUNT(*) FROM nguoidung WHERE email = ?";
