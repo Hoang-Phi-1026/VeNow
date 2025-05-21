@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../../layouts/header.php'; ?>
+<?php require_once __DIR__ . '/../../../utils/IdHasher.php'; ?>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
@@ -201,7 +202,7 @@
                                                     <i class="fas fa-calendar-day text-muted"></i>
                                                 </div>
                                             <?php endif; ?>
-                                            <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="text-decoration-none">
+                                            <a href="<?php echo BASE_URL; ?>/event/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="text-decoration-none">
                                                 <?php echo htmlspecialchars($event['ten_su_kien']); ?>
                                             </a>
                                         </div>

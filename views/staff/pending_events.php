@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php require_once __DIR__ . '/../../utils/IdHasher.php'; ?>
 
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/admin.css">
 
@@ -13,16 +14,6 @@
             <?php 
             echo $_SESSION['success'];
             unset($_SESSION['success']);
-            ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i>
-            <?php 
-            echo $_SESSION['error'];
-            unset($_SESSION['error']);
             ?>
         </div>
     <?php endif; ?>
@@ -61,9 +52,7 @@
                         <div class="event-price">
                             <span class="price">
                                 <?php if (isset($event['gia_ve_min']) && isset($event['gia_ve_max'])): ?>
-                                    <?php if ($event['gia_ve_min'] == $event['gia_ve_max']): ?>
-                                        <?= number_format($event['gia_ve_min'], 0, ',', '.') ?> VNĐ
-                                    <?php elseif ($event['gia_ve_min'] == 0 && $event['gia_ve_max'] == 0): ?>
+                                    <?php if ($event['gia_ve_min'] == 0 && $event['gia_ve_max'] == 0): ?>
                                         Miễn phí
                                     <?php else: ?>
                                         <?php echo number_format($event['gia_ve_min']); ?>đ - <?php echo number_format($event['gia_ve_max']); ?>đ
@@ -76,18 +65,18 @@
                         </div>
                         <div class="event-actions">
                             <form action="<?php echo BASE_URL; ?>/staff/approve-event" method="POST">
-                                <input type="hidden" name="event_id" value="<?php echo $event['ma_su_kien']; ?>">
-                                <button type="submit" class="btn btn-success" onclick="return confirm('Bạn có chắc muốn duyệt sự kiện này?')">
+                                <input type="hidden" name="event_id" value="<?php echo IdHasher::encode($event['ma_su_kien']); ?>">
+                                <button type="submit" class="btn btn-success">
                                     <i class="fas fa-check"></i> Duyệt
                                 </button>
                             </form>
                             <form action="<?php echo BASE_URL; ?>/staff/reject-event" method="POST">
-                                <input type="hidden" name="event_id" value="<?php echo $event['ma_su_kien']; ?>">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn từ chối sự kiện này?')">
+                                <input type="hidden" name="event_id" value="<?php echo IdHasher::encode($event['ma_su_kien']); ?>">
+                                <button type="submit" class="btn btn-danger">
                                     <i class="fas fa-times"></i> Từ chối
                                 </button>
                             </form>
-                            <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">
+                            <a href="<?php echo BASE_URL; ?>/event/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-primary">
                                 <i class="fas fa-eye"></i> Xem chi tiết
                             </a>
                         </div>

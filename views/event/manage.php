@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php require_once __DIR__ . '/../../utils/IdHasher.php'; ?>
 
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-manage.css">
 
@@ -90,7 +91,7 @@
                                 <tr>
                                     <td><?php echo $event['ma_su_kien']; ?></td>
                                     <td>
-                                        <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="text-decoration-none fw-bold">
+                                        <a href="<?php echo BASE_URL; ?>/event/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="text-decoration-none fw-bold">
                                             <?php echo htmlspecialchars($event['ten_su_kien']); ?>
                                         </a>
                                     </td>
@@ -122,7 +123,7 @@
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-info btn-sm" title="Xem chi tiết">
+                                            <a href="<?php echo BASE_URL; ?>/event/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-info btn-sm" title="Xem chi tiết">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a href="<?php echo BASE_URL; ?>/events/delete/<?php echo $event['ma_su_kien']; ?>" 

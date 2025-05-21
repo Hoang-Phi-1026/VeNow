@@ -3,6 +3,7 @@
  * Partial view for displaying an event card
  * @param array $event Event data
  */
+require_once __DIR__ . '/../../utils/IdHasher.php';
 ?>
 <div class="event-card">
     <div class="event-image">
@@ -37,6 +38,6 @@
                 <span class="price">Miễn phí</span>
             <?php endif; ?>
         </div>
-        <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">Xem chi tiết</a>
+        <a href="<?php echo BASE_URL; ?>/event/<?php echo isset($event['hashed_id']) ? $event['hashed_id'] : IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-primary">Xem chi tiết</a>
     </div>
 </div>

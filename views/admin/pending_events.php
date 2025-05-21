@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php require_once __DIR__ . '/../../utils/IdHasher.php'; ?>
 
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/admin.css">
 
@@ -75,7 +76,7 @@
                                     <i class="fas fa-times"></i> Từ chối
                                 </button>
                             </form>
-                            <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">
+                            <a href="<?php echo BASE_URL; ?>/event/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-primary">
                                 <i class="fas fa-eye"></i> Xem chi tiết
                             </a>
                         </div>

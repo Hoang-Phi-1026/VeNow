@@ -41,7 +41,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="slider-content">
                     <h2 class="slider-title tittle-panner"><?php echo htmlspecialchars($event['ten_su_kien']); ?></h2>
                     <p class="slider-description"><?php echo htmlspecialchars(substr($event['mo_ta'], 0, 200) . (strlen($event['mo_ta']) > 200 ? '...' : '')); ?></p>
-                    <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary">Mua vé ngay <i class="fas fa-arrow-right"></i></a>
+                    <a href="<?php echo BASE_URL; ?>/event/<?php echo isset($event['hashed_id']) ? $event['hashed_id'] : IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-primary">Mua vé ngay <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             <?php endforeach; ?>

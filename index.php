@@ -284,10 +284,18 @@ switch ($path) {
 
     default:
         // Kiểm tra xem có phải là route chi tiết sự kiện không
-        if (preg_match('/^\/event\/(\d+)$/', $path, $matches)) {
-            $eventController = new EventController();
-            $eventController->show($matches[1]);
-        } 
+        if (preg_match('/^\/event\/(v[A-Za-z0-9_-]+)$/', $path, $matches)) {
+            require_once 'utils/IdHasher.php';
+            $hashedId = $matches[1];
+            $eventId = IdHasher::decode($hashedId);
+            if ($eventId) {
+                $eventController = new EventController();
+                $eventController->show($eventId);
+            } else {
+                http_response_code(404);
+                require_once BASE_PATH . '/error/404.php';
+            }
+        }
         // Kiểm tra xem có phải là route chỉnh sửa người dùng không
         else if (preg_match('/^\/users\/edit\/(\d+)$/', $path, $matches)) {
             $userController = new UserController();
@@ -304,9 +312,17 @@ switch ($path) {
             $eventController->delete($matches[1]);
         }
         // Kiểm tra xem có phải là route đặt vé không
-        else if (preg_match('/^\/booking\/(\d+)$/', $path, $matches)) {
-            $bookingController = new BookingController();
-            $bookingController->index($matches[1]);
+        else if (preg_match('/^\/booking\/(v[A-Za-z0-9_-]+)$/', $path, $matches)) {
+            require_once 'utils/IdHasher.php';
+            $hashedId = $matches[1];
+            $eventId = IdHasher::decode($hashedId);
+            if ($eventId) {
+                $bookingController = new BookingController();
+                $bookingController->index($eventId);
+            } else {
+                http_response_code(404);
+                require_once BASE_PATH . '/error/404.php';
+            }
         }
         // Kiểm tra xem có phải là route hoàn vé không
         else if (preg_match('/^\/tickets\/refund\/(\d+)$/', $path, $matches)) {

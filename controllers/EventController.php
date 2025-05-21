@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/Event.php';
 require_once __DIR__ . '/../models/Comment.php';
 require_once __DIR__ . '/BaseController.php';
+require_once __DIR__ . '/../utils/IdHasher.php';
 
 class EventController extends BaseController {
     private $eventModel;
@@ -15,6 +16,16 @@ class EventController extends BaseController {
         $featuredEvents = $this->eventModel->getFeaturedEvents();
         $upcomingEvents = $this->eventModel->getUpcomingEvents();
         $categories = $this->eventModel->getAllEventTypes();
+        
+        // Mã hóa ID cho các sự kiện
+        foreach ($featuredEvents as &$event) {
+            $event['hashed_id'] = IdHasher::encode($event['ma_su_kien']);
+        }
+        
+        foreach ($upcomingEvents as &$event) {
+            $event['hashed_id'] = IdHasher::encode($event['ma_su_kien']);
+        }
+        
         require_once __DIR__ . '/../views/home/index.php';
     }
 
@@ -345,10 +356,17 @@ class EventController extends BaseController {
                  WHERE s.maloaisukien = ? AND s.trang_thai = 'DA_DUYET'
                  GROUP BY s.ma_su_kien
                  ORDER BY s.ngay_dien_ra DESC";
-        
+    
         $stmt = $this->db->prepare($query);
         $stmt->execute([$categoryId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Mã hóa ID cho các sự kiện
+        foreach ($events as &$event) {
+            $event['hashed_id'] = IdHasher::encode($event['ma_su_kien']);
+        }
+        
+        return $events;
     }
 
     public function category($categoryId) {
@@ -364,6 +382,12 @@ class EventController extends BaseController {
         }
 
         $events = $this->getEventsByCategory($categoryId);
+        
+        // Mã hóa ID cho các sự kiện
+        foreach ($events as &$event) {
+            $event['hashed_id'] = IdHasher::encode($event['ma_su_kien']);
+        }
+        
         require_once __DIR__ . '/../views/event/category.php';
     }
 

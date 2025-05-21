@@ -116,13 +116,13 @@
                     <div class="share-section">
                         <span class="share-label">Chia sẻ sự kiện:</span>
                         <div class="share-buttons">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(BASE_URL . '/event/' . $event['ma_su_kien']); ?>" target="_blank" class="share-button share-facebook" aria-label="Chia sẻ lên Facebook">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(BASE_URL . '/event/' . IdHasher::encode($event['ma_su_kien'])); ?>" target="_blank" class="share-button share-facebook" aria-label="Chia sẻ lên Facebook">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
-                            <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(BASE_URL . '/event/' . $event['ma_su_kien']); ?>&text=<?php echo urlencode($event['ten_su_kien']); ?>" target="_blank" class="share-button share-twitter" aria-label="Chia sẻ lên Twitter">
+                            <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(BASE_URL . '/event/' . IdHasher::encode($event['ma_su_kien'])); ?>&text=<?php echo urlencode($event['ten_su_kien']); ?>" target="_blank" class="share-button share-twitter" aria-label="Chia sẻ lên Twitter">
                                 <i class="fab fa-twitter"></i>
                             </a>
-                            <a href="mailto:?subject=<?php echo urlencode($event['ten_su_kien']); ?>&body=<?php echo urlencode('Xem sự kiện này: ' . BASE_URL . '/event/' . $event['ma_su_kien']); ?>" class="share-button share-email" aria-label="Chia sẻ qua Email">
+                            <a href="mailto:?subject=<?php echo urlencode($event['ten_su_kien']); ?>&body=<?php echo urlencode('Xem sự kiện này: ' . BASE_URL . '/event/' . IdHasher::encode($event['ma_su_kien'])); ?>" class="share-button share-email" aria-label="Chia sẻ qua Email">
                                 <i class="fas fa-envelope"></i>
                             </a>
                             <button class="share-button share-link" onclick="copyEventLink()" aria-label="Sao chép liên kết">
@@ -134,9 +134,9 @@
                     <!-- Event Actions -->
                     <div class="event-actions">
                         <?php if (isset($_SESSION['user'])): ?>
-                            <a href="<?php echo BASE_URL; ?>/booking/<?php echo $event['ma_su_kien']; ?>" class="btn-buy-ticket">Mua vé ngay</a>
+                            <a href="<?php echo BASE_URL; ?>/booking/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="btn-buy-ticket">Mua vé ngay</a>
                         <?php else: ?>
-                            <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . $event['ma_su_kien']); ?>" class="btn-buy-ticket">Đăng nhập để mua vé</a>
+                            <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . IdHasher::encode($event['ma_su_kien'])); ?>" class="btn-buy-ticket">Đăng nhập để mua vé</a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -222,13 +222,12 @@
                                             </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
-                                </div>
                                 
                                 <div class="ticket-actions">
                                     <?php if (isset($_SESSION['user'])): ?>
-                                        <a href="<?php echo BASE_URL; ?>/booking/<?php echo $event['ma_su_kien']; ?>" class="btn btn-primary btn-block">Mua vé ngay</a>
+                                        <a href="<?php echo BASE_URL; ?>/booking/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-primary btn-block">Mua vé ngay</a>
                                     <?php else: ?>
-                                        <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . $event['ma_su_kien']); ?>" class="btn btn-primary btn-block">Đăng nhập để mua vé</a>
+                                        <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . IdHasher::encode($event['ma_su_kien'])); ?>" class="btn btn-primary btn-block">Đăng nhập để mua vé</a>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -319,7 +318,7 @@
                                 <h4 class="comment-form-header">Viết đánh giá của bạn</h4>
                                 <form action="<?php echo BASE_URL; ?>/event/comment/add" method="POST" class="comment-form">
                                     <input type="hidden" name="event_id" value="<?php echo $event['ma_su_kien']; ?>">
-                                    <input type="hidden" name="redirect" value="<?php echo BASE_URL; ?>/event/<?php echo intval($event['ma_su_kien']); ?>">
+                                    <input type="hidden" name="redirect" value="<?php echo BASE_URL; ?>/event/<?php echo intval(IdHasher::encode($event['ma_su_kien'])); ?>">
 
                                     <div class="star-rating">
                                         <?php for ($i = 5; $i >= 1; $i--): ?>
@@ -418,7 +417,7 @@
                                             <span class="price"><?php echo number_format($relatedEvent['gia_ve_min']); ?>đ - <?php echo number_format($relatedEvent['gia_ve_max']); ?>đ</span>
                                         <?php endif; ?>
                                     </div>
-                                    <a href="<?php echo BASE_URL; ?>/event/<?php echo $relatedEvent['ma_su_kien']; ?>" class="btn btn-primary">Xem chi tiết</a>
+                                    <a href="<?php echo BASE_URL; ?>/event/<?php echo IdHasher::encode($relatedEvent['ma_su_kien']); ?>" class="btn btn-primary">Xem chi tiết</a>
                                 </div>
                             </div>
                         <?php endforeach; ?>

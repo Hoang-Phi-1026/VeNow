@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../../layouts/header.php'; ?>
+<?php require_once __DIR__ . '/../../../utils/IdHasher.php'; ?>
 
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -65,16 +66,16 @@
               <span><i class="fas fa-ticket-alt"></i> Đã bán: <?php echo $event['so_ve_da_ban'] ?? 0; ?> vé</span>
             </div>
             <div class="event-actions">
-              <a href="<?php echo BASE_URL; ?>/event/<?php echo $event['ma_su_kien']; ?>" 
+              <a href="<?php echo BASE_URL; ?>/event/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" 
                  class="btn btn-sm btn-outline-info">
                 <i class="fas fa-eye"></i> Xem
               </a>
-              <a href="<?php echo BASE_URL; ?>/organizer/events/edit?id=<?php echo $event['ma_su_kien']; ?>" 
+              <a href="<?php echo BASE_URL; ?>/organizer/events/edit?id=<?php echo IdHasher::encode($event['ma_su_kien']); ?>" 
                  class="btn btn-sm btn-outline-warning">
                 <i class="fas fa-edit"></i> Sửa
               </a>
               <?php if ($event['trang_thai'] != 'DA_DUYET'): ?>
-                <button onclick="deleteEvent(<?php echo $event['ma_su_kien']; ?>)" 
+                <button onclick="deleteEvent('<?php echo IdHasher::encode($event['ma_su_kien']); ?>')" 
                         class="btn btn-sm btn-outline-danger">
                   <i class="fas fa-trash"></i> Xóa
                 </button>

@@ -2,6 +2,7 @@
 require_once 'controllers/BaseController.php';
 require_once 'models/Event.php';
 require_once 'models/Booking.php';
+require_once 'utils/IdHasher.php';
 
 class BookingController extends BaseController {
     private $eventModel;
@@ -17,7 +18,8 @@ class BookingController extends BaseController {
     public function index($eventId) {
         // Kiểm tra đăng nhập
         if (!isset($_SESSION['user'])) {
-            $_SESSION['redirect_after_login'] = BASE_URL . "/booking/" . $eventId;
+            $hashedId = IdHasher::encode($eventId);
+            $_SESSION['redirect_after_login'] = BASE_URL . "/booking/" . $hashedId;
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -50,6 +52,9 @@ class BookingController extends BaseController {
                 $seatsByType[$seat['ma_loai_ve']]['seats'][] = $seat;
             }
         }
+        
+        // Thêm hashed_id vào dữ liệu sự kiện
+        $event['hashed_id'] = IdHasher::encode($event['ma_su_kien']);
         
         // Hiển thị trang chọn chỗ ngồi
         require_once 'views/booking/select-seats.php';
