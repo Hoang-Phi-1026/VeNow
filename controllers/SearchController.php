@@ -11,54 +11,64 @@ class SearchController extends BaseController {
     }
 
     public function index() {
-        // Get search parameters
+        // Lấy các tham số tìm kiếm
         $keyword = isset($_GET['q']) && trim($_GET['q']) !== '' ? trim($_GET['q']) : null;
         $category = isset($_GET['category']) && trim($_GET['category']) !== '' ? trim($_GET['category']) : null;
         $date = isset($_GET['date']) && trim($_GET['date']) !== '' ? trim($_GET['date']) : null;
         $location = isset($_GET['location']) && trim($_GET['location']) !== '' ? trim($_GET['location']) : null;
         $price = isset($_GET['price']) && trim($_GET['price']) !== '' ? trim($_GET['price']) : null;
 
-        // Get categories for the filter dropdown
+        // Lấy danh sách loại sự kiện
         $stmt = $this->db->prepare("SELECT * FROM loaisukien ORDER BY tenloaisukien ASC");
         $stmt->execute();
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Base query
+        // Câu truy vấn cơ sở
         $query = "SELECT DISTINCT s.*, nd.ho_ten, l.tenloaisukien,
-                  COALESCE(MIN(t.gia_ve), 0) as gia_ve_min,
-                  COALESCE(MAX(t.gia_ve), 0) as gia_ve_max
-                  FROM sukien s 
-                  LEFT JOIN nguoidung nd ON s.ma_nguoi_dung = nd.ma_nguoi_dung AND nd.ma_vai_tro = 2
-                  LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
-                  LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
-                  WHERE s.trang_thai = 'DA_DUYET'";
+                COALESCE(MIN(t.gia_ve), 0) as gia_ve_min,
+                COALESCE(MAX(t.gia_ve), 0) as gia_ve_max
+                FROM sukien s 
+                LEFT JOIN nguoidung nd ON s.ma_nguoi_dung = nd.ma_nguoi_dung AND nd.ma_vai_tro = 2
+                LEFT JOIN loaisukien l ON s.maloaisukien = l.maloaisukien
+                LEFT JOIN loaive t ON s.ma_su_kien = t.ma_su_kien
+                WHERE s.trang_thai = 'DA_DUYET'";
 
         $params = [];
 
-        // Add search conditions
+        // Tìm kiếm từ khóa không dấu
         if ($keyword !== null) {
-            $query .= " AND (s.ten_su_kien LIKE ? OR s.mo_ta LIKE ? OR s.dia_diem LIKE ?)";
-            $searchTerm = "%" . $keyword . "%";
+            $keywordNoAccent = $this-> xoaDauTiengViet(mb_strtolower($keyword, 'UTF-8'));
+            $query .= " AND (
+                LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(s.ten_su_kien, '̀',''), '́',''), '̃',''), '̣',''), '̉',''), 'đ','d'), 'Đ','D')) LIKE ? OR 
+                LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(s.mo_ta, '̀',''), '́',''), '̃',''), '̣',''), '̉',''), 'đ','d'), 'Đ','D')) LIKE ? OR 
+                LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(s.dia_diem, '̀',''), '́',''), '̃',''), '̣',''), '̉',''), 'đ','d'), 'Đ','D')) LIKE ?
+            )";
+            $searchTerm = "%" . $keywordNoAccent . "%";
             $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
         }
 
+        // Lọc theo loại sự kiện
         if ($category !== null) {
             $query .= " AND s.maloaisukien = ?";
             $params[] = $category;
         }
 
+        // Lọc theo ngày
         if ($date !== null) {
             $query .= " AND DATE(s.ngay_dien_ra) = ?";
             $params[] = $date;
         }
 
+        // Lọc theo địa điểm (không dấu)
         if ($location !== null) {
-            $query .= " AND s.dia_diem LIKE ?";
-            $params[] = "%" . $location . "%";
+            $locationNoAccent = $this-> xoaDauTiengViet(mb_strtolower($location, 'UTF-8'));
+            $query .= " AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(s.dia_diem, '̀',''), '́',''), '̃',''), '̣',''), '̉',''), 'đ','d'), 'Đ','D')) LIKE ?";
+            $params[] = "%" . $locationNoAccent . "%";
         }
 
+        // Lọc theo giá vé
         if ($price !== null) {
             switch ($price) {
                 case 'free':
@@ -70,22 +80,20 @@ class SearchController extends BaseController {
             }
         }
 
+        // Nhóm và sắp xếp
         $query .= " GROUP BY s.ma_su_kien ORDER BY s.ngay_dien_ra DESC";
 
-        // Execute the query
+        // Thực thi truy vấn
         $stmt = $this->db->prepare($query);
-        
-        // Bind parameters and execute
         if (!empty($params)) {
-            for ($i = 0; $i < count($params); $i++) {
-                $stmt->bindValue($i + 1, $params[$i]);
+            foreach ($params as $index => $param) {
+                $stmt->bindValue($index + 1, $param);
             }
         }
-        
         $stmt->execute();
         $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Get category info if category filter is applied
+        // Lấy thông tin loại sự kiện nếu có lọc
         $categoryInfo = null;
         if ($category !== null) {
             $stmt = $this->db->prepare("SELECT * FROM loaisukien WHERE maloaisukien = ?");
@@ -93,86 +101,36 @@ class SearchController extends BaseController {
             $categoryInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
-        require_once __DIR__ . '/../views/search/index.php';
+    // Gọi view
+    require_once __DIR__ . '/../views/search/index.php';
     }
+
+    private function xoaDauTiengViet($str) {
+        $str = preg_replace([
+            "/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/u",
+            "/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/u",
+            "/(ì|í|ị|ỉ|ĩ)/u",
+            "/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/u",
+            "/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/u",
+            "/(ỳ|ý|ỵ|ỷ|ỹ)/u",
+            "/(đ)/u",
+            "/(À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ)/u",
+            "/(È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ)/u",
+            "/(Ì|Í|Ị|Ỉ|Ĩ)/u",
+            "/(Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ)/u",
+            "/(Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ)/u",
+            "/(Ỳ|Ý|Ỵ|Ỷ|Ỹ)/u",
+            "/(Đ)/u"
+        ], [
+            "a", "e", "i", "o", "u", "y", "d",
+            "A", "E", "I", "O", "U", "Y", "D"
+        ], $str);
+        return $str;
+    }
+
 
     public function search() {
         // Redirect to index method to avoid duplicate code
         $this->index();
-    }
-
-    private function applyFilters($events, $category, $date, $price, $location, $featured = false, $upcoming = false) {
-        if (empty($events)) {
-            return [];
-        }
-
-        return array_filter($events, function($event) use ($category, $date, $price, $location, $featured, $upcoming) {
-            // Lọc theo danh mục
-            if (!empty($category) && $event['danh_muc'] !== $category) {
-                return false;
-            }
-
-            // Lọc theo ngày
-            if (!empty($date)) {
-                $eventDate = strtotime($event['ngay_dien_ra']);
-                $today = strtotime('today');
-                $tomorrow = strtotime('tomorrow');
-                $weekEnd = strtotime('+7 days');
-                $monthEnd = strtotime('+30 days');
-
-                switch ($date) {
-                    case 'today':
-                        if ($eventDate < $today || $eventDate >= $tomorrow) return false;
-                        break;
-                    case 'tomorrow':
-                        if ($eventDate < $tomorrow || $eventDate >= strtotime('+2 days')) return false;
-                        break;
-                    case 'week':
-                        if ($eventDate < $today || $eventDate >= $weekEnd) return false;
-                        break;
-                    case 'month':
-                        if ($eventDate < $today || $eventDate >= $monthEnd) return false;
-                        break;
-                }
-            }
-
-            // Lọc theo giá
-            if (!empty($price)) {
-                $minPrice = $event['gia_ve_thap_nhat'] ?? 0;
-                switch ($price) {
-                    case 'free':
-                        if ($minPrice > 0) return false;
-                        break;
-                    case 'paid':
-                        if ($minPrice <= 0) return false;
-                        break;
-                }
-            }
-
-            // Lọc theo địa điểm
-            if (!empty($location)) {
-                $eventLocation = strtolower($event['dia_diem']);
-                if (strpos($eventLocation, strtolower($location)) === false) {
-                    return false;
-                }
-            }
-
-            // Lọc theo sự kiện nổi bật
-            if ($featured) {
-                $eventDate = strtotime($event['ngay_dien_ra']);
-                $today = strtotime('today');
-                if ($eventDate < $today) return false;
-            }
-
-            // Lọc theo sự kiện sắp diễn ra
-            if ($upcoming) {
-                $eventDate = strtotime($event['ngay_dien_ra']);
-                $today = strtotime('today');
-                $monthEnd = strtotime('+30 days');
-                if ($eventDate < $today || $eventDate >= $monthEnd) return false;
-            }
-
-            return true;
-        });
     }
 }

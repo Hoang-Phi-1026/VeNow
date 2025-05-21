@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>/public/images/favicon.ico">
     
     <?php
-    // Add specific CSS files based on the current page
+    // them css 
     $current_url = $_SERVER['REQUEST_URI'];
     if (strpos($current_url, '/login') !== false) {
         echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/login.css">';

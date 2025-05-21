@@ -137,7 +137,7 @@
 
                             <div class="form-group">
                                 <label for="gioi_tinh">Giới tính</label>
-                                <select id="gioi_tinh" name="gioi_tinh">
+                                <select id="gioi_tinh" name="gioi_tinh" required>
                                     <option value="">Chọn giới tính</option>
                                     <option value="NAM" <?php echo $user['gioi_tinh'] === 'NAM' ? 'selected' : ''; ?>>Nam</option>
                                     <option value="NU" <?php echo $user['gioi_tinh'] === 'NU' ? 'selected' : ''; ?>>Nữ</option>
