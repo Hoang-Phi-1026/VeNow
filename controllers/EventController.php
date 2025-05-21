@@ -474,36 +474,47 @@ class EventController extends BaseController {
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
-        
+    
         $event = $this->eventModel->getEventById($id);
         if (!$event) {
             $_SESSION['error'] = 'Không tìm thấy sự kiện';
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
-
+    
         if ($_SESSION['user']['vai_tro'] != 1 && $event['ma_nguoi_dung'] != $_SESSION['user']['id']) {
             $_SESSION['error'] = 'Bạn không có quyền xóa sự kiện này';
             header('Location: ' . BASE_URL . '/events/manage');
             exit;
         }
-        
+    
+        // Xóa hình ảnh nếu có
         if (!empty($event['hinh_anh'])) {
             $imagePath = BASE_PATH . '/' . $event['hinh_anh'];
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
         }
-
-        if ($this->eventModel->deleteEvent($id)) {
-            $_SESSION['success'] = 'Xóa sự kiện thành công';
-        } else {
-            $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sự kiện';
+    
+        // Thực hiện xóa hoặc cập nhật trạng thái
+        try {
+            $result = $this->eventModel->deleteEvent($id);
+    
+            if ($result === "DA_XOA") {
+                $_SESSION['success'] = 'Xóa sự kiện thành công';
+            } elseif ($result === "DA_HUY") {
+                $_SESSION['success'] = 'Sự kiện đã được chuyển sang trạng thái "ĐÃ HỦY" vì đã có vé bán';
+            } else {
+                $_SESSION['error'] = 'Không xác định được trạng thái sau khi xử lý sự kiện';
+            }
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Lỗi khi xóa sự kiện: ' . $e->getMessage();
         }
-        
+    
         header('Location: ' . BASE_URL . '/events/manage');
         exit;
     }
+    
 
     public function deleteTicketType($ticketId) {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['vai_tro'] != 1 && $_SESSION['user']['vai_tro'] != 2)) {

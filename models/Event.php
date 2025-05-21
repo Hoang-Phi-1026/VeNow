@@ -499,17 +499,31 @@ class Event {
         if (!is_numeric($id) || $id < 1) {
             throw new Exception("Mã sự kiện không hợp lệ");
         }
+    
         try {
             $this->db->beginTransaction();
-            
+    
             // Kiểm tra vé đã bán
             $query = "SELECT COUNT(*) FROM ve WHERE ma_su_kien = ?";
             $stmt = $this->db->prepare($query);
             $stmt->execute([$id]);
-            if ($stmt->fetchColumn() > 0) {
-                throw new Exception("Không thể xóa sự kiện có vé đã bán");
+            $veDaBan = $stmt->fetchColumn();
+    
+            if ($veDaBan > 0) {
+                // Có vé đã bán => không xóa mà chuyển trạng thái sang DA_HUY
+                $updateQuery = "UPDATE sukien SET trang_thai = 'DA_HUY' WHERE ma_su_kien = ?";
+                $updateStmt = $this->db->prepare($updateQuery);
+                $result = $updateStmt->execute([$id]);
+                if (!$result) {
+                    throw new Exception("Không thể cập nhật trạng thái sự kiện: " . implode(", ", $updateStmt->errorInfo()));
+                }
+    
+                $this->db->commit();
+                return "DA_HUY";
             }
-            
+    
+            // Nếu không có vé đã bán → Tiến hành xóa dữ liệu liên quan
+    
             // Kiểm tra xem có bảng dangkythamgia không
             $checkTableQuery = "SHOW TABLES LIKE 'dangkythamgia'";
             $checkTableStmt = $this->db->prepare($checkTableQuery);
@@ -523,7 +537,7 @@ class Event {
                     throw new Exception("Lỗi khi xóa đăng ký tham gia: " . implode(", ", $stmt0->errorInfo()));
                 }
             }
-            
+    
             // Xóa các bình luận liên quan
             $query1 = "DELETE FROM binhluan WHERE ma_su_kien = ?";
             $stmt1 = $this->db->prepare($query1);
@@ -531,15 +545,15 @@ class Event {
             if (!$result1) {
                 throw new Exception("Lỗi khi xóa bình luận: " . implode(", ", $stmt1->errorInfo()));
             }
-            
-            // Xóa các vé đã bán
+    
+            // Xóa các vé (nếu có, nhưng ở đây là 0 vé rồi nên an toàn)
             $query2 = "DELETE FROM ve WHERE ma_su_kien = ?";
             $stmt2 = $this->db->prepare($query2);
             $result2 = $stmt2->execute([$id]);
             if (!$result2) {
                 throw new Exception("Lỗi khi xóa vé: " . implode(", ", $stmt2->errorInfo()));
             }
-            
+    
             // Xóa các chỗ ngồi
             $query3 = "DELETE FROM chongoi WHERE ma_su_kien = ?";
             $stmt3 = $this->db->prepare($query3);
@@ -547,7 +561,7 @@ class Event {
             if (!$result3) {
                 throw new Exception("Lỗi khi xóa chỗ ngồi: " . implode(", ", $stmt3->errorInfo()));
             }
-            
+    
             // Xóa các loại vé
             $query4 = "DELETE FROM loaive WHERE ma_su_kien = ?";
             $stmt4 = $this->db->prepare($query4);
@@ -555,7 +569,7 @@ class Event {
             if (!$result4) {
                 throw new Exception("Lỗi khi xóa loại vé: " . implode(", ", $stmt4->errorInfo()));
             }
-            
+    
             // Xóa các yêu cầu sự kiện liên quan
             $query5 = "DELETE FROM yeucausukien WHERE ma_su_kien = ?";
             $stmt5 = $this->db->prepare($query5);
@@ -563,7 +577,7 @@ class Event {
             if (!$result5) {
                 throw new Exception("Lỗi khi xóa yêu cầu sự kiện: " . implode(", ", $stmt5->errorInfo()));
             }
-            
+    
             // Kiểm tra xem có bảng thongbao không
             $checkTableQuery = "SHOW TABLES LIKE 'thongbao'";
             $checkTableStmt = $this->db->prepare($checkTableQuery);
@@ -577,7 +591,7 @@ class Event {
                     throw new Exception("Lỗi khi xóa thông báo: " . implode(", ", $stmt6->errorInfo()));
                 }
             }
-            
+    
             // Xóa sự kiện
             $query7 = "DELETE FROM sukien WHERE ma_su_kien = ?";
             $stmt7 = $this->db->prepare($query7);
@@ -585,15 +599,16 @@ class Event {
             if (!$result7) {
                 throw new Exception("Lỗi khi xóa sự kiện: " . implode(", ", $stmt7->errorInfo()));
             }
-            
+    
             $this->db->commit();
-            return true;
+            return "DA_XOA";
         } catch (Exception $e) {
             $this->db->rollBack();
-            error_log("Lỗi xóa sự kiện ID $id: " . $e->getMessage());
-            throw new Exception("Lỗi xóa sự kiện: " . $e->getMessage());
+            error_log("Lỗi xử lý sự kiện ID $id: " . $e->getMessage());
+            throw new Exception("Lỗi xử lý sự kiện: " . $e->getMessage());
         }
     }
+    
 }
 
 /* Đề xuất chỉ mục để tối ưu tìm kiếm
