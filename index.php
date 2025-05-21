@@ -126,6 +126,11 @@ switch ($path) {
         $organizerEventController->revenue();
         break;
 
+    case '/organizer/events/delete-ticket':
+        $organizerEventController = new OrganizerEventController();
+        $organizerEventController->deleteTicket();
+        break;
+
     case '/account':
         $accountController = new AccountController();
         $accountController->index();

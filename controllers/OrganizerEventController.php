@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Event.php';
+require_once __DIR__ . '/../utils/IdHasher.php';
 
 class OrganizerEventController extends BaseController {
     private $eventModel;
@@ -55,14 +56,22 @@ class OrganizerEventController extends BaseController {
 
     public function edit($id) {
         try {
+            // Giải mã ID sự kiện
+            $decodedId = IdHasher::decode($id);
+            if (!$decodedId) {
+                $_SESSION['error'] = 'ID sự kiện không hợp lệ';
+                header('Location: ' . BASE_URL . '/organizer/events');
+                exit;
+            }
+            
             // Lấy mã người dùng từ session
             $maNguoiDung = $_SESSION['user']['id'];
             
             // Lấy thông tin nhà tổ chức từ bảng nguoidung
             $sql = "SELECT nd.*, n.ma_nha_to_chuc
-                   FROM nguoidung nd
-                   LEFT JOIN nhatochuc n ON nd.ma_nguoi_dung = n.ma_nguoi_dung
-                   WHERE nd.ma_nguoi_dung = :ma_nguoi_dung AND nd.ma_vai_tro = 2";
+               FROM nguoidung nd
+               LEFT JOIN nhatochuc n ON nd.ma_nguoi_dung = n.ma_nguoi_dung
+               WHERE nd.ma_nguoi_dung = :ma_nguoi_dung AND nd.ma_vai_tro = 2";
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':ma_nguoi_dung', $maNguoiDung, PDO::PARAM_INT);
             $stmt->execute();
@@ -74,9 +83,15 @@ class OrganizerEventController extends BaseController {
                 exit;
             }
 
-            // Lấy thông tin sự kiện
-            $event = $this->eventModel->getEventById($id);
-            
+            // Lấy thông tin sự kiện với ID đã giải mã
+            $event = $this->eventModel->getEventById($decodedId);
+        
+            if (!$event) {
+                $_SESSION['error'] = 'Không tìm thấy thông tin sự kiện';
+                header('Location: ' . BASE_URL . '/organizer/events');
+                exit;
+            }
+        
             // Đảm bảo biến organizerName được định nghĩa
             $organizerName = $organizer['ho_ten'] ?? 'Không xác định';
 
@@ -91,7 +106,7 @@ class OrganizerEventController extends BaseController {
                     'so_luong_ve' => $_POST['so_luong_ve']
                 ];
 
-                if ($this->eventModel->updateEvent($id, $data)) {
+                if ($this->eventModel->updateEvent($decodedId, $data)) {
                     $_SESSION['success'] = 'Cập nhật sự kiện thành công!';
                     header('Location: ' . BASE_URL . '/organizer/events');
                     exit;
@@ -102,10 +117,10 @@ class OrganizerEventController extends BaseController {
 
             // Lấy danh sách loại sự kiện
             $eventTypes = $this->eventModel->getAllEventTypes();
-            
+        
             // Đảm bảo organizerName được truyền đến view
             $organizerName = $organizer['ho_ten'] ?? 'Không xác định';
-            
+        
             require_once __DIR__ . '/../views/organizer/events/edit.php';
         } catch (PDOException $e) {
             $_SESSION['error'] = 'Có lỗi xảy ra: ' . $e->getMessage();
@@ -116,7 +131,15 @@ class OrganizerEventController extends BaseController {
 
     public function delete($id) {
         try {
-            if ($this->eventModel->deleteEvent($id)) {
+            // Giải mã ID sự kiện
+            $decodedId = IdHasher::decode($id);
+            if (!$decodedId) {
+                $_SESSION['error'] = 'ID sự kiện không hợp lệ';
+                header('Location: ' . BASE_URL . '/organizer/events');
+                exit;
+            }
+            
+            if ($this->eventModel->deleteEvent($decodedId)) {
                 $_SESSION['success'] = 'Xóa sự kiện thành công!';
             } else {
                 $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sự kiện!';
@@ -295,65 +318,65 @@ class OrganizerEventController extends BaseController {
             $trangThaiChoNgoi = $_POST['trang_thai_cho_ngoi'] ?? 'CON_CHO';
             $thoiHanDatVe = $_POST['thoi_han_dat_ve'] ?? null;
             $currentImage = $_POST['current_image'] ?? '';
-            
+        
             // Kiểm tra dữ liệu đầu vào
             if (empty($maSuKien) || empty($tenSuKien) || empty($ngayDienRa) || empty($gioDienRa) || 
                 empty($diaDiem) || empty($maLoaiSuKien) || empty($soLuongCho)) {
                 $_SESSION['error'] = 'Vui lòng điền đầy đủ thông tin bắt buộc';
-                header('Location: ' . BASE_URL . '/organizer/events/edit/' . $maSuKien);
+                header('Location: ' . BASE_URL . '/organizer/events/edit/' . IdHasher::encode($maSuKien));
                 exit;
             }
-            
+        
             // Kiểm tra quyền sở hữu sự kiện
             $sql = "SELECT ma_nguoi_dung FROM sukien WHERE ma_su_kien = :ma_su_kien";
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':ma_su_kien', $maSuKien, PDO::PARAM_INT);
             $stmt->execute();
             $event = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+        
             if (!$event || $event['ma_nguoi_dung'] != $maNguoiDung) {
                 $_SESSION['error'] = 'Bạn không có quyền cập nhật sự kiện này';
                 header('Location: ' . BASE_URL . '/organizer/events');
                 exit;
             }
-            
+        
             // Xử lý upload hình ảnh mới (nếu có)
             $hinhAnh = $currentImage;
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {
                 $uploadDir = 'public/uploads/events/';
                 $fileName = uniqid() . '.' . pathinfo($_FILES['hinh_anh']['name'], PATHINFO_EXTENSION);
                 $uploadFile = $uploadDir . $fileName;
-                
+            
                 // Kiểm tra loại file
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
                 if (!in_array($_FILES['hinh_anh']['type'], $allowedTypes)) {
                     $_SESSION['error'] = 'Chỉ chấp nhận file hình ảnh (JPG, PNG, GIF)';
-                    header('Location: ' . BASE_URL . '/organizer/events/edit/' . $maSuKien);
+                    header('Location: ' . BASE_URL . '/organizer/events/edit/' . IdHasher::encode($maSuKien));
                     exit;
                 }
-                
+            
                 // Kiểm tra kích thước file (tối đa 5MB)
                 if ($_FILES['hinh_anh']['size'] > 5 * 1024 * 1024) {
                     $_SESSION['error'] = 'Kích thước file không được vượt quá 5MB';
-                    header('Location: ' . BASE_URL . '/organizer/events/edit/' . $maSuKien);
+                    header('Location: ' . BASE_URL . '/organizer/events/edit/' . IdHasher::encode($maSuKien));
                     exit;
                 }
-                
+            
                 // Di chuyển file tạm thời đến thư mục đích
                 if (move_uploaded_file($_FILES['hinh_anh']['tmp_name'], $uploadFile)) {
                     $hinhAnh = $uploadFile;
-                    
+                
                     // Xóa hình ảnh cũ nếu có
                     if (!empty($currentImage) && file_exists($currentImage) && $currentImage != $uploadFile) {
                         @unlink($currentImage);
                     }
                 } else {
                     $_SESSION['error'] = 'Có lỗi xảy ra khi tải lên hình ảnh';
-                    header('Location: ' . BASE_URL . '/organizer/events/edit/' . $maSuKien);
+                    header('Location: ' . BASE_URL . '/organizer/events/edit/' . IdHasher::encode($maSuKien));
                     exit;
                 }
             }
-            
+        
             // Cập nhật thông tin sự kiện
             $sql = "UPDATE sukien SET 
                     ten_su_kien = :ten_su_kien,
@@ -370,7 +393,7 @@ class OrganizerEventController extends BaseController {
                     trang_thai = 'CHO_DUYET',
                     ngay_cap_nhat = NOW()
                     WHERE ma_su_kien = :ma_su_kien AND ma_nguoi_dung = :ma_nguoi_dung";
-            
+        
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':ten_su_kien', $tenSuKien);
             $stmt->bindParam(':mo_ta', $moTa);
@@ -385,19 +408,19 @@ class OrganizerEventController extends BaseController {
             $stmt->bindParam(':hinh_anh', $hinhAnh);
             $stmt->bindParam(':ma_su_kien', $maSuKien);
             $stmt->bindParam(':ma_nguoi_dung', $maNguoiDung);
-            
+        
             $result = $stmt->execute();
-            
+        
             // Xử lý thêm loại vé mới (nếu có)
             if (isset($_POST['new_ticket_types']) && is_array($_POST['new_ticket_types'])) {
                 foreach ($_POST['new_ticket_types'] as $ticket) {
                     // Kiểm tra xem có đủ thông tin không
                     if (!empty($ticket['ten_loai_ve']) && isset($ticket['gia_ve']) && 
                         !empty($ticket['so_hang']) && !empty($ticket['so_cot'])) {
-                        
+                    
                         $sql = "INSERT INTO loaive (ma_su_kien, ten_loai_ve, gia_ve, so_hang, so_cot, mo_ta) 
                                 VALUES (:ma_su_kien, :ten_loai_ve, :gia_ve, :so_hang, :so_cot, :mo_ta)";
-                        
+                    
                         $stmt = $this->db->prepare($sql);
                         $stmt->bindParam(':ma_su_kien', $maSuKien);
                         $stmt->bindParam(':ten_loai_ve', $ticket['ten_loai_ve']);
@@ -409,16 +432,16 @@ class OrganizerEventController extends BaseController {
                     }
                 }
             }
-            
+        
             if ($result) {
                 $_SESSION['success'] = 'Cập nhật sự kiện thành công! Sự kiện đã được chuyển sang trạng thái chờ duyệt.';
             } else {
                 $_SESSION['error'] = 'Có lỗi xảy ra khi cập nhật sự kiện';
             }
-            
+        
             header('Location: ' . BASE_URL . '/organizer/events');
             exit;
-            
+        
         } catch (PDOException $e) {
             $_SESSION['error'] = 'Có lỗi xảy ra: ' . $e->getMessage();
             header('Location: ' . BASE_URL . '/organizer/events');
@@ -430,10 +453,18 @@ class OrganizerEventController extends BaseController {
         try {
             // Kiểm tra tham số
             $ticketId = $_GET['id'] ?? null;
-            $eventId = $_GET['event_id'] ?? null;
+            $encodedEventId = $_GET['event_id'] ?? null;
             
-            if (!$ticketId || !$eventId) {
+            if (!$ticketId || !$encodedEventId) {
                 $_SESSION['error'] = 'Thiếu thông tin cần thiết';
+                header('Location: ' . BASE_URL . '/organizer/events');
+                exit;
+            }
+            
+            // Giải mã ID sự kiện
+            $eventId = IdHasher::decode($encodedEventId);
+            if (!$eventId) {
+                $_SESSION['error'] = 'ID sự kiện không hợp lệ: ' . $encodedEventId;
                 header('Location: ' . BASE_URL . '/organizer/events');
                 exit;
             }
@@ -455,7 +486,7 @@ class OrganizerEventController extends BaseController {
             
             if (!$event || $event['ma_nguoi_dung'] != $maNguoiDung) {
                 $_SESSION['error'] = 'Bạn không có quyền xóa loại vé này';
-                header('Location: ' . BASE_URL . '/organizer/events/edit/' . $eventId);
+                header('Location: ' . BASE_URL . '/organizer/events/edit?id=' . $encodedEventId);
                 exit;
             }
             
@@ -468,11 +499,17 @@ class OrganizerEventController extends BaseController {
             
             if ($result['count'] > 0) {
                 $_SESSION['error'] = 'Không thể xóa loại vé này vì đã có vé được bán';
-                header('Location: ' . BASE_URL . '/organizer/events/edit/' . $eventId);
+                header('Location: ' . BASE_URL . '/organizer/events/edit?id=' . $encodedEventId);
                 exit;
             }
             
-            // Xóa loại vé
+            // Xóa các chỗ ngồi liên quan đến loại vé trước
+            $sql = "DELETE FROM chongoi WHERE ma_loai_ve = :ma_loai_ve";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ma_loai_ve', $ticketId);
+            $stmt->execute();
+
+            // Sau đó mới xóa loại vé
             $sql = "DELETE FROM loaive WHERE ma_loai_ve = :ma_loai_ve";
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':ma_loai_ve', $ticketId);
@@ -484,10 +521,15 @@ class OrganizerEventController extends BaseController {
                 $_SESSION['error'] = 'Có lỗi xảy ra khi xóa loại vé';
             }
             
-            header('Location: ' . BASE_URL . '/organizer/events/edit/' . $eventId);
+            // Chuyển hướng về trang edit với URL đúng
+            header('Location: ' . BASE_URL . '/organizer/events/edit?id=' . $encodedEventId);
             exit;
             
         } catch (PDOException $e) {
+            $_SESSION['error'] = 'Có lỗi xảy ra: ' . $e->getMessage();
+            header('Location: ' . BASE_URL . '/organizer/events');
+            exit;
+        } catch (Exception $e) {
             $_SESSION['error'] = 'Có lỗi xảy ra: ' . $e->getMessage();
             header('Location: ' . BASE_URL . '/organizer/events');
             exit;

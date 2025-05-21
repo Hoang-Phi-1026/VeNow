@@ -10,6 +10,8 @@
 </head>
 <body>
 
+<?php require_once __DIR__ . '/../../../utils/IdHasher.php'; ?>
+
 <?php require_once __DIR__ . '/../../layouts/header.php'; ?>
 
 <div class="event-create-container">
@@ -338,7 +340,7 @@
         button.addEventListener('click', function() {
             const ticketId = this.getAttribute('data-id');
             if (confirm('Bạn có chắc chắn muốn xóa loại vé này? Hành động này không thể hoàn tác.')) {
-                window.location.href = `<?php echo BASE_URL; ?>/organizer/events/delete-ticket?id=${ticketId}&event_id=<?php echo $event['ma_su_kien']; ?>`;
+                window.location.href = `<?php echo BASE_URL; ?>/organizer/events/delete-ticket?id=${ticketId}&event_id=<?php echo IdHasher::encode($event['ma_su_kien']); ?>`;
             }
         });
     });
