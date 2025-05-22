@@ -64,6 +64,8 @@ $routes = [
     '/tickets/download/{id}' => ['controller' => 'TicketController', 'action' => 'download'],
     '/tickets/refund/{id}' => ['controller' => 'TicketController', 'action' => 'refund'],
     '/tickets/my-tickets' => ['controller' => 'TicketController', 'action' => 'myTickets'],
+    '/tickets/qr/{id}' => ['controller' => 'TicketController', 'action' => 'generateQR'],
+    '/tickets/qr/download/{id}' => ['controller' => 'TicketController', 'action' => 'downloadQR'],
     
     // Search routes
     '/search' => ['controller' => 'SearchController', 'action' => 'index'],

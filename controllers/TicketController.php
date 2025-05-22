@@ -143,4 +143,107 @@ class TicketController extends BaseController {
     }
 }
 
+// Add a new method for generating and displaying QR codes
+public function generateQR($id) {
+    // Load thư viện QR nếu chưa được load
+    require_once __DIR__ . '/../lib/phpqrcode/qrlib.php';
+
+    // Giải mã ID nếu có mã hóa URL
+    if (defined('ENCODE_URL_IDS') && ENCODE_URL_IDS) {
+        try {
+            $id = decodeId($id);
+        } catch (Exception $e) {
+            return $this->outputErrorQR('Mã vé không hợp lệ');
+        }
+    }
+
+    // Kiểm tra đăng nhập
+    if (!isset($_SESSION['user'])) {
+        return $this->outputErrorQR('Yêu cầu đăng nhập');
+    }
+
+    try {
+        // Lấy thông tin vé
+        $ticket = $this->ticketModel->getTicketById($id);
+
+        if (!$ticket) {
+            return $this->outputErrorQR('Không tìm thấy vé');
+        }
+
+        // Kiểm tra quyền truy cập
+        if ($ticket['ma_khach_hang'] != $_SESSION['user']['id']) {
+            return $this->outputErrorQR('Không có quyền truy cập');
+        }
+
+        // Tạo dữ liệu QR code
+        $qrData = json_encode([
+            'ticket_id'   => $id,
+            'event_id'    => $ticket['ma_su_kien'],
+            'event_name'  => $ticket['ten_su_kien'],
+            'seat'        => $ticket['so_cho'],
+            'ticket_type' => $ticket['ten_loai_ve'],
+            'user_id'     => $ticket['ma_khach_hang'],
+            'timestamp'   => time()
+        ], JSON_UNESCAPED_UNICODE); // Giữ nguyên tiếng Việt có dấu
+
+        // Xuất QR code
+        header('Content-Type: image/png');
+        QRcode::png($qrData, false, QR_ECLEVEL_L, 6, 2);
+        exit;
+
+    } catch (Exception $e) {
+        error_log("QR Generation Error: " . $e->getMessage());
+        return $this->outputErrorQR('Lỗi hệ thống');
+    }
+}
+
+// Hàm phụ để xuất QR lỗi
+private function outputErrorQR($message) {
+    header('Content-Type: image/png');
+    QRcode::png("Error: $message", false, QR_ECLEVEL_L, 4, 2);
+    exit;
+}
+
+
+public function downloadQR($id) {
+    // Kiểm tra đăng nhập
+    if (!isset($_SESSION['user'])) {
+        die('Bạn cần đăng nhập.');
+    }
+
+    // Load thư viện QR
+    require_once __DIR__ . '/../lib/phpqrcode/qrlib.php';
+
+    // Lấy thông tin vé
+    $ticket = $this->ticketModel->getTicketById($id);
+
+    if (!$ticket || $ticket['ma_khach_hang'] != $_SESSION['user']['id']) {
+        die('Không có quyền truy cập.');
+    }
+
+    // Tạo dữ liệu QR
+    $qrData = json_encode([
+        'ticket_id'   => $id,
+        'event_id'    => $ticket['ma_su_kien'],
+        'event_name'  => $ticket['ten_su_kien'],
+        'seat'        => $ticket['so_cho'],
+        'ticket_type' => $ticket['ten_loai_ve'],
+        'user_id'     => $ticket['ma_khach_hang'],
+        'timestamp'   => time()
+    ], JSON_UNESCAPED_UNICODE);
+
+    // Tạo file tạm
+    $tempFile = tempnam(sys_get_temp_dir(), 'qr_') . '.png';
+    QRcode::png($qrData, $tempFile, QR_ECLEVEL_L, 4, 2);
+
+    // Gửi file về trình duyệt
+    header('Content-Type: image/png');
+    header('Content-Disposition: attachment; filename="qr_ticket_' . $id . '.png"');
+    readfile($tempFile);
+    unlink($tempFile);
+    exit;
+}
+
+
+
 }

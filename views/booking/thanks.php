@@ -15,11 +15,11 @@
         <?php if ($event): ?>
         <div class="event-info-card">
             <div class="event-image">
-                <?php if (!empty($event['hinh_anh'])): ?>
+                <?php if (!empty($event['Mã QR'])): ?>
                 <img src="<?php echo BASE_URL; ?>/public/uploads/events/<?php echo $event['hinh_anh']; ?>" alt="<?php echo htmlspecialchars($event['ten_su_kien']); ?>">
                 <?php else: ?>
                 <div class="no-image">
-                    <i class="fas fa-calendar-alt"></i>
+                <img src="<?php echo BASE_URL; ?>/tickets/qr/<?php echo $ticketId; ?>" alt="QR Code"title="Mã QR vé sự kiện">
                 </div>
                 <?php endif; ?>
             </div>

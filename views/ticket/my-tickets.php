@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/tickets.css?v=4">
@@ -63,19 +64,12 @@
                 ?>
                 <div class="ticket-card">
                     <div class="ticket-header">
-                        <div class="event-image">
-                            <?php if (!empty($ticket['hinh_anh'])): ?>
-                                <img 
-                                    src="<?php echo BASE_URL; ?>/public/uploads/events/<?php echo htmlspecialchars($ticket['hinh_anh']); ?>" 
-                                    alt="<?php echo htmlspecialchars($ticket['ten_su_kien']); ?>"
-                                    onerror="this.onerror=null;this.src='<?php echo BASE_URL; ?>/public/uploads/events/placeholder.png';"
-                                >
-                            <?php else: ?>
-                                <img 
-                                    src="<?php echo BASE_URL; ?>/public/uploads/events/placeholder.png" 
-                                    alt="No image"
-                                >
-                            <?php endif; ?>
+                        <div class="qr-code">
+                            <img 
+                                src="<?php echo BASE_URL; ?>/tickets/qr/<?php echo $ticketId; ?>" 
+                                alt="QR Code"
+                                title="Mã QR vé sự kiện"
+                            >
                         </div>
                         <div class="event-info">
                             <h3><a href="<?php echo BASE_URL; ?>/event/<?php echo $eventId; ?>"><?php echo htmlspecialchars($ticket['ten_su_kien']); ?></a></h3>
@@ -128,10 +122,9 @@
                         </div>
                         
                         <div class="ticket-actions">
-                            <a href="#" class="btn btn-primary btn-download-ticket" data-ticket-id="<?php echo $ticketId; ?>">
-                                <i class="fas fa-download"></i> Tải vé
+                            <a href="<?php echo BASE_URL; ?>/tickets/qr/download/<?php echo $ticketId; ?>" class="btn btn-primary">
+                                <i class="fas fa-qrcode"></i> Tải mã QR
                             </a>
-                            
                             <?php if ($canRefund): ?>
                                 <button class="btn btn-refund" onclick="openRefundModal('<?php echo $ticketId; ?>', '<?php echo htmlspecialchars($ticket['ten_su_kien']); ?>', '<?php echo $ticketPrice; ?>', '<?php echo $estimatedPoints; ?>')">
                                     <i class="fas fa-undo"></i> Hoàn vé
@@ -232,35 +225,26 @@
     border-bottom: 1px solid #eee;
 }
 
-.event-image {
-    width: 60px;
-    height: 60px;
+/* QR Code styling */
+.qr-code {
+    width: 100px;
+    height: 100px;
+    margin-top: 10px;
     border-radius: 6px;
     overflow: hidden;
     margin-right: 12px;
     flex-shrink: 0;
     border: 1px solid #eee;
-}
-
-.event-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s;
-}
-
-.ticket-card:hover .event-image img {
-    transform: scale(1.1);
-}
-
-.no-image {
-    width: 100%;
-    height: 100%;
+    background-color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f8f9fa;
-    color: #adb5bd;
+}
+
+.qr-code img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .event-info {
@@ -653,14 +637,6 @@
     let currentTicketPrice = 0;
     let currentEstimatedPoints = 0;
     
-    // Xử lý sự kiện tải vé
-    document.querySelectorAll('.btn-download-ticket').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const ticketId = this.getAttribute('data-ticket-id');
-            alert('Chức năng tải vé đang được phát triển. Mã vé: ' + ticketId);
-        });
-    });
     
     // Xử lý modal xác nhận hoàn vé
     function openRefundModal(ticketId, eventName, ticketPrice, estimatedPoints) {

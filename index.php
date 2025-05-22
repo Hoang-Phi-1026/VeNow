@@ -156,6 +156,17 @@ switch ($path) {
         $ticketController->refund($_GET['id']);
         break;
     
+    case '/tickets/qr/([0-9]+)':
+        $qrController = new QRController();
+        $qrController->generateQR($path);
+        break;
+    
+    case '/tickets/qr/download/([0-9]+)':
+        $qrController = new QRController();
+        $qrController->downloadQR($path);
+        break;
+
+    
     case '/':
     case '':
         $eventController = new EventController();
@@ -291,6 +302,7 @@ switch ($path) {
     case '/momo-payment/thanks':
         $momoPaymentController = new MomoPaymentController();
         $momoPaymentController->thanks();
+        break;
 
     case '/vnpay/process':
         $vnpayPaymentController = new VNPayController();
@@ -322,6 +334,8 @@ switch ($path) {
         $vnpayPaymentController = new VNPayController();
         $vnpayPaymentController->thanks();
         break;
+    
+    
 
     default:
         // Kiểm tra xem có phải là route chi tiết sự kiện không
@@ -371,13 +385,21 @@ switch ($path) {
             $ticketController->refund($matches[1]);
             error_log("Matched refund route with ID: " . $matches[1]);
         }
+        // Kiểm tra xem có phải là route QR code không
+        else if (preg_match('/^\/tickets\/qr\/([A-Za-z0-9_-]+)$/', $path, $matches)) {
+            $ticketController = new TicketController();
+            $ticketController->generateQR($matches[1]);
+        }
+        else if (preg_match('/^\/tickets\/qr\/download\/([A-Za-z0-9_-]+)$/', $path, $matches)) {
+            $ticketController = new TicketController();
+            $ticketController->downloadQR($matches[1]);
+        }
         else {
             // Nếu không khớp với route nào, hiển thị trang 404
             error_log("No route matched for path: " . $path);
             http_response_code(404);
             require_once BASE_PATH . '/error/404.php';
         }
-
 
         break;
 }
