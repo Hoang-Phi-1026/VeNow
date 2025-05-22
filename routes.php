@@ -28,10 +28,14 @@ $routes = [
     
     // Admin routes
     '/admin/revenue' => ['controller' => 'AdminController', 'action' => 'revenue'],
+    '/admin/export-revenue-csv' => ['controller' => 'AdminController', 'action' => 'exportRevenueCSV'],
+    '/admin/compare-revenue' => ['controller' => 'AdminController', 'action' => 'compareRevenue'],
     '/venow/admin/revenue' => ['controller' => 'AdminController', 'action' => 'revenue'],
     '/admin/pending-events' => ['controller' => 'AdminController', 'action' => 'pendingEvents'],
     '/admin/approve-event' => ['controller' => 'AdminController', 'action' => 'approveEvent'],
     '/admin/reject-event' => ['controller' => 'AdminController', 'action' => 'rejectEvent'],
+    '/admin/revenue/export-csv' => ['controller' => 'AdminController', 'action' => 'exportRevenueCSV'],
+    '/admin/revenue/compare' => ['controller' => 'AdminController', 'action' => 'compareRevenue'],
     
     // Staff routes
     '/staff/pending-events' => ['controller' => 'StaffController', 'action' => 'pendingEvents'],
@@ -89,6 +93,7 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = str_replace('/venow', '', $path);
 if ($path === '') {
     $path = '/';
+
 }
 
 // Debug
@@ -148,4 +153,16 @@ if (!$routeFound) {
     error_log("No route found for path: " . $path);
     http_response_code(404);
     require_once __DIR__ . '/error/404.php';
+}
+
+switch ($path) {
+    case '/admin/revenue/export-csv':
+        $adminController = new AdminController();
+        $adminController->exportRevenueCSV();
+        break;
+
+    case '/admin/revenue/compare':
+        $adminController = new AdminController();
+        $adminController->compareRevenue();
+        break;
 }

@@ -11,7 +11,28 @@ class BaseController {
     }
 
     protected function render($view, $data = []) {
-        View::render($view, $data);
+        // Extract data to make variables available in view
+        extract($data);
+        
+        // Define the view file path
+        $viewFile = BASE_PATH . '/views/' . $view . '.php';
+        
+        // Check if view file exists
+        if (!file_exists($viewFile)) {
+            die("View file not found: " . $viewFile);
+        }
+        
+        // Start output buffering
+        ob_start();
+        
+        // Include the view file
+        require_once $viewFile;
+        
+        // Get the contents of the buffer and clean it
+        $content = ob_get_clean();
+        
+        // Output the content directly
+        echo $content;
     }
 
     protected function redirect($url) {

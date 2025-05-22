@@ -30,6 +30,7 @@ require_once BASE_PATH . '/controllers/BookingController.php';
 require_once BASE_PATH . '/controllers/PointsController.php';
 require_once BASE_PATH . '/controllers/MomoPaymentController.php';
 require_once BASE_PATH . '/controllers/VNPayController.php';
+require_once BASE_PATH . '/controllers/ReportsController.php';
 
 
 // Lấy đường dẫn hiện tại
@@ -100,6 +101,36 @@ switch ($path) {
     case '/admin/reject-event':
         $adminController = new AdminController();
         $adminController->rejectEvent();
+        break;
+
+    case '/admin/revenue';
+        $adminController = new AdminController();
+        $adminController->revenue();
+        break;
+    
+    case '/admin/revenue/export-csv':
+        $adminController = new AdminController();
+        $adminController->exportRevenueCSV();
+        break;
+    
+    case '/admin/revenue/compare':
+        $adminController = new AdminController();
+        $adminController->compareRevenue();
+        break;
+
+    case '/admin/compareRevenue';
+        $adminController = new AdminController();
+        $adminController->compareRevenue();
+        break;
+
+    case '/reports/attendance':
+        $reportsController = new ReportsController();
+        $reportsController->attendance();
+        break;
+    
+    case '/reports/featured':
+        $reportsController = new ReportsController();
+        $reportsController->featured();
         break;
 
     case '/organizer/events':
