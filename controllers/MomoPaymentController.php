@@ -3,11 +3,13 @@ require_once 'controllers/BaseController.php';
 require_once 'models/Booking.php';
 require_once 'models/Event.php';
 require_once 'models/Ticket.php';
+require_once 'controllers/PaymentService.php';
 
 class MomoPaymentController extends BaseController {
     private $bookingModel;
     private $eventModel;
     private $ticketModel;
+    private $paymentService;
 
     // MoMo API configuration
     private $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
@@ -22,6 +24,7 @@ class MomoPaymentController extends BaseController {
         $this->bookingModel = new Booking();
         $this->eventModel = new Event();
         $this->ticketModel = new Ticket();
+        $this->paymentService = new PaymentService();
         
         // Set URLs based on BASE_URL
         $this->ipnUrl = BASE_URL . "/momo-payment/ipn";
@@ -60,144 +63,11 @@ class MomoPaymentController extends BaseController {
             $discountAmount = isset($_POST['discountAmount']) ? floatval($_POST['discountAmount']) : 0;
             $finalAmount = isset($_POST['finalAmount']) ? floatval($_POST['finalAmount']) : 0;
 
-            // Nếu không phải thanh toán qua MoMo, xử lý như phương thức thanh toán thông thường
+            // Nếu không phải thanh toán qua MoMo, chuyển hướng về trang thanh toán
             if ($paymentMethod !== 'MOMO') {
-                try {
-                    // Kết nối database
-                    $this->db = Database::getInstance();
-                    
-                    // Bắt đầu transaction
-                    $this->db->beginTransaction();
-                    error_log("Transaction started for standard payment");
-                    
-                    $booking = $_SESSION['booking'];
-                    $eventId = $booking['event_id'];
-                    $selectedSeats = $booking['selected_seats'];
-                    $userId = $_SESSION['user']['ma_nguoi_dung'];
-                    
-                    error_log("Processing payment for user ID: $userId, event ID: $eventId");
-                    error_log("Payment method: $paymentMethod, Used points: $usedPoints, Discount: $discountAmount, Final amount: $finalAmount");
-                    
-                    // Tính tổng tiền ban đầu
-                    $totalAmount = 0;
-                    foreach ($selectedSeats as $seatInfo) {
-                        $totalAmount += $seatInfo['price'];
-                    }
-                    
-                    // Nếu finalAmount không được cung cấp hoặc không hợp lệ, sử dụng totalAmount
-                    if ($finalAmount <= 0) {
-                        $finalAmount = $totalAmount;
-                    }
-                    
-                    // Tính tỷ lệ giảm giá để áp dụng cho từng vé
-                    $discountRatio = ($totalAmount > 0) ? $finalAmount / $totalAmount : 1;
-                    error_log("Total amount: $totalAmount, Final amount: $finalAmount, Discount ratio: $discountRatio");
-                    
-                    $createdTickets = [];
-                    $seatIdToTicketId = []; // Map để lưu trữ mã vé theo mã ghế
-                    
-                    // Lưu thông tin vé và cập nhật trạng thái ghế
-                    foreach ($selectedSeats as $seatId => $seatInfo) {
-                        error_log("Processing seat ID: $seatId");
-                        
-                        // Tạo vé mới
-                        $ticketData = [
-                            'ma_su_kien' => $eventId,
-                            'ma_khach_hang' => $userId,
-                            'ma_cho_ngoi' => $seatId,
-                            'ma_loai_ve' => $seatInfo['ticketType'],
-                            'trang_thai' => 'DA_DAT'
-                        ];
-                        
-                        error_log("Creating ticket with data: " . print_r($ticketData, true));
-                        $ticketId = $this->bookingModel->createTicket($ticketData);
-                        error_log("Ticket created with ID: $ticketId");
-                        
-                        $createdTickets[] = $ticketId;
-                        $seatIdToTicketId[$seatId] = $ticketId; // Lưu mapping
-                        
-                        // Cập nhật trạng thái ghế
-                        error_log("Updating seat status for seat ID: $seatId");
-                        $this->bookingModel->updateSeatStatus($seatId, 'DA_DAT');
-                    }
-                    
-                    // Nếu có sử dụng điểm tích lũy
-                    if ($usedPoints > 0) {
-                        error_log("Using $usedPoints loyalty points");
-                        // Trừ điểm tích lũy đã sử dụng
-                        $this->bookingModel->useLoyaltyPoints($userId, $usedPoints);
-                    }
-                    
-                    // Lưu thông tin giao dịch với số tiền đã giảm giá cho từng vé
-                    foreach ($selectedSeats as $seatId => $seatInfo) {
-                        if (isset($seatIdToTicketId[$seatId])) {
-                            $ticketId = $seatIdToTicketId[$seatId];
-                            
-                            // Tính giá vé sau khi giảm giá
-                            $originalPrice = $seatInfo['price'];
-                            $discountedPrice = $originalPrice * $discountRatio;
-                            
-                            error_log("Seat ID: $seatId, Original price: $originalPrice, Discounted price: $discountedPrice");
-                            
-                            $transactionData = [
-                                'ma_khach_hang' => $userId,
-                                'ma_ve' => $ticketId,
-                                'so_tien' => $discountedPrice, // Giá đã giảm
-                                'phuong_thuc_thanh_toan' => $paymentMethod,
-                                'trang_thai' => 'THANH_CONG'
-                            ];
-                            
-                            error_log("Creating transaction with data: " . print_r($transactionData, true));
-                            $this->bookingModel->createTransaction($transactionData);
-                        }
-                    }
-                    
-                    // Tính và lưu điểm tích lũy (dựa trên tổng tiền ban đầu, không phụ thuộc vào giảm giá)
-                    $loyaltyPoints = $totalAmount * 0.00003;
-                    error_log("Adding $loyaltyPoints loyalty points for user ID: $userId");
-                    $this->bookingModel->addLoyaltyPoints($userId, $loyaltyPoints);
-                    
-                    // Lưu lịch sử đặt vé
-                    foreach ($createdTickets as $ticketId) {
-                        error_log("Adding ticket history for ticket ID: $ticketId");
-                        $this->bookingModel->addTicketHistory($ticketId, $userId, 'DAT_VE', 'Đặt vé thành công');
-                    }
-                    
-                    // Commit transaction
-                    error_log("Committing transaction");
-                    $this->db->commit();
-                    
-                    // Lưu thông tin vé đã tạo để hiển thị trên trang cảm ơn
-                    $_SESSION['payment_success'] = true;
-                    $_SESSION['created_tickets'] = $createdTickets;
-                    $_SESSION['payment_amount'] = $finalAmount;
-                    $_SESSION['payment_method'] = $paymentMethod;
-                    $_SESSION['event_id'] = $eventId;
-                    
-                    // Xóa thông tin đặt chỗ khỏi session
-                    unset($_SESSION['booking']);
-                    
-                    // Chuyển hướng đến trang vé của tôi
-                    header('Location: ' . BASE_URL . '/momo-payment/thanks');
-                    exit;
-                    
-                } catch (Exception $e) {
-                    // Rollback transaction nếu có lỗi
-                    if (isset($this->db) && $this->db->inTransaction()) {
-                        error_log("Rolling back transaction due to error: " . $e->getMessage());
-                        $this->db->rollBack();
-                    }
-                    
-                    error_log("Payment processing error: " . $e->getMessage());
-                    error_log("Error trace: " . $e->getTraceAsString());
-                    
-                    // Đặt thông báo lỗi
-                    $_SESSION['error'] = 'Đã xảy ra lỗi trong quá trình đặt vé: ' . $e->getMessage();
-                    
-                    // Chuyển hướng về trang thanh toán
-                    header('Location: ' . BASE_URL . '/booking/payment');
-                    exit;
-                }
+                $_SESSION['error'] = 'Phương thức thanh toán không hợp lệ';
+                header('Location: ' . BASE_URL . '/booking/payment');
+                exit;
             }
             
             $booking = $_SESSION['booking'];
@@ -358,112 +228,43 @@ class MomoPaymentController extends BaseController {
             // Kiểm tra kết quả thanh toán
             if ($resultCode == '0') {
                 // Thanh toán thành công
-                
-                // Kết nối database
-                $this->db = Database::getInstance();
-                
-                // Bắt đầu transaction
-                $this->db->beginTransaction();
-                error_log("Transaction started for MoMo payment");
-                
                 $userId = $paymentData['user_id'];
                 $eventId = $paymentData['event_id'];
                 $selectedSeats = $paymentData['selected_seats'];
                 $usedPoints = $paymentData['used_points'];
                 $finalAmount = $paymentData['final_amount'];
                 
-                $createdTickets = [];
-                $seatIdToTicketId = []; // Map để lưu trữ mã vé theo mã ghế
+                // Xử lý thanh toán
+                $result = $this->paymentService->processTicketCreation(
+                    $userId, 
+                    $eventId, 
+                    $selectedSeats, 
+                    $usedPoints, 
+                    $finalAmount, 
+                    'MOMO'
+                );
                 
-                // Lưu thông tin vé và cập nhật trạng thái ghế
-                foreach ($selectedSeats as $seatId => $seatInfo) {
-                    error_log("Processing seat ID: $seatId");
+                if ($result['success']) {
+                    // Lưu thông tin vé đã tạo để hiển thị trên trang cảm ơn
+                    $_SESSION['payment_success'] = true;
+                    $_SESSION['created_tickets'] = $result['created_tickets'];
+                    $_SESSION['payment_amount'] = $result['payment_amount'];
+                    $_SESSION['payment_method'] = 'MOMO';
+                    $_SESSION['event_id'] = $eventId;
                     
-                    // Tạo vé mới
-                    $ticketData = [
-                        'ma_su_kien' => $eventId,
-                        'ma_khach_hang' => $userId,
-                        'ma_cho_ngoi' => $seatId,
-                        'ma_loai_ve' => $seatInfo['ticketType'],
-                        'trang_thai' => 'DA_DAT'
-                    ];
+                    // Xóa thông tin đặt chỗ và thanh toán khỏi session
+                    unset($_SESSION['booking']);
+                    unset($_SESSION['momo_payment']);
                     
-                    error_log("Creating ticket with data: " . print_r($ticketData, true));
-                    $ticketId = $this->bookingModel->createTicket($ticketData);
-                    error_log("Ticket created with ID: $ticketId");
-                    
-                    $createdTickets[] = $ticketId;
-                    $seatIdToTicketId[$seatId] = $ticketId; // Lưu mapping
-                    
-                    // Cập nhật trạng thái ghế
-                    error_log("Updating seat status for seat ID: $seatId");
-                    $this->bookingModel->updateSeatStatus($seatId, 'DA_DAT');
+                    // Chuyển hướng đến trang cảm ơn
+                    header('Location: ' . BASE_URL . '/momo-payment/thanks');
+                    exit;
+                } else {
+                    // Xử lý lỗi
+                    $_SESSION['error'] = 'Đã xảy ra lỗi trong quá trình xử lý thanh toán: ' . $result['error'];
+                    header('Location: ' . BASE_URL . '/booking/payment');
+                    exit;
                 }
-                
-                // Nếu có sử dụng điểm tích lũy
-                if ($usedPoints > 0) {
-                    error_log("Using $usedPoints loyalty points");
-                    // Trừ điểm tích lũy đã sử dụng
-                    $this->bookingModel->useLoyaltyPoints($userId, $usedPoints);
-                }
-                
-                // Lưu thông tin giao dịch với số tiền đã giảm giá cho từng vé
-                foreach ($selectedSeats as $seatId => $seatInfo) {
-                    if (isset($seatIdToTicketId[$seatId])) {
-                        $ticketId = $seatIdToTicketId[$seatId];
-                        
-                        // Tính giá vé sau khi giảm giá
-                        $originalPrice = $seatInfo['price'];
-                        $totalAmount = array_sum(array_column($selectedSeats, 'price'));
-                        $discountRatio = ($totalAmount > 0) ? $finalAmount / $totalAmount : 1;
-                        $discountedPrice = $originalPrice * $discountRatio;
-                        
-                        error_log("Seat ID: $seatId, Original price: $originalPrice, Discounted price: $discountedPrice");
-                        
-                        $transactionData = [
-                            'ma_khach_hang' => $userId,
-                            'ma_ve' => $ticketId,
-                            'so_tien' => $discountedPrice, // Giá đã giảm
-                            'phuong_thuc_thanh_toan' => 'MOMO',
-                            'trang_thai' => 'THANH_CONG'
-                        ];
-                        
-                        error_log("Creating transaction with data: " . print_r($transactionData, true));
-                        $this->bookingModel->createTransaction($transactionData);
-                    }
-                }
-                
-                // Tính và lưu điểm tích lũy (dựa trên tổng tiền ban đầu, không phụ thuộc vào giảm giá)
-                $totalAmount = array_sum(array_column($selectedSeats, 'price'));
-                $loyaltyPoints = $totalAmount * 0.00003;
-                error_log("Adding $loyaltyPoints loyalty points for user ID: $userId");
-                $this->bookingModel->addLoyaltyPoints($userId, $loyaltyPoints);
-                
-                // Lưu lịch sử đặt vé
-                foreach ($createdTickets as $ticketId) {
-                    error_log("Adding ticket history for ticket ID: $ticketId");
-                    $this->bookingModel->addTicketHistory($ticketId, $userId, 'DAT_VE', 'Đặt vé thành công qua MoMo');
-                }
-                
-                // Commit transaction
-                error_log("Committing transaction");
-                $this->db->commit();
-                
-                // Lưu thông tin vé đã tạo để hiển thị trên trang cảm ơn
-                $_SESSION['payment_success'] = true;
-                $_SESSION['created_tickets'] = $createdTickets;
-                $_SESSION['payment_amount'] = $finalAmount;
-                $_SESSION['payment_method'] = 'MOMO';
-                $_SESSION['event_id'] = $eventId;
-                
-                // Xóa thông tin đặt chỗ và thanh toán khỏi session
-                unset($_SESSION['booking']);
-                unset($_SESSION['momo_payment']);
-                
-                // Chuyển hướng đến trang cảm ơn
-                header('Location: ' . BASE_URL . '/momo-payment/thanks');
-                exit;
-                
             } else {
                 // Thanh toán thất bại
                 $_SESSION['error'] = 'Thanh toán không thành công. Mã lỗi: ' . $resultCode;
@@ -472,12 +273,6 @@ class MomoPaymentController extends BaseController {
             }
             
         } catch (Exception $e) {
-            // Rollback transaction nếu có lỗi
-            if (isset($this->db) && $this->db->inTransaction()) {
-                error_log("Rolling back transaction due to error: " . $e->getMessage());
-                $this->db->rollBack();
-            }
-            
             error_log("MoMo return processing error: " . $e->getMessage());
             error_log("Error trace: " . $e->getTraceAsString());
             

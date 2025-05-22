@@ -1020,6 +1020,27 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = '<?php echo BASE_URL; ?>/tickets/history';
         }
     });
+
+    // Add payment method handling
+    const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
+
+    paymentMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const paymentMethod = this.value;
+            
+            // Update form action based on selected payment method
+            if (paymentMethod === 'VNPAY') {
+                paymentForm.action = '<?php echo BASE_URL; ?>/vnpay/process';
+            } else if (paymentMethod === 'MOMO') {
+                paymentForm.action = '<?php echo BASE_URL; ?>/momo-payment/process';
+            } else {
+                // thẻ ngân hàng
+                paymentForm.action = '<?php echo BASE_URL; ?>/booking/process-standard-payment';
+
+
+            }
+        });
+    });
 });
 </script>
 

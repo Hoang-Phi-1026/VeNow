@@ -29,6 +29,7 @@ require_once BASE_PATH . '/controllers/StaffController.php';
 require_once BASE_PATH . '/controllers/BookingController.php';
 require_once BASE_PATH . '/controllers/PointsController.php';
 require_once BASE_PATH . '/controllers/MomoPaymentController.php';
+require_once BASE_PATH . '/controllers/VNPayController.php';
 
 
 // Lấy đường dẫn hiện tại
@@ -266,6 +267,11 @@ switch ($path) {
         $bookingController->processPayment();
         break;
 
+    case '/booking/process-standard-payment':
+        $bookingController = new BookingController();
+        $bookingController->processStandardPayment();
+        break;
+
 
     case '/momo-payment/process':
         $momoPaymentController = new MomoPaymentController();
@@ -286,6 +292,36 @@ switch ($path) {
         $momoPaymentController = new MomoPaymentController();
         $momoPaymentController->thanks();
 
+    case '/vnpay/process':
+        $vnpayPaymentController = new VNPayController();
+        $vnpayPaymentController->processPayment();
+        break;
+
+    case '/vnpay/ipn':
+        $vnpayPaymentController = new VNPayController();
+        $vnpayPaymentController->ipn();
+        break;
+
+    case '/vnpay/return':
+        $vnpayPaymentController = new VNPayController();
+        $vnpayPaymentController->return();
+        break;
+
+    // Fix the route for vnpay-payment/thanks
+    case '/vnpay-payment/thanks':
+        $vnpayPaymentController = new VNPayController();
+        $vnpayPaymentController->thanks();
+        break;
+
+    case '/vnpay-payment/return':
+        $vnpayPaymentController = new VNPayController();
+        $vnpayPaymentController->return();
+        break;
+
+    case '/vnpay-payment/thanks':
+        $vnpayPaymentController = new VNPayController();
+        $vnpayPaymentController->thanks();
+        break;
 
     default:
         // Kiểm tra xem có phải là route chi tiết sự kiện không
