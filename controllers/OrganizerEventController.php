@@ -543,45 +543,45 @@ class OrganizerEventController extends BaseController {
     }
 
     private function createSeatsForTicketType($maSuKien, $maLoaiVe, $soHang, $soCot) {
-        try {
-            // Mảng chứa các chữ cái đại diện cho hàng
-            $rowLetters = range('A', 'Z');
+    try {
+        // Mảng chứa các chữ cái đại diện cho hàng (mỗi loại vé bắt đầu từ A)
+        $rowLetters = range('A', 'Z');
+        
+        // Tạo ghế cho mỗi hàng và cột của loại vé này
+        for ($i = 0; $i < $soHang; $i++) {
+            $rowLetter = $rowLetters[$i]; // Bắt đầu từ A cho mỗi loại vé
             
-            // Tạo ghế cho mỗi hàng và cột
-            for ($i = 0; $i < $soHang; $i++) {
-                $rowLetter = $rowLetters[$i];
+            for ($j = 0; $j < $soCot; $j++) {
+                $seatNumber = $rowLetter . '-' . ($j + 1);
                 
-                for ($j = 0; $j < $soCot; $j++) {
-                    $seatNumber = $rowLetter . '-' . ($j + 1);
-                    
-                    // Kiểm tra xem ghế đã tồn tại chưa
-                    $sql = "SELECT COUNT(*) FROM chongoi 
-                            WHERE ma_su_kien = :ma_su_kien 
-                            AND ma_loai_ve = :ma_loai_ve 
-                            AND so_cho = :so_cho";
+                // Kiểm tra xem ghế đã tồn tại chưa
+                $sql = "SELECT COUNT(*) FROM chongoi 
+                        WHERE ma_su_kien = :ma_su_kien 
+                        AND ma_loai_ve = :ma_loai_ve 
+                        AND so_cho = :so_cho";
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':ma_su_kien', $maSuKien);
+                $stmt->bindParam(':ma_loai_ve', $maLoaiVe);
+                $stmt->bindParam(':so_cho', $seatNumber);
+                $stmt->execute();
+                
+                if ($stmt->fetchColumn() == 0) {
+                    // Nếu ghế chưa tồn tại, thêm mới
+                    $sql = "INSERT INTO chongoi (ma_su_kien, ma_loai_ve, so_cho, hang, vi_tri, trang_thai) 
+                            VALUES (:ma_su_kien, :ma_loai_ve, :so_cho, :hang, :vi_tri, 'TRONG')";
                     $stmt = $this->db->prepare($sql);
                     $stmt->bindParam(':ma_su_kien', $maSuKien);
                     $stmt->bindParam(':ma_loai_ve', $maLoaiVe);
                     $stmt->bindParam(':so_cho', $seatNumber);
+                    $stmt->bindParam(':hang', $rowLetter);
+                    $stmt->bindParam(':vi_tri', ($j + 1));
                     $stmt->execute();
-                    
-                    if ($stmt->fetchColumn() == 0) {
-                        // Nếu ghế chưa tồn tại, thêm mới
-                        $sql = "INSERT INTO chongoi (ma_su_kien, ma_loai_ve, so_cho, hang, vi_tri, trang_thai) 
-                                VALUES (:ma_su_kien, :ma_loai_ve, :so_cho, :hang, :vi_tri, 'TRONG')";
-                        $stmt = $this->db->prepare($sql);
-                        $stmt->bindParam(':ma_su_kien', $maSuKien);
-                        $stmt->bindParam(':ma_loai_ve', $maLoaiVe);
-                        $stmt->bindParam(':so_cho', $seatNumber);
-                        $stmt->bindParam(':hang', $rowLetter);
-                        $stmt->bindParam(':vi_tri', ($j + 1));
-                        $stmt->execute();
-                    }
                 }
             }
-        } catch (PDOException $e) {
-            error_log("Lỗi khi tạo ghế: " . $e->getMessage());
-            // Không ném ngoại lệ để tránh làm gián đoạn quá trình cập nhật sự kiện
         }
+    } catch (PDOException $e) {
+        error_log("Lỗi khi tạo ghế: " . $e->getMessage());
+        // Không ném ngoại lệ để tránh làm gián đoạn quá trình cập nhật sự kiện
     }
+}
 }

@@ -52,20 +52,16 @@
    </div>
 
    <div class="screen-container">
-       <div class="screen">SÂN KHẤU BIỂU DIỄN</div>
+       <div class="screen">SÂN KHẤU TRÌNH DIỄN</div>
    </div>
 
    <div class="seating-container">
        <?php 
-       // Biến theo dõi chữ cái hàng cuối cùng đã sử dụng
-       $lastRowChar = 'A';
-       $lastRowCharCode = ord($lastRowChar);
-       
        foreach ($seatsByType as $typeId => $typeData): 
            $type = $typeData['info'];
            $typeSeats = $typeData['seats'];
            
-           // Tạo mảng 2D để lưu trữ chỗ ngồi
+           // Tạo mảng 2D để lưu trữ chỗ ngồi cho loại vé này
            $seatGrid = [];
            foreach ($typeSeats as $seat) {
                // Phân tích vị trí hàng và cột từ số chỗ (ví dụ: A-1)
@@ -82,9 +78,10 @@
            <h3><?php echo htmlspecialchars($type['ten_loai_ve']); ?> - <?php echo number_format($type['gia_ve']); ?> VNĐ</h3>
            
            <div class="seating-grid" data-ticket-type="<?php echo $typeId; ?>" data-price="<?php echo $type['gia_ve']; ?>">
-               <?php for ($row = 0; $row < $type['so_hang']; $row++): 
-                   // Tính toán chữ cái hàng hiện tại
-                   $currentRowChar = chr($lastRowCharCode);
+               <?php 
+               // Mỗi loại vé bắt đầu từ A (không phụ thuộc vào loại vé trước)
+               for ($row = 0; $row < $type['so_hang']; $row++): 
+                   $currentRowChar = chr(65 + $row); // A=65, B=66, ...
                ?>
                    <div class="seat-row">
                        <div class="row-label"><?php echo $currentRowChar; ?></div>
@@ -124,10 +121,6 @@
                            </div>
                        <?php endfor; ?>
                    </div>
-                   <?php 
-                   // Tăng mã ASCII cho chữ cái hàng tiếp theo
-                   $lastRowCharCode++;
-                   ?>
                <?php endfor; ?>
            </div>
        </div>

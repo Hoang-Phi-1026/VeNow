@@ -1,7 +1,7 @@
 <?php require_once 'views/layouts/header.php'; ?>
 <?php require_once 'models/Comment.php'; ?>
 
-<link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-detail.css">
+<link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/event-detail.css?v=1">
 <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/comments.css">
 
 <div class="event-detail">
@@ -196,10 +196,13 @@
                         $eventModel = new Event();
                         $tickets = $eventModel->getEventTickets($event['ma_su_kien']);
                         ?>
-                        <div class="ticket-section">
+                        <div class="ticket-section" id="ticketSection">
                             <div class="ticket-header">
                                 <i class="fas fa-ticket-alt"></i>
                                 <h3>Vé sự kiện</h3>
+                                <button class="ticket-close-btn" onclick="closeFloatingTicket()">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
                             <div class="ticket-content">
                                 <div class="ticket-types">
@@ -222,12 +225,12 @@
                                             </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
-                                
+                                </div>
                                 <div class="ticket-actions">
                                     <?php if (isset($_SESSION['user'])): ?>
-                                        <a href="<?php echo BASE_URL; ?>/booking/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-primary btn-block">Mua vé ngay</a>
+                                        <a href="<?php echo BASE_URL; ?>/booking/<?php echo IdHasher::encode($event['ma_su_kien']); ?>" class="btn btn-primary btn-block btn-buy-tickets" id="btnBuyTickets">Mua vé ngay</a>
                                     <?php else: ?>
-                                        <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . IdHasher::encode($event['ma_su_kien'])); ?>" class="btn btn-primary btn-block">Đăng nhập để mua vé</a>
+                                        <a href="<?php echo BASE_URL; ?>/login?redirect=<?php echo urlencode('/booking/' . IdHasher::encode($event['ma_su_kien'])); ?>" class="btn btn-primary btn-block btn-buy-tickets" id="btnBuyTickets">Đăng nhập để mua vé</a>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -398,7 +401,15 @@
                         <?php foreach ($relatedEvents as $relatedEvent): ?>
                             <div class="event-card">
                                 <div class="event-image">
-                                    <img src="https://via.placeholder.com/400x250/1eb75c/FFFFFF?text=<?php echo urlencode($relatedEvent['ten_su_kien']); ?>" alt="<?php echo htmlspecialchars($relatedEvent['ten_su_kien']); ?>">
+                                    <?php if (!empty($relatedEvent['hinh_anh']) && file_exists(BASE_PATH . '/' . $relatedEvent['hinh_anh'])): ?>
+                                        <img src="<?php echo BASE_URL; ?>/<?php echo htmlspecialchars($relatedEvent['hinh_anh']); ?>" 
+                                             alt="<?php echo htmlspecialchars($relatedEvent['ten_su_kien']); ?>"
+                                             loading="lazy">
+                                    <?php else: ?>
+                                        <img src="<?php echo BASE_URL; ?>/public/images/placeholder.jpg" 
+                                             alt="<?php echo htmlspecialchars($relatedEvent['ten_su_kien']); ?>"
+                                             loading="lazy">
+                                    <?php endif; ?>
                                     <div class="event-date">
                                         <span class="day"><?php echo date('d', strtotime($relatedEvent['ngay_dien_ra'])); ?></span>
                                         <span class="month"><?php echo date('M', strtotime($relatedEvent['ngay_dien_ra'])); ?></span>
@@ -432,20 +443,12 @@
 // Function to copy event link to clipboard
 function copyEventLink() {
     const eventUrl = window.location.href;
-    
-    // Create a temporary input element
     const tempInput = document.createElement('input');
     tempInput.value = eventUrl;
     document.body.appendChild(tempInput);
-    
-    // Select and copy the link
     tempInput.select();
     document.execCommand('copy');
-    
-    // Remove the temporary element
     document.body.removeChild(tempInput);
-    
-    // Show a notification
     const notification = document.createElement('div');
     notification.className = 'copy-notification';
     notification.innerHTML = '<i class="fas fa-check-circle"></i> Đã sao chép liên kết sự kiện!';
@@ -462,36 +465,7 @@ function copyEventLink() {
     notification.style.alignItems = 'center';
     notification.style.gap = '8px';
     notification.style.animation = 'fadeInUp 0.3s ease-out forwards';
-    
     document.body.appendChild(notification);
-    
-    // Add animation keyframes
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes fadeOutDown {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Remove notification after 3 seconds
     setTimeout(() => {
         notification.style.animation = 'fadeOutDown 0.3s ease-out forwards';
         setTimeout(() => {
@@ -499,6 +473,71 @@ function copyEventLink() {
         }, 300);
     }, 3000);
 }
+
+// --- FLOATING TICKET SECTION: TỰ ĐỘNG SCROLL LÊN & HIỆN BUTTON "ĐẶT VÉ NGAY" ---
+let isFloating = false;
+let ticketAutoScrolled = false;
+
+function closeFloatingTicket() {
+    const ticketSection = document.getElementById('ticketSection');
+    if (ticketSection && isFloating) {
+        ticketSection.classList.remove('floating');
+        isFloating = false;
+        ticketAutoScrolled = false;
+    }
+}
+
+function handleTicketFloat() {
+    const ticketSection = document.getElementById('ticketSection');
+    const eventGallery = document.querySelector('.event-gallery');
+    if (!ticketSection || !eventGallery) return;
+
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const triggerPoint = eventGallery.offsetTop + eventGallery.offsetHeight + 200;
+
+    if (scrollTop > triggerPoint) {
+        if (!isFloating) {
+            ticketSection.classList.add('floating');
+            isFloating = true;
+            ticketAutoScrolled = false;
+        }
+        if (!ticketAutoScrolled) {
+            setTimeout(function() {
+                const rect = ticketSection.getBoundingClientRect();
+                if (rect.top > window.innerHeight * 0.4 || rect.bottom > window.innerHeight || rect.top < 0) {
+                    ticketSection.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            }, 150);
+            ticketAutoScrolled = true;
+        }
+    } else {
+        if (isFloating) {
+            ticketSection.classList.remove('floating');
+            isFloating = false;
+            ticketAutoScrolled = false;
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    let ticking = false;
+    function onScroll() {
+        if (!ticking) {
+            requestAnimationFrame(function() {
+                handleTicketFloat();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+    window.addEventListener('scroll', onScroll);
+    setTimeout(handleTicketFloat, 50);
+
+    // Nếu bấm nút "Đặt vé ngay" khi đang floating, tự động đóng floating sau khi bấm (tùy UX)
+    document.getElementById('btnBuyTickets')?.addEventListener('click', function() {
+        if (isFloating) closeFloatingTicket();
+    });
+});
 </script>
 
 <?php require_once 'views/layouts/footer.php'; ?>

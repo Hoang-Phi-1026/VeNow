@@ -87,13 +87,31 @@ class UserController extends BaseController {
                     'so_dien_thoai' => $soDienThoai,
                     'gioi_tinh' => $gioiTinh,
                     'ma_vai_tro' => $maVaiTro,
-                    'mat_khau' => $matKhau // Không mã hóa mật khẩu
+                    'mat_khau' => $matKhau
                 ];
 
                 if ($this->userModel->createUser($data)) {
-                    $_SESSION['success'] = 'Thêm người dùng thành công!';
-                    header('Location: ' . BASE_URL . '/users');
-                    exit;
+                    // Lấy ID của user vừa tạo
+                    $newUserId = $this->db->lastInsertId();
+                    
+                    // Nếu tạo tài khoản nhà tổ chức (ma_vai_tro = 2), thêm vào bảng nhatochuc
+                    if ($maVaiTro == 2) {
+                        try {
+                            $organizerQuery = "INSERT INTO nhatochuc (ma_nguoi_dung, tennhatochuc) VALUES (?, ?)";
+                            $organizerStmt = $this->db->prepare($organizerQuery);
+                            $organizerStmt->execute([$newUserId, $hoTen]); // Sử dụng họ tên làm tên nhà tổ chức mặc định
+                        } catch (Exception $e) {
+                            // Nếu có lỗi khi tạo organizer, xóa user đã tạo để đảm bảo tính nhất quán
+                            $this->userModel->deleteUser($newUserId);
+                            $errors[] = 'Có lỗi xảy ra khi tạo thông tin nhà tổ chức';
+                        }
+                    }
+                    
+                    if (empty($errors)) {
+                        $_SESSION['success'] = 'Thêm người dùng thành công!';
+                        header('Location: ' . BASE_URL . '/users');
+                        exit;
+                    }
                 } else {
                     $errors[] = 'Có lỗi xảy ra khi thêm người dùng';
                 }
@@ -143,7 +161,7 @@ class UserController extends BaseController {
 
             // Nếu có mật khẩu mới
             if (!empty($_POST['mat_khau'])) {
-                $data['mat_khau'] = $_POST['mat_khau']; // Don't hash here, let the model handle it
+                $data['mat_khau'] = $_POST['mat_khau'];
             }
 
             if ($this->userModel->updateUser($id, $data)) {
@@ -173,6 +191,19 @@ class UserController extends BaseController {
             $_SESSION['error'] = 'Không thể xóa tài khoản admin!';
             header('Location: ' . BASE_URL . '/users');
             exit();
+        }
+
+        // Nếu là nhà tổ chức, xóa thông tin trong bảng nhatochuc trước
+        if ($user['ma_vai_tro'] == 2) {
+            try {
+                $deleteOrganizerQuery = "DELETE FROM nhatochuc WHERE ma_nguoi_dung = ?";
+                $deleteOrganizerStmt = $this->db->prepare($deleteOrganizerQuery);
+                $deleteOrganizerStmt->execute([$id]);
+            } catch (Exception $e) {
+                $_SESSION['error'] = 'Có lỗi xảy ra khi xóa thông tin nhà tổ chức!';
+                header('Location: ' . BASE_URL . '/users');
+                exit();
+            }
         }
 
         if ($this->userModel->deleteUser($id)) {

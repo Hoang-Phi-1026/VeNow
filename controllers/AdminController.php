@@ -83,7 +83,7 @@ class AdminController extends BaseController {
         // Tính toán các chỉ số thống kê
         $totalTickets = $totalTransactions; // Tổng số vé chính là tổng số giao dịch
         $totalTicketsSold = $this->revenueModel->getTotalTicketsSold($startDate, $endDate); // Lấy tổng số vé đã bán thực tế
-        $totalEvents = count(array_unique(array_column($transactions, 'ten_su_kien')));
+        $totalEvents = $this->revenueModel->countEventsWithRevenue($startDate, $endDate); // Đếm số sự kiện có doanh thu
         
         // Tính doanh thu trung bình mỗi giao dịch
         $averageTicketPrice = $totalTickets > 0 ? $totalRevenue / $totalTickets : 0;

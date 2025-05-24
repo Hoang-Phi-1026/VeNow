@@ -181,7 +181,7 @@ class Event {
             throw new Exception("Dữ liệu chỗ ngồi không hợp lệ");
         }
         $query = "INSERT INTO chongoi (ma_su_kien, so_cho, trang_thai, ma_loai_ve) 
-                 VALUES (?, ?, 'TRONG', ?)";
+         VALUES (?, ?, 'TRONG', ?)";
         $stmt = $this->db->prepare($query);
         
         foreach ($seats as $seat) {
@@ -487,9 +487,22 @@ class Event {
     }
 
     public function updateEventStatus($eventId, $status) {
-        if (!is_numeric($eventId) || $eventId < 1 || !in_array($status, ['CHO_DUYET', 'DA_DUYET', 'TU_CHOI', 'DA_HUY'])) {
-            throw new Exception("Dữ liệu trạng thái hoặc mã sự kiện không hợp lệ");
+        // Nếu eventId là hash, decode nó
+        if (!is_numeric($eventId)) {
+            require_once __DIR__ . '/../utils/IdHasher.php';
+            $decodedId = IdHasher::decode($eventId);
+            if ($decodedId === false || $decodedId < 1) {
+                throw new Exception("Mã sự kiện không hợp lệ");
+            }
+            $eventId = $decodedId;
+        } else if ($eventId < 1) {
+            throw new Exception("Mã sự kiện không hợp lệ");
         }
+        
+        if (!in_array($status, ['CHO_DUYET', 'DA_DUYET', 'TU_CHOI', 'DA_HUY', 'DA_KET_THUC'])) {
+            throw new Exception("Trạng thái không hợp lệ");
+        }
+        
         $query = "UPDATE sukien SET trang_thai = ? WHERE ma_su_kien = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([$status, $eventId]);
