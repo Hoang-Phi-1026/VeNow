@@ -122,8 +122,6 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <a href="#">Thống kê & báo cáo</a>
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo BASE_URL; ?>/organizer/revenue">Báo cáo doanh thu</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/attendance">Lượt tham gia</a></li>
-                                    <li><a href="<?php echo BASE_URL; ?>/reports/organizer/sold-tickets">Vé đã bán</a></li>
                                 </ul>
                             </li>
 
@@ -136,6 +134,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/staff/pending-events">Yêu cầu sự kiện</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/reviews">Duyệt bình luận</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/complaints">Xử lý yêu cầu</a></li>
+                            <li class="nav-item"><a href="<?php echo BASE_URL; ?>/reports/attendance">Lượt tham gia</a></li>
                             <li class="nav-item"><a href="<?php echo BASE_URL; ?>/account">Tài khoản</a></li>
                             <?php
                             break;

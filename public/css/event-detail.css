@@ -536,7 +536,8 @@
   border: 1px solid var(--border-color);
   transition: box-shadow 0.3s ease;
   position: sticky;
-  top: calc(120px + var(--spacing-6) + 300px); /* Adjust based on event-info height */
+  top: calc(120px + var(--spacing-6) + 300px);
+  /* Adjust based on event-info height */
   z-index: 10;
 }
 
@@ -640,9 +641,24 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Comments Section */
+.comments-section {
+  margin-top: var(--spacing-6);
+  padding: var(--spacing-4);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
 /* Related Events Section */
 .related-events {
   margin-top: var(--spacing-8);
+  /* Increased spacing to separate from comments */
+  padding: var(--spacing-4) 0;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  /* Subtle separator */
 }
 
 .related-events-header {
@@ -743,6 +759,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -754,6 +771,7 @@
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     opacity: 0;
     transform: translateY(20px);

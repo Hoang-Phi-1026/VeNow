@@ -62,22 +62,17 @@ class ReportsController extends BaseController {
         ]);
     }
     
-    public function featured() {
-        //Kiểm tra quyền admin
-        
-        //Xử lý tham số
+        public function featured() {
         $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
         $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t');
         $year = isset($_GET['year']) ? $_GET['year'] : date('Y');
         
-        // Lấy dữ liệu
         $featuredStats = $this->reportsModel->getFeaturedStats($startDate, $endDate);
         $topRevenue = $this->reportsModel->getTopEventsByRevenue($startDate, $endDate, 5);
         $topRated = $this->reportsModel->getTopEventsByRating($startDate, $endDate, 5);
         $trending = $this->reportsModel->getTrendingEvents($startDate, $endDate, 5);
         $revenueByMonth = $this->reportsModel->getRevenueByMonth($startDate, $endDate);
         
-        // Chuẩn bị dữ liệu cho biểu đồ
         $chartLabels = [];
         $chartData = [];
         
@@ -88,7 +83,6 @@ class ReportsController extends BaseController {
             $chartData[] = $item['total_revenue'];
         }
         
-        // Render view
         $this->render('reports/featured', [
             'featuredStats' => $featuredStats,
             'topRevenue' => $topRevenue,
@@ -101,7 +95,7 @@ class ReportsController extends BaseController {
             'chartData' => json_encode($chartData)
         ]);
     }
-    
+        
     // Xuất báo cáo dạng CSV
     public function exportAttendanceCSV() {
  
