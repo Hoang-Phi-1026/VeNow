@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/style.css?v=5">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>/public/images/favicon.ico">
+    <link rel="icon" href="<?php echo BASE_URL; ?>/public/images/favicon.ico" type="image/x-icon">
     
     <?php
     // them css 
