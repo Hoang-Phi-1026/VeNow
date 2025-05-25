@@ -200,9 +200,6 @@
                             <div class="ticket-header">
                                 <i class="fas fa-ticket-alt"></i>
                                 <h3>Vé sự kiện</h3>
-                                <button class="ticket-close-btn" onclick="closeFloatingTicket()">
-                                    <i class="fas fa-times"></i>
-                                </button>
                             </div>
                             <div class="ticket-content">
                                 <div class="ticket-types">
@@ -478,14 +475,6 @@ function copyEventLink() {
 let isFloating = false;
 let ticketAutoScrolled = false;
 
-function closeFloatingTicket() {
-    const ticketSection = document.getElementById('ticketSection');
-    if (ticketSection && isFloating) {
-        ticketSection.classList.remove('floating');
-        isFloating = false;
-        ticketAutoScrolled = false;
-    }
-}
 
 function handleTicketFloat() {
     const ticketSection = document.getElementById('ticketSection');
