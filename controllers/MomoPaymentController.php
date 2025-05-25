@@ -26,7 +26,7 @@ class MomoPaymentController extends BaseController {
         $this->ticketModel = new Ticket();
         $this->paymentService = new PaymentService();
         
-        // Set URLs - QUAN TRỌNG: Phải là HTTPS và accessible từ internet
+        // Set URLs based on BASE_URL
         $this->ipnUrl = BASE_URL . "/momo-payment/ipn";
         $this->redirectUrl = BASE_URL . "/momo-payment/return";
     }
@@ -94,55 +94,21 @@ class MomoPaymentController extends BaseController {
                 'timestamp' => time()
             ];
             
-            // Tạo thông tin đơn hàng - CHỈ SỬ DỤNG ASCII VÀ SỐ
-            $eventName = $event['ten_su_kien'];
+            // Tạo thông tin đơn hàng
+            $orderInfo = "Thanh toán vé sự kiện: " . $event['ten_su_kien'];
             
-            // Chuyển đổi tiếng Việt sang không dấu và loại bỏ ký tự đặc biệt
-            $cleanEventName = $this->removeVietnameseAccents($eventName);
-            $cleanEventName = preg_replace('/[^a-zA-Z0-9\s]/', '', $cleanEventName);
-            $cleanEventName = trim(preg_replace('/\s+/', ' ', $cleanEventName));
+            // Tạo dữ liệu bổ sung (có thể sử dụng để lưu thông tin chi tiết)
+            $extraData = base64_encode(json_encode([
+                'event_id' => $eventId,
+                'user_id' => $userId,
+                'seats_count' => count($selectedSeats)
+            ]));
             
-            $orderInfo = "Thanh toan su kien " . $cleanEventName;
-            
-            // Giới hạn độ dài orderInfo (MoMo yêu cầu tối đa 100 ký tự)
-            if (strlen($orderInfo) > 100) {
-                $maxEventNameLength = 100 - strlen("Thanh toan su kien ");
-                $cleanEventName = substr($cleanEventName, 0, $maxEventNameLength - 3) . "...";
-                $orderInfo = "Thanh toan su kien " . $cleanEventName;
-            }
-
-            // DEBUG: Log chi tiết
-            error_log("=== MOMO DEBUG: Order Info Processing ===");
-            error_log("Original event name: " . $eventName);
-            error_log("Clean event name: " . $cleanEventName);
-            error_log("Final order info: " . $orderInfo);
-            error_log("Order info length: " . strlen($orderInfo));
-            error_log("Order info bytes: " . strlen(utf8_encode($orderInfo)));
-            
-            // ExtraData để trống (theo yêu cầu MoMo)
-            $extraData = "";
-            
-            // Tạo requestId - phải là string
-            $requestId = (string)time();
+            // Tạo requestId
+            $requestId = time() . "";
             $requestType = "captureWallet";
             
-            // Chuyển đổi amount thành số nguyên, đảm bảo >= 1000 VND
-            $finalAmount = max(1000, (int)$finalAmount);
-            
-            // DEBUG: Log các tham số trước khi tạo signature
-            error_log("=== MOMO DEBUG: Parameters ===");
-            error_log("accessKey: " . $this->accessKey);
-            error_log("amount: " . $finalAmount . " (type: " . gettype($finalAmount) . ")");
-            error_log("extraData: '" . $extraData . "'");
-            error_log("ipnUrl: " . $this->ipnUrl);
-            error_log("orderId: " . $orderId);
-            error_log("orderInfo: " . $orderInfo);
-            error_log("partnerCode: " . $this->partnerCode);
-            error_log("redirectUrl: " . $this->redirectUrl);
-            error_log("requestId: " . $requestId);
-            error_log("requestType: " . $requestType);
-            
-            // Tạo chữ ký theo đúng thứ tự alphabet (QUAN TRỌNG!)
+            // Tạo chữ ký
             $rawHash = "accessKey=" . $this->accessKey . 
                       "&amount=" . $finalAmount . 
                       "&extraData=" . $extraData . 
@@ -156,13 +122,7 @@ class MomoPaymentController extends BaseController {
                       
             $signature = hash_hmac("sha256", $rawHash, $this->secretKey);
             
-            // DEBUG: Log signature
-            error_log("=== MOMO DEBUG: Signature ===");
-            error_log("Raw hash string: " . $rawHash);
-            error_log("Secret key: " . $this->secretKey);
-            error_log("Generated signature: " . $signature);
-            
-            // Tạo dữ liệu gửi đến MoMo - ĐÚNG THEO SPEC
+            // Tạo dữ liệu gửi đến MoMo
             $data = [
                 'partnerCode' => $this->partnerCode,
                 'partnerName' => "Venow",
@@ -179,53 +139,25 @@ class MomoPaymentController extends BaseController {
                 'signature' => $signature
             ];
             
-            // Validate dữ liệu trước khi gửi
-            $this->validateMomoRequest($data);
-            
-            error_log("=== MOMO DEBUG: Final Request ===");
-            error_log("Request data: " . json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-            
             // Gửi yêu cầu đến MoMo
             $result = $this->execPostRequest($this->endpoint, json_encode($data));
-            
-            if (is_array($result) && isset($result['error'])) {
-                error_log("cURL Error: " . $result['error']);
-                $_SESSION['error'] = 'Lỗi kết nối: ' . $result['error'];
-                header('Location: ' . BASE_URL . '/booking/payment');
-                exit;
-            }
-            
             $jsonResult = json_decode($result, true);
-            error_log("=== MOMO DEBUG: Response ===");
-            error_log("Raw response: " . $result);
-            error_log("Parsed response: " . print_r($jsonResult, true));
-
-            if (isset($jsonResult['payUrl']) && !empty($jsonResult['payUrl'])) {
-                error_log("MoMo payment URL generated successfully");
+            
+            // Kiểm tra kết quả
+            if (isset($jsonResult['payUrl'])) {
                 // Chuyển hướng đến trang thanh toán của MoMo
                 header('Location: ' . $jsonResult['payUrl']);
                 exit;
             } else {
-                $errorMessage = 'Không thể tạo liên kết thanh toán MoMo.';
-                if (isset($jsonResult['message'])) {
-                    $errorMessage .= ' Lỗi: ' . $jsonResult['message'];
-                }
-                if (isset($jsonResult['resultCode'])) {
-                    $errorMessage .= ' Mã lỗi: ' . $jsonResult['resultCode'];
-                }
-                if (isset($jsonResult['localMessage'])) {
-                    $errorMessage .= ' Chi tiết: ' . $jsonResult['localMessage'];
-                }
-                
-                error_log("MoMo API Error: " . print_r($jsonResult, true));
-                $_SESSION['error'] = $errorMessage;
+                // Xử lý lỗi
+                error_log("MoMo payment error: " . print_r($jsonResult, true));
+                $_SESSION['error'] = 'Không thể kết nối đến cổng thanh toán MoMo. Vui lòng thử lại sau.';
                 header('Location: ' . BASE_URL . '/booking/payment');
                 exit;
             }
             
         } catch (Exception $e) {
             error_log("MoMo payment exception: " . $e->getMessage());
-            error_log("Exception trace: " . $e->getTraceAsString());
             $_SESSION['error'] = 'Đã xảy ra lỗi trong quá trình thanh toán: ' . $e->getMessage();
             header('Location: ' . BASE_URL . '/booking/payment');
             exit;
@@ -233,117 +165,33 @@ class MomoPaymentController extends BaseController {
     }
     
     /**
-     * Validate dữ liệu request trước khi gửi đến MoMo
-     */
-    private function validateMomoRequest($data) {
-        $required = ['partnerCode', 'requestId', 'amount', 'orderId', 'orderInfo', 'redirectUrl', 'ipnUrl', 'requestType', 'signature'];
-        
-        foreach ($required as $field) {
-            if (!isset($data[$field]) || empty($data[$field])) {
-                throw new Exception("Missing required field: $field");
-            }
-        }
-        
-        // Validate amount
-        if (!is_numeric($data['amount']) || $data['amount'] < 1000) {
-            throw new Exception("Invalid amount: " . $data['amount']);
-        }
-        
-        // Validate URLs
-        if (!filter_var($data['redirectUrl'], FILTER_VALIDATE_URL)) {
-            throw new Exception("Invalid redirectUrl: " . $data['redirectUrl']);
-        }
-        
-        if (!filter_var($data['ipnUrl'], FILTER_VALIDATE_URL)) {
-            throw new Exception("Invalid ipnUrl: " . $data['ipnUrl']);
-        }
-        
-        // Validate orderInfo length
-        if (strlen($data['orderInfo']) > 100) {
-            throw new Exception("OrderInfo too long: " . strlen($data['orderInfo']) . " characters");
-        }
-        
-        error_log("MoMo request validation passed");
-    }
-    
-    /**
-     * Loại bỏ dấu tiếng Việt
-     */
-    private function removeVietnameseAccents($str) {
-        $vietnamese = array(
-            'à','á','ạ','ả','ã','â','ầ','ấ','ậ','ẩ','ẫ','ă','ằ','ắ','ặ','ẳ','ẵ',
-            'è','é','ẹ','ẻ','ẽ','ê','ề','ế','ệ','ể','ễ',
-            'ì','í','ị','ỉ','ĩ',
-            'ò','ó','ọ','ỏ','õ','ô','ồ','ố','ộ','ổ','ỗ','ơ','ờ','ớ','ợ','ở','ỡ',
-            'ù','ú','ụ','ủ','ũ','ư','ừ','ứ','ự','ử','ữ',
-            'ỳ','ý','ỵ','ỷ','ỹ',
-            'đ',
-            'À','Á','Ạ','Ả','Ã','Â','Ầ','Ấ','Ậ','Ẩ','Ẫ','Ă','Ằ','Ắ','Ặ','Ẳ','Ẵ',
-            'È','É','Ẹ','Ẻ','Ẽ','Ê','Ề','Ế','Ệ','Ể','Ễ',
-            'Ì','Í','Ị','Ỉ','Ĩ',
-            'Ò','Ó','Ọ','Ỏ','Õ','Ô','Ồ','Ố','Ộ','Ổ','Ỗ','Ơ','Ờ','Ớ','Ợ','Ở','Ỡ',
-            'Ù','Ú','Ụ','Ủ','Ũ','Ư','Ừ','Ứ','Ự','Ử','Ữ',
-            'Ỳ','Ý','Ỵ','Ỷ','Ỹ',
-            'Đ'
-        );
-        
-        $english = array(
-            'a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','a',
-            'e','e','e','e','e','e','e','e','e','e','e',
-            'i','i','i','i','i',
-            'o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o',
-            'u','u','u','u','u','u','u','u','u','u','u',
-            'y','y','y','y','y',
-            'd',
-            'A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A',
-            'E','E','E','E','E','E','E','E','E','E','E',
-            'I','I','I','I','I',
-            'O','O','O','O','O','O','O','O','O','O','O','O','O','O','O','O','O',
-            'U','U','U','U','U','U','U','U','U','U','U',
-            'Y','Y','Y','Y','Y',
-            'D'
-        );
-        
-        return str_replace($vietnamese, $english, $str);
-    }
-    
-    /**
      * Xử lý callback từ MoMo (IPN - Instant Payment Notification)
      */
     public function ipn() {
-        error_log("=== MOMO IPN RECEIVED ===");
-        error_log("Method: " . $_SERVER['REQUEST_METHOD']);
-        error_log("Headers: " . print_r(getallheaders(), true));
-        
+        // Nhận dữ liệu từ MoMo
         $inputData = file_get_contents("php://input");
-        error_log("Raw input: " . $inputData);
-        
         $resultData = json_decode($inputData, true);
-        error_log("Parsed data: " . print_r($resultData, true));
         
+        // Ghi log dữ liệu nhận được
+        error_log("MoMo IPN data: " . print_r($resultData, true));
+        
+        // Kiểm tra dữ liệu
         if (!isset($resultData['resultCode'])) {
-            error_log("IPN: Missing resultCode");
-            http_response_code(400);
             echo json_encode(['message' => 'Invalid data']);
             exit;
         }
         
-        $orderId = $resultData['orderId'] ?? '';
-        $resultCode = $resultData['resultCode'] ?? '';
-        $amount = $resultData['amount'] ?? 0;
-        
-        error_log("IPN Processing - OrderID: $orderId, ResultCode: $resultCode, Amount: $amount");
-        
-        if ($resultCode == 0) {
-            error_log("IPN: Payment successful for order $orderId");
-            http_response_code(200);
+        // Xử lý kết quả
+        if ($resultData['resultCode'] == 0) {
+            // Thanh toán thành công, cập nhật trạng thái đơn hàng trong database
+            // Thông thường sẽ xử lý ở đây, nhưng trong trường hợp này chúng ta sẽ xử lý ở hàm return
+            // vì người dùng sẽ được chuyển hướng về trang return sau khi thanh toán
+            
             echo json_encode(['message' => 'Success']);
         } else {
-            error_log("IPN: Payment failed for order $orderId with code $resultCode");
-            http_response_code(200);
+            // Thanh toán thất bại
             echo json_encode(['message' => 'Failed']);
         }
-        exit;
     }
     
     /**
@@ -351,47 +199,42 @@ class MomoPaymentController extends BaseController {
      */
     public function return() {
         try {
-            error_log("=== MOMO RETURN RECEIVED ===");
-            error_log("GET params: " . print_r($_GET, true));
-            
+            // Nhận dữ liệu từ MoMo
             $resultCode = isset($_GET['resultCode']) ? $_GET['resultCode'] : null;
             $orderId = isset($_GET['orderId']) ? $_GET['orderId'] : null;
             $amount = isset($_GET['amount']) ? $_GET['amount'] : 0;
             $orderInfo = isset($_GET['orderInfo']) ? $_GET['orderInfo'] : '';
-            $message = isset($_GET['message']) ? $_GET['message'] : '';
             
+            // Ghi log dữ liệu nhận được
+            error_log("MoMo return data: " . print_r($_GET, true));
+            
+            // Kiểm tra dữ liệu
             if ($resultCode === null || $orderId === null) {
-                error_log("Return: Missing required parameters");
-                $_SESSION['error'] = 'Dữ liệu không hợp lệ từ MoMo';
+                $_SESSION['error'] = 'Dữ liệu không hợp lệ';
                 header('Location: ' . BASE_URL . '/booking/payment');
                 exit;
             }
             
-            if (!isset($_SESSION['momo_payment'])) {
-                error_log("Return: No payment session found");
-                $_SESSION['error'] = 'Không tìm thấy thông tin đơn hàng trong session';
+            // Kiểm tra thông tin đơn hàng trong session
+            if (!isset($_SESSION['momo_payment']) || $_SESSION['momo_payment']['order_id'] !== $orderId) {
+                $_SESSION['error'] = 'Không tìm thấy thông tin đơn hàng';
                 header('Location: ' . BASE_URL . '/booking/payment');
                 exit;
             }
             
+            // Lấy thông tin đơn hàng từ session
             $paymentData = $_SESSION['momo_payment'];
             
-            if ($paymentData['order_id'] !== $orderId) {
-                error_log("Return: OrderID mismatch. Session: " . $paymentData['order_id'] . ", MoMo: " . $orderId);
-                $_SESSION['error'] = 'Mã đơn hàng không khớp';
-                header('Location: ' . BASE_URL . '/booking/payment');
-                exit;
-            }
-            
+            // Kiểm tra kết quả thanh toán
             if ($resultCode == '0') {
-                error_log("Return: Payment successful for order $orderId");
-                
+                // Thanh toán thành công
                 $userId = $paymentData['user_id'];
                 $eventId = $paymentData['event_id'];
                 $selectedSeats = $paymentData['selected_seats'];
                 $usedPoints = $paymentData['used_points'];
                 $finalAmount = $paymentData['final_amount'];
                 
+                // Xử lý thanh toán
                 $result = $this->paymentService->processTicketCreation(
                     $userId, 
                     $eventId, 
@@ -402,34 +245,41 @@ class MomoPaymentController extends BaseController {
                 );
                 
                 if ($result['success']) {
+                    // Lưu thông tin vé đã tạo để hiển thị trên trang cảm ơn
                     $_SESSION['payment_success'] = true;
                     $_SESSION['created_tickets'] = $result['created_tickets'];
                     $_SESSION['payment_amount'] = $result['payment_amount'];
                     $_SESSION['payment_method'] = 'MOMO';
                     $_SESSION['event_id'] = $eventId;
                     
+                    // Xóa thông tin đặt chỗ và thanh toán khỏi session
                     unset($_SESSION['booking']);
                     unset($_SESSION['momo_payment']);
                     
-                    error_log("Return: Tickets created successfully, redirecting to thanks page");
+                    // Chuyển hướng đến trang cảm ơn
                     header('Location: ' . BASE_URL . '/momo-payment/thanks');
                     exit;
                 } else {
-                    error_log("Return: Ticket creation failed - " . $result['error']);
+                    // Xử lý lỗi
                     $_SESSION['error'] = 'Đã xảy ra lỗi trong quá trình xử lý thanh toán: ' . $result['error'];
                     header('Location: ' . BASE_URL . '/booking/payment');
                     exit;
                 }
             } else {
-                error_log("Return: Payment failed for order $orderId with code $resultCode. Message: $message");
-                $_SESSION['error'] = 'Thanh toán không thành công. ' . ($message ? $message : 'Mã lỗi: ' . $resultCode);
+                // Thanh toán thất bại
+                $_SESSION['error'] = 'Thanh toán không thành công. Mã lỗi: ' . $resultCode;
                 header('Location: ' . BASE_URL . '/booking/payment');
                 exit;
             }
             
         } catch (Exception $e) {
             error_log("MoMo return processing error: " . $e->getMessage());
+            error_log("Error trace: " . $e->getTraceAsString());
+            
+            // Đặt thông báo lỗi
             $_SESSION['error'] = 'Đã xảy ra lỗi trong quá trình xử lý thanh toán: ' . $e->getMessage();
+            
+            // Chuyển hướng về trang thanh toán
             header('Location: ' . BASE_URL . '/booking/payment');
             exit;
         }
@@ -439,23 +289,28 @@ class MomoPaymentController extends BaseController {
      * Hiển thị trang cảm ơn sau khi thanh toán thành công
      */
     public function thanks() {
+        // Kiểm tra xem có thông tin thanh toán thành công không
         if (!isset($_SESSION['payment_success']) || !$_SESSION['payment_success']) {
             header('Location: ' . BASE_URL);
             exit;
         }
         
+        // Lấy thông tin vé đã tạo
         $ticketIds = $_SESSION['created_tickets'] ?? [];
         $paymentAmount = $_SESSION['payment_amount'] ?? 0;
         $paymentMethod = $_SESSION['payment_method'] ?? '';
         $eventId = $_SESSION['event_id'] ?? null;
         
+        // Lấy thông tin sự kiện
         $event = null;
         if ($eventId) {
             $event = $this->eventModel->getEventById($eventId);
         }
         
+        // Lấy thông tin chi tiết vé - sử dụng cách tiếp cận tương tự như trong TicketController::myTickets()
         $tickets = [];
         
+        // Sử dụng truy vấn JOIN tương tự như trong trang my-tickets
         foreach ($ticketIds as $ticketId) {
             $query = "SELECT v.ma_ve, v.ma_su_kien, v.trang_thai as trang_thai_ve, v.ma_khach_hang,
                         s.ten_su_kien, s.ngay_dien_ra, s.gio_dien_ra, s.dia_diem, s.hinh_anh,
@@ -480,6 +335,9 @@ class MomoPaymentController extends BaseController {
                 $ticketData = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if ($ticketData) {
+                    error_log("Ticket data for ID $ticketId: " . print_r($ticketData, true));
+                    
+                    // Định dạng dữ liệu để phù hợp với cách hiển thị trong template
                     $tickets[] = [
                         'id' => $ticketId,
                         'ticket_type' => [
@@ -494,11 +352,39 @@ class MomoPaymentController extends BaseController {
                 }
             } catch (Exception $e) {
                 error_log("Error fetching ticket data: " . $e->getMessage());
+                
+                // Nếu truy vấn JOIN thất bại, thử cách khác
+                $ticket = $this->bookingModel->getTicketById($ticketId);
+                
+                if ($ticket) {
+                    // Lấy thông tin ghế
+                    $seatId = $ticket['ma_cho_ngoi'];
+                    $seat = $this->bookingModel->getSeatById($seatId);
+                    
+                    // Lấy thông tin loại vé
+                    $ticketTypeId = $ticket['ma_loai_ve'];
+                    $ticketType = $this->bookingModel->getTicketTypeById($ticketTypeId);
+                    
+                    // Lấy giá vé từ giao dịch
+                    $query = "SELECT so_tien FROM giaodich WHERE ma_ve = ? AND trang_thai = 'THANH_CONG' ORDER BY ngay_giao_dich DESC LIMIT 1";
+                    $stmt = $this->db->prepare($query);
+                    $stmt->execute([$ticketId]);
+                    $transaction = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    $tickets[] = [
+                        'id' => $ticketId,
+                        'ticket_type' => $ticketType,
+                        'seat' => $seat,
+                        'price' => $transaction ? $transaction['so_tien'] : ($ticketType ? $ticketType['gia_ve'] : 0)
+                    ];
+                }
             }
         }
         
+        // Hiển thị trang cảm ơn
         require_once 'views/booking/thanks.php';
         
+        // Xóa thông tin thanh toán khỏi session sau khi hiển thị
         unset($_SESSION['payment_success']);
         unset($_SESSION['created_tickets']);
         unset($_SESSION['payment_amount']);
@@ -507,13 +393,9 @@ class MomoPaymentController extends BaseController {
     }
     
     /**
-     * Hàm gửi request POST đến MoMo với improved error handling
+     * Hàm gửi request POST đến MoMo
      */
     private function execPostRequest($url, $data) {
-        error_log("=== MOMO DEBUG: cURL Request ===");
-        error_log("URL: " . $url);
-        error_log("Data length: " . strlen($data) . " bytes");
-        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -522,40 +404,19 @@ class MomoPaymentController extends BaseController {
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($data))
         );
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
         
+        // Execute post
         $result = curl_exec($ch);
         
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlInfo = curl_getinfo($ch);
-        
-        error_log("=== MOMO DEBUG: cURL Response ===");
-        error_log("HTTP Code: " . $httpCode);
-        error_log("Total time: " . $curlInfo['total_time']);
-        error_log("Response size: " . strlen($result) . " bytes");
-        
+        // Check for errors
         if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            $errorCode = curl_errno($ch);
-            error_log("cURL Error Code: " . $errorCode);
-            error_log("cURL Error: " . $error);
-            curl_close($ch);
-            return ['error' => 'Connection failed: ' . $error . ' (Code: ' . $errorCode . ')'];
+            error_log("cURL Error: " . curl_error($ch));
         }
         
+        // Close connection
         curl_close($ch);
-        
-        if ($httpCode !== 200) {
-            error_log("MoMo API returned HTTP code: " . $httpCode);
-            error_log("Response body: " . $result);
-            return ['error' => 'HTTP Error: ' . $httpCode . ' - Response: ' . $result];
-        }
-        
         return $result;
     }
 }
