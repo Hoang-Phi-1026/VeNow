@@ -25,6 +25,9 @@ $routes = [
     '/organizer/events/update' => ['controller' => 'OrganizerEventController', 'action' => 'update'],
     '/organizer/events/edit/{id}' => ['controller' => 'OrganizerEventController', 'action' => 'edit'],
     '/organizer/events/delete-ticket' => ['controller' => 'OrganizerEventController', 'action' => 'deleteTicket'],
+    // Organizer registration routes
+    '/organizer' => ['controller' => 'AuthController', 'action' => 'showRegisterOrganizerForm'],
+    '/auth/register/organizer' => ['controller' => 'AuthController', 'action' => 'registerOrganizer'],
     
     // Admin routes
     '/admin/revenue' => ['controller' => 'AdminController', 'action' => 'revenue'],

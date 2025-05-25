@@ -63,6 +63,15 @@ switch ($path) {
         $authController->register();
         break;
 
+    case '/organizer':
+        $authController = new AuthController();
+        $authController->showRegisterOrganizerForm();
+        break;
+    case '/auth/register/organizer':
+        $authController = new AuthController();
+        $authController->registerOrganizer();
+        break;
+
     case '/auth/login':
         $authController = new AuthController();
         $authController->login();
