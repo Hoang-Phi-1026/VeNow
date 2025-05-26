@@ -1,23 +1,76 @@
 <?php
-// Định nghĩa đường dẫn gốc của ứng dụng
-define('BASE_PATH', dirname(__DIR__));
+// Improved database configuration with better error handling
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
 
-// Định nghĩa URL gốc của ứng dụng
-define('BASE_URL', 'http://localhost/venow');
+class Database {
+    private static $instance = null;
+    private $connection;
+    
+    // Database configuration
+    private $host = 'sql309.infinityfree.com';
+    private $username = 'if0_39074279';
+    private $password = 'Phi010103';
+    private $database = 'if0_39074279_venow_db'; // Updated database name
+    private $charset = 'utf8mb4';
+    
+    private function __construct() {
+        try {
+            $dsn = "mysql:host={$this->host};dbname={$this->database};charset={$this->charset}";
+            
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->charset}",
+                PDO::ATTR_TIMEOUT => 30,
+                PDO::ATTR_PERSISTENT => false
+            ];
+            
+            $this->connection = new PDO($dsn, $this->username, $this->password, $options);
+            
+            // Test connection
+            $this->connection->query("SELECT 1");
+            
+        } catch (PDOException $e) {
+            $error_message = "Database connection failed: " . $e->getMessage();
+            error_log($error_message);
+            
+            // Don't expose sensitive info in production
+            if (defined('DEBUG') && DEBUG) {
+                throw new Exception($error_message);
+            } else {
+                throw new Exception("Không thể kết nối cơ sở dữ liệu");
+            }
+        }
+    }
+    
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance->connection;
+    }
+    
+    public static function getConnection() {
+        return self::getInstance();
+    }
+    
+    // Test connection method
+    public static function testConnection() {
+        try {
+            $db = self::getConnection();
+            $stmt = $db->query("SELECT 1 as test");
+            return $stmt->fetch() !== false;
+        } catch (Exception $e) {
+            error_log("Database test failed: " . $e->getMessage());
+            return false;
+        }
+    }
+}
 
-// Định nghĩa các hằng số khác
-define('DEFAULT_CONTROLLER', 'Home');
-define('DEFAULT_ACTION', 'index');
-
-// Định nghĩa các thông báo lỗi
-define('ERROR_MESSAGES', [
-    'required' => 'Vui lòng điền đầy đủ thông tin',
-    'email' => 'Email không hợp lệ',
-    'phone' => 'Số điện thoại không hợp lệ',
-    'password' => 'Mật khẩu phải có ít nhất 6 ký tự',
-    'password_match' => 'Mật khẩu không khớp',
-    'email_exists' => 'Email đã tồn tại',
-    'login_failed' => 'Email hoặc mật khẩu không đúng',
-    'not_logged_in' => 'Vui lòng đăng nhập để tiếp tục',
-    'not_admin' => 'Bạn không có quyền truy cập trang này'
-]);
+// Define debug mode
+if (!defined('DEBUG')) {
+    define('DEBUG', true); // Set to false in production
+}
+?>

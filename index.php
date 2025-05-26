@@ -294,6 +294,12 @@ switch ($path) {
         $staffController = new StaffController();
         $staffController->rejectEvent();
         break;
+        
+    case '/complaints':
+        require_once 'controllers/StaffController.php';
+        $controller = new StaffController();
+        $controller->complaints();
+        break;
 
     case '/about':
         require_once BASE_PATH . '/views/about/index.php';

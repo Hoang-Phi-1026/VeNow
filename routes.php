@@ -47,6 +47,12 @@ $routes = [
     '/reviews' => ['controller' => 'StaffController', 'action' => 'reviews'],
     '/staff/reviews/approve' => ['controller' => 'StaffController', 'action' => 'approveReview'],
     '/staff/reviews/reject' => ['controller' => 'StaffController', 'action' => 'rejectReview'],
+    // Staff complaints route
+    '/complaints' => ['controller' => 'StaffController', 'action' => 'complaints'],
+    '/api/support/staff_load_sessions' => ['controller' => 'StaffController', 'action' => 'loadSessions'],
+    '/api/support/staff_load_messages' => ['controller' => 'StaffController', 'action' => 'loadMessages'],
+    '/api/support/staff_send_message' => ['controller' => 'StaffController', 'action' => 'sendMessage'],
+    '/api/support/staff_close_session' => ['controller' => 'StaffController', 'action' => 'closeSession'],
     
     // Review routes
     '/review' => ['controller' => 'ReviewController', 'action' => 'index'],

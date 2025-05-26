@@ -7,6 +7,7 @@ require_once __DIR__ . '/../layouts/header.php';
 <div class="container">
     <div class="register-container">
         <h3 class="register-title">Trở thành đối tác với VeNow!</h2>
+        <p>Tạo tài khoản với vai trò nhà tổ chức sự kiện</p>
 
         <?php if (isset($_SESSION['error'])): ?>
             <div class="alert alert-error">
